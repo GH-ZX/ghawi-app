@@ -26,6 +26,13 @@ export const profile = {
   storeMark: "/media/gh-store-mark.png",
 } as const;
 
+/**
+ * Turnstile site key. Public by design — this value is meant to be visible in
+ * page source. The matching secret lives in Workers Secrets, never in the repo.
+ * Created with `wrangler turnstile widget create ghawi-app`.
+ */
+export const turnstileSiteKey = "0x4AAAAAAFWI655DLJFx_2zZ";
+
 export const links = {
   store: "https://gh-store.me",
   factory: "https://factory.gh-store.me",
@@ -292,6 +299,7 @@ const en: Copy = {
         email_invalid: "That email address doesn't look right.",
         message_too_short: "Please add a little more detail.",
         topic_invalid: "Please pick a topic from the list.",
+        turnstile_failed: "Please confirm you're human and try again.",
       },
     },
   },
@@ -453,6 +461,7 @@ const ar: Copy = {
         email_invalid: "يبدو أن البريد الإلكتروني غير صحيح.",
         message_too_short: "الرجاء إضافة بعض التفاصيل.",
         topic_invalid: "الرجاء اختيار موضوع من القائمة.",
+        turnstile_failed: "الرجاء تأكيد أنك لست روبوتاً ثم أعد المحاولة.",
       },
     },
   },

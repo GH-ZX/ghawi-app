@@ -10,7 +10,15 @@ const CHANNEL_HREF: Record<string, string> = {
   linkedin: profile.linkedin,
 };
 
-export function Contact({ t, locale }: { t: Copy["contact"]; locale: Locale }) {
+export function Contact({
+  t,
+  locale,
+  turnstileSiteKey,
+}: {
+  t: Copy["contact"];
+  locale: Locale;
+  turnstileSiteKey?: string;
+}) {
   return (
     <section id="contact" className="relative isolate scroll-mt-28 overflow-hidden border-t border-line">
       <div className="dot-field pointer-events-none absolute inset-0 -z-10 opacity-40" aria-hidden="true" />
@@ -58,7 +66,7 @@ export function Contact({ t, locale }: { t: Copy["contact"]; locale: Locale }) {
             </Reveal>
 
             <Reveal delay={240}>
-              <ContactForm t={t.form} locale={locale} />
+              <ContactForm t={t.form} locale={locale} siteKey={turnstileSiteKey} />
             </Reveal>
           </div>
 

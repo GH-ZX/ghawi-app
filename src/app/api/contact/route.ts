@@ -33,7 +33,45 @@ const ALLOWED_TOPICS = new Set(["product", "telegram", "infrastructure", "it", "
  * required — outside the Cloudflare adapter none of them exist, so they are
  * modelled as optional here and the handler degrades instead of throwing.
  */
-type Env = Partial<CloudflareEnv>;
+type Env = Partial<
+  CloudflareEnv & {
+    TURNSTILE_SECRET?: string;
+  }
+>;
+
+const TURNSTILE_VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
+
+/**
+ * Verify a Turnstile token. Returns true when no secret is configured so the
+ * form keeps working in local development and on hosts without Turnstile.
+ */
+async function verifyTurnstile(
+  secret: string | undefined,
+  token: string,
+  ip: string,
+): Promise<boolean> {
+  if (!secret) return true;
+  if (!token) return false;
+
+  const body = new URLSearchParams({ secret, response: token, remoteip: ip });
+
+  try {
+    const response = await fetch(TURNSTILE_VERIFY_URL, {
+      method: "POST",
+      body,
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    });
+    if (!response.ok) return false;
+
+    const result = (await response.json()) as { success?: boolean };
+    return result.success === true;
+  } catch (error) {
+    // Fail closed on a Turnstile outage: better to reject than to let the
+    // spam through that the widget exists to stop.
+    console.error("[contact] turnstile verify failed", error);
+    return false;
+  }
+}
 
 type Payload = {
   id: number;
@@ -125,6 +163,12 @@ export async function POST(request: Request) {
 
   const ip = clientIp(request);
   const userAgent = clean(request.headers.get("user-agent"), 300);
+
+  /* -- Turnstile ----------------------------------------------------- */
+  const turnstileToken = clean(payload["cf-turnstile-response"], 2048);
+  if (!(await verifyTurnstile(env.TURNSTILE_SECRET, turnstileToken, ip))) {
+    return json({ ok: false, status: 400, error: "turnstile_failed" }, 400);
+  }
 
   /* -- Rate limit ----------------------------------------------------- */
   const db = env.CONTACT_DB;

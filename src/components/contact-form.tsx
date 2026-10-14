@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState, type FormEvent } from "react";
+import Script from "next/script";
+import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import type { Copy, Locale } from "@/lib/content";
 
 type Status = "idle" | "sending" | "sent" | "error";
@@ -12,16 +13,44 @@ const FIELD =
 
 const LABEL = "mono mb-2 block text-[10.5px] tracking-[0.14em] text-fg-3 uppercase";
 
-export function ContactForm({
-  t,
-  locale,
-}: {
-  t: Copy["contact"]["form"];
-  locale: Locale;
-}) {
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (
+        el: HTMLElement,
+        opts: { sitekey: string; callback: (token: string) => void; "expired-callback": () => void; "error-callback": () => void; theme?: string; size?: string },
+      ) => string;
+      reset: (id?: string) => void;
+      remove: (id: string) => void;
+    };
+  }
+}
+
+export function ContactForm({ t, locale, siteKey }: { t: Copy["contact"]["form"]; locale: Locale; siteKey?: string }) {
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState<string | null>(null);
-  const formRef = useRef<HTMLFormElement>(null);
+  const [token, setToken] = useState("");
+  const [scriptReady, setScriptReady] = useState(false);
+  const widgetId = useRef<string | null>(null);
+  const hostRef = useRef<HTMLDivElement>(null);
+
+  const mountWidget = useCallback(() => {
+    const host = hostRef.current;
+    if (!host || !siteKey || !window.turnstile || widgetId.current) return;
+
+    widgetId.current = window.turnstile.render(host, {
+      sitekey: siteKey,
+      theme: "dark",
+      size: "flexible",
+      callback: (value: string) => setToken(value),
+      "expired-callback": () => setToken(""),
+      "error-callback": () => setToken(""),
+    });
+  }, [siteKey]);
+
+  useEffect(() => {
+    if (siteKey && window.turnstile) mountWidget();
+  }, [siteKey, scriptReady, mountWidget]);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -42,6 +71,7 @@ export function ContactForm({
           message: data.get("message"),
           company: data.get("company"),
           locale,
+          "cf-turnstile-response": token,
         }),
       });
 
@@ -56,6 +86,9 @@ export function ContactForm({
       const key = body.error ?? "generic";
       setError(t.errors[key] ?? t.errors.generic);
       setStatus("error");
+      // Let the visitor retry without waiting for a fresh widget.
+      if (widgetId.current && window.turnstile) window.turnstile.reset(widgetId.current);
+      setToken("");
     } catch {
       setError(t.errors.generic);
       setStatus("error");
@@ -82,102 +115,114 @@ export function ContactForm({
   }
 
   return (
-    <form
-      ref={formRef}
-      onSubmit={onSubmit}
-      noValidate
-      className="mt-12 border-t border-line pt-10"
-    >
-      <div className="grid gap-5 sm:grid-cols-2">
-        <div>
-          <label htmlFor="cf-name" className={LABEL}>
-            {t.name}
-          </label>
-          <input
-            id="cf-name"
-            name="name"
-            type="text"
-            required
-            maxLength={100}
-            autoComplete="name"
-            placeholder="Jane Doe"
-            className={FIELD}
-          />
-        </div>
-
-        <div>
-          <label htmlFor="cf-email" className={LABEL}>
-            {t.email}
-          </label>
-          <input
-            id="cf-email"
-            name="email"
-            type="email"
-            required
-            maxLength={200}
-            autoComplete="email"
-            placeholder="you@company.com"
-            className={FIELD}
-          />
-        </div>
-
-        <div className="sm:col-span-2">
-          <label htmlFor="cf-topic" className={LABEL}>
-            {t.topic}
-          </label>
-          <select id="cf-topic" name="topic" defaultValue="" className={`${FIELD} appearance-none`}>
-            <option value="">—</option>
-            {t.topics.map((topic) => (
-              <option key={topic.value} value={topic.value}>
-                {topic.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="sm:col-span-2">
-          <label htmlFor="cf-message" className={LABEL}>
-            {t.message}
-          </label>
-          <textarea
-            id="cf-message"
-            name="message"
-            required
-            rows={5}
-            maxLength={4000}
-            placeholder={t.messageHint}
-            className={`${FIELD} resize-y`}
-          />
-        </div>
-      </div>
-
-      {/* Honeypot — hidden from people, irresistible to naive bots. */}
-      <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
-        <label htmlFor="cf-company">Company</label>
-        <input id="cf-company" name="company" type="text" tabIndex={-1} autoComplete="off" />
-      </div>
-
-      {error ? (
-        <p
-          role="alert"
-          className="mt-5 border-s-2 border-acc bg-acc-soft/20 px-4 py-3 text-[13px] text-fg"
-        >
-          {error}
-        </p>
+    <>
+      {siteKey ? (
+        <Script
+          src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+          strategy="afterInteractive"
+          onLoad={() => setScriptReady(true)}
+          onReady={() => setScriptReady(true)}
+        />
       ) : null}
 
-      <button
-        type="submit"
-        disabled={status === "sending"}
-        className="sweep mono mt-7 inline-flex h-12 w-full items-center justify-center gap-2.5 border border-line-2 text-[12px] tracking-[0.12em] text-fg uppercase transition-colors duration-200 hover:text-bg disabled:opacity-60 sm:w-auto sm:px-8"
-      >
-        <span className="relative z-10">
-          {status === "sending" ? t.sending : t.submit}
-        </span>
-        <span className="relative z-10" aria-hidden="true">
-          {status === "sending" ? "···" : "→"}
-        </span>
-      </button>
-    </form>
+      <form onSubmit={onSubmit} noValidate className="mt-12 border-t border-line pt-10">
+        <div className="grid gap-5 sm:grid-cols-2">
+          <div>
+            <label htmlFor="cf-name" className={LABEL}>
+              {t.name}
+            </label>
+            <input
+              id="cf-name"
+              name="name"
+              type="text"
+              required
+              maxLength={100}
+              autoComplete="name"
+              placeholder="Jane Doe"
+              className={FIELD}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="cf-email" className={LABEL}>
+              {t.email}
+            </label>
+            <input
+              id="cf-email"
+              name="email"
+              type="email"
+              required
+              maxLength={200}
+              autoComplete="email"
+              placeholder="you@company.com"
+              className={FIELD}
+            />
+          </div>
+
+          <div className="sm:col-span-2">
+            <label htmlFor="cf-topic" className={LABEL}>
+              {t.topic}
+            </label>
+            <select
+              id="cf-topic"
+              name="topic"
+              defaultValue=""
+              className={`${FIELD} appearance-none`}
+            >
+              <option value="">—</option>
+              {t.topics.map((topic) => (
+                <option key={topic.value} value={topic.value}>
+                  {topic.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="sm:col-span-2">
+            <label htmlFor="cf-message" className={LABEL}>
+              {t.message}
+            </label>
+            <textarea
+              id="cf-message"
+              name="message"
+              required
+              rows={5}
+              maxLength={4000}
+              placeholder={t.messageHint}
+              className={`${FIELD} resize-y`}
+            />
+          </div>
+        </div>
+
+        {/* Honeypot — hidden from people, irresistible to naive bots. */}
+        <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
+          <label htmlFor="cf-company">Company</label>
+          <input id="cf-company" name="company" type="text" tabIndex={-1} autoComplete="off" />
+        </div>
+
+        {/* Turnstile mounts here; invisible unless it suspects a bot. */}
+        {siteKey ? <div ref={hostRef} className="mt-6 min-h-0" /> : null}
+
+        {error ? (
+          <p
+            role="alert"
+            className="mt-5 border-s-2 border-acc bg-acc-soft/20 px-4 py-3 text-[13px] text-fg"
+          >
+            {error}
+          </p>
+        ) : null}
+
+        <button
+          type="submit"
+          disabled={status === "sending"}
+          className="sweep mono mt-7 inline-flex h-12 w-full items-center justify-center gap-2.5 border border-line-2 text-[12px] tracking-[0.12em] text-fg uppercase transition-colors duration-200 hover:text-bg disabled:opacity-60 sm:w-auto sm:px-8"
+        >
+          <span className="relative z-10">{status === "sending" ? t.sending : t.submit}</span>
+          <span className="relative z-10" aria-hidden="true">
+            {status === "sending" ? "···" : "→"}
+          </span>
+        </button>
+      </form>
+    </>
   );
 }

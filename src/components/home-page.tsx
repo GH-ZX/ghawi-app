@@ -8,7 +8,7 @@ import { Platforms } from "@/components/sections-platforms";
 import { Stats } from "@/components/sections-stats";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { copy, dirOf, type Locale } from "@/lib/content";
+import { copy, dirOf, turnstileSiteKey, type Locale } from "@/lib/content";
 
 export function HomePage({ locale }: { locale: Locale }) {
   const t = copy[locale];
@@ -36,7 +36,7 @@ export function HomePage({ locale }: { locale: Locale }) {
         <Platforms t={t.platforms} locale={locale} />
         <Code t={t.code} locale={locale} />
         <Capabilities t={t.capabilities} />
-        <Contact t={t.contact} locale={locale} />
+        <Contact t={t.contact} locale={locale} turnstileSiteKey={turnstileSiteKey} />
       </main>
 
       <SiteFooter locale={locale} />
