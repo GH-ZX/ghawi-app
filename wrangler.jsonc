@@ -57,6 +57,10 @@
     // The matching secret lives in Workers Secrets, never in this file.
     "TURNSTILE_SITE_KEY": "0x4AAAAAAFWI655DLJFx_2zZ"
   },
+"routes": [
+  { "pattern": "ghawi.app", "custom_domain": true },
+  { "pattern": "www.ghawi.app", "custom_domain": true }
+],
 
   "observability": {
     "enabled": true
