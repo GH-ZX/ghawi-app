@@ -1,3 +1,15 @@
 allowBuilds:
+  esbuild: true
+  workerd: true
+  '@ast-grep/napi': true
   sharp: false
   unrs-resolver: false
+
+minimumReleaseAgeExclude:
+  - '@opennextjs/aws@4.1.10'
+  - '@opennextjs/cloudflare@1.20.11'
+
+# OpenNext copies node_modules into its build output and esbuild walks that
+# tree directly. pnpm's symlinked layout is unreadable from there on Windows
+# ("Access is denied"), so use a flat, npm-style node_modules.
+nodeLinker: hoisted

@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Cloudflare / OpenNext build artefacts — generated, never hand-edited.
+    ".open-next/**",
+    ".wrangler/**",
+    "worker-configuration.d.ts",
   ]),
 ]);
 

@@ -1,0 +1,60 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "ghawi-app",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "ghawi-app"
+    }
+  ],
+
+  // Incremental cache for Next.js. Omit the bucket name until you create one:
+  //   wrangler r2 bucket create ghawi-app-cache
+  "r2_buckets": [
+    {
+      "binding": "NEXT_INC_CACHE_R2_BUCKET",
+      "bucket_name": "ghawi-app-cache"
+    }
+  ],
+
+  // Contact form submissions. Created automatically on first deploy, or manually:
+  //   wrangler d1 create ghawi-app-contacts
+  "d1_databases": [
+    {
+      "binding": "CONTACT_DB",
+      "database_name": "ghawi-app-contacts",
+      "migrations_dir": "./migrations"
+    }
+  ],
+
+  // Transactional email for contact form notifications.
+  // Onboard the sending domain first:
+  //   wrangler email sending enable ghawi.app
+  "send_email": [
+    {
+      "name": "EMAIL"
+    }
+  ],
+
+  "images": {
+    "binding": "IMAGES"
+  },
+
+  "vars": {
+    "CONTACT_TO_EMAIL": "ahmedghawi3@gmail.com",
+    "CONTACT_FROM_EMAIL": "contact@ghawi.app"
+  },
+
+  "observability": {
+    "enabled": true
+  }
+}
