@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { LocaleSwitcher } from "@/components/locale-switcher";
-import { profile, type Copy, type Locale } from "@/lib/content";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { copy, profile, type Locale } from "@/lib/content";
 
-export function SiteHeader({ locale, t }: { locale: Locale; t: Copy["nav"] }) {
+export function SiteHeader({ locale }: { locale: Locale }) {
   const [scrolled, setScrolled] = useState(false);
+  const t = copy[locale].nav;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -57,6 +59,13 @@ export function SiteHeader({ locale, t }: { locale: Locale; t: Copy["nav"] }) {
         </nav>
 
         <div className="flex shrink-0 items-center gap-2.5">
+          <ThemeToggle
+            label={
+              locale === "ar"
+                ? { dark: "الوضع الداكن", light: "الوضع الفاتح" }
+                : { dark: "Dark theme", light: "Light theme" }
+            }
+          />
           <LocaleSwitcher locale={locale} />
           <a
             href="#contact"

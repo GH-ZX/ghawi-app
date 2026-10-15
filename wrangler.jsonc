@@ -52,6 +52,7 @@
 
   "vars": {
     "CONTACT_TO_EMAIL": "ahmedghawi3@gmail.com",
+    "ADMIN_USERNAME": "ahmedgh",
     "CONTACT_FROM_EMAIL": "contact@ghawi.app",
     // Public by design — Turnstile site keys are meant to be client-visible.
     // The matching secret lives in Workers Secrets, never in this file.

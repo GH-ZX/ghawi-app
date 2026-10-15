@@ -1,3 +1,4 @@
+import { themeScript } from "@/lib/theme-script";
 import type { Metadata, Viewport } from "next";
 import { fontVariables } from "./fonts";
 import { profile, SITE_URL } from "@/lib/content";
@@ -59,6 +60,9 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${fontVariables} h-full antialiased`}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body className="flex min-h-full flex-col">{children}</body>
     </html>
   );

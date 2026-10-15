@@ -28,6 +28,34 @@
   --nav-h: 4.25rem;
 }
 
+/*
+ * Paper theme.
+ * A second identity rather than an inversion: warm off-white ground, ink
+ * text, and a deep amber signal that stays legible on light surfaces.
+ * Set by the theme toggle and persisted per visitor.
+ */
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #faf8f4;
+  --bg-1: #f2efe9;
+  --bg-2: #ebe7df;
+  --bg-3: #e2ddd3;
+
+  --line: rgba(26, 24, 20, 0.12);
+  --line-2: rgba(26, 24, 20, 0.2);
+  --line-3: rgba(26, 24, 20, 0.34);
+
+  --fg: #1a1814;
+  --fg-2: #565046;
+  --fg-3: #8a8377;
+
+  --acc: #6b4d00;
+  --acc-soft: rgba(107, 77, 0, 0.1);
+  --acc-line: rgba(107, 77, 0, 0.34);
+  --cyan: #0f6b62;
+}
+
 @theme inline {
   --color-bg: var(--bg);
   --color-bg-1: var(--bg-1);

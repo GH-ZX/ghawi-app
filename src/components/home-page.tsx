@@ -26,7 +26,7 @@ export function HomePage({ locale }: { locale: Locale }) {
         {locale === "ar" ? "تخطَّ إلى المحتوى" : "Skip to content"}
       </a>
 
-      <SiteHeader locale={locale} t={t.nav} />
+      <SiteHeader locale={locale} />
 
       <main id="main" className="flex-1">
         <Hero t={t} />
