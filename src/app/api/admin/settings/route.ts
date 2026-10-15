@@ -13,9 +13,11 @@ const ALLOWED = new Set([
   "maintenance",
   "maintenance_note",
   "theme",
+  "landing",
 ]);
 
 const THEMES = new Set(["nocturne", "paper", "ember"]);
+const LANDINGS = new Set(["grid", "film"]);
 
 async function guard() {
   const env = (await getEnv()) as AdminEnv;
@@ -82,6 +84,8 @@ export async function PUT(request: Request) {
           // Never persist a theme the resolver would reject; a bad value would
           // silently fall back and leave the admin thinking it had applied.
           if (!THEMES.has(normalised)) throw new Error(`unknown theme: ${normalised}`);
+        } else if (key === "landing") {
+          if (!LANDINGS.has(normalised)) throw new Error(`unknown landing: ${normalised}`);
         }
 
         return db

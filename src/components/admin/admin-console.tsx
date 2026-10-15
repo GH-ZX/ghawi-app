@@ -48,6 +48,21 @@ const THEMES = [
   },
 ] as const;
 
+const LANDINGS = [
+  {
+    id: "grid",
+    name: "Grid",
+    note: "The original engineering layout: hairline structure, mono labels, three themes.",
+    href: "/en",
+  },
+  {
+    id: "film",
+    name: "Film",
+    note: "A separate cinematic design — its own layout, fonts and stylesheet.",
+    href: "/film/en",
+  },
+] as const;
+
 export function AdminConsole() {
   const router = useRouter();
   const [tab, setTab] = useState<Tab>("inbox");
@@ -348,6 +363,53 @@ function Settings({
       </p>
 
       <div className="mt-8 space-y-6">
+        <fieldset>
+          <legend className={label}>Live site design</legend>
+          <p className="-mt-1 mb-3 text-[12.5px] text-fg-3">
+            Which design <code className="mono">ghawi.app</code> sends visitors to. Both stay live at
+            their own address, so nothing is lost by switching.
+          </p>
+
+          <div className="grid gap-2 sm:grid-cols-2">
+            {LANDINGS.map((landing) => {
+              const selected = (settings.landing ?? "grid") === landing.id;
+              return (
+                <label
+                  key={landing.id}
+                  className={`cursor-pointer border p-3 transition-colors ${
+                    selected ? "border-acc bg-acc-soft/20" : "border-line hover:border-line-2"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="landing"
+                    value={landing.id}
+                    checked={selected}
+                    onChange={() => onChange("landing", landing.id)}
+                    className="sr-only"
+                  />
+                  <span className="flex items-center gap-2">
+                    <span className="text-[13.5px] font-medium text-fg">{landing.name}</span>
+                    {selected ? <span className="mono text-[10px] text-acc">LIVE</span> : null}
+                    <a
+                      href={landing.href}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      onClick={(event) => event.stopPropagation()}
+                      className="mono ms-auto text-[10px] text-fg-3 underline underline-offset-2 hover:text-acc"
+                    >
+                      preview ↗
+                    </a>
+                  </span>
+                  <span className="mt-2 block text-[12px] leading-snug text-fg-3">
+                    {landing.note}
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+        </fieldset>
+
         <fieldset>
           <legend className={label}>Site theme</legend>
           <p className="-mt-1 mb-3 text-[12.5px] text-fg-3">

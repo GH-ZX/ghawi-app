@@ -1,5 +1,6 @@
 import { themeScript } from "@/lib/theme-script";
 import type { Metadata, Viewport } from "next";
+import type { ReactNode } from "react";
 import { fontVariables } from "./fonts";
 import { profile, SITE_URL } from "@/lib/content";
 import "./globals.css";
@@ -59,7 +60,7 @@ export const viewport: Viewport = {
   colorScheme: "dark light",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function GridLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${fontVariables} h-full antialiased`}>
       <head>

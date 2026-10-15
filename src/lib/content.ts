@@ -330,7 +330,9 @@ const ar: Copy = {
   },
 
   hero: {
-    kicker: "~/ghawi.app",
+    // No `~/` prefix here: in an RTL context the bidi algorithm reorders the
+    // leading run to the far side and it renders as "ghawi.app/~".
+    kicker: "ghawi.app",
     name: ["أحمد", "غاوي"],
     role: "مهندس برمجيات · أخصائي أنظمة تقنية",
     lead: "أصمّم وأبني وأشغّل المنظومة كاملة — من أول نقرة للعميل حتى وصول الطلب إلى واجهة المزوّد. اليوم يعني ذلك منصّتين تعملان في الإنتاج، وكميات كبيرة من البنية التحتية التي تُبقيهما صامدتين.",

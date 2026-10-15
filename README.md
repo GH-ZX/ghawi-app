@@ -9,14 +9,47 @@ Built with **Next.js 16 (App Router, Turbopack)**, **React 19**, **Tailwind CSS 
 
 | Route | Rendering | Purpose |
 | --- | --- | --- |
-| `/` | 307 redirect | → `/en` |
-| `/en` | Static | English page (default) |
-| `/ar` | Static | Arabic page, full RTL layout |
+| `/` | 307 redirect | → `/en` or `/film/en`, per the admin's live-design setting |
+| `/en` | Static | **Grid** design, English (default) |
+| `/ar` | Static | **Grid** design, Arabic, full RTL layout |
+| `/film/en` | Static | **Film** design, English — a separate presentation of the same page |
+| `/film/ar` | Static | **Film** design, Arabic, RTL |
+| `/admin`, `/admin/login` | Dynamic | Admin console, `noindex` |
 | `/api/contact` | Dynamic | Contact form endpoint (Workers runtime) |
+| `/api/site-config` | Dynamic | Public theme + live-design config, edge-cached 60s |
 | `/sitemap.xml`, `/robots.txt` | Generated | From `src/lib/content.ts` |
 | `/opengraph-image`, `/icon`, `/apple-icon` | Generated | Built at compile time via `next/og` |
 
 Both language routes declare `canonical` and `hreflang` alternates (`en`, `ar`, `x-default`).
+
+## The two designs
+
+The site ships **two independent landing page designs**. They are not two themes —
+they share no layout, no stylesheet, no fonts and no components.
+
+| | Grid (`(grid)` group) | Film (`(film-en)` / `(film-ar)` groups) |
+| --- | --- | --- |
+| Character | Engineering dashboard | Cinematic title card |
+| Structure | Hairline grid, bordered cards | No borders; scale and space only |
+| Type | Space Grotesk / Inter / JetBrains Mono | Instrument Serif / Plus Jakarta Sans / Noto Kufi |
+| Arabic | IBM Plex Sans Arabic | Noto Kufi + Noto Sans Arabic |
+| Palette | Three switchable themes (Nocturne, Paper, Ember) | One fixed near-black palette |
+| Stylesheet | `src/app/(grid)/globals.css` | `src/styles/film.css` |
+| Components | `src/components/*.tsx` | `src/components/film/*.tsx` |
+
+They are built on **separate root layouts** via Next.js route groups, so `/film/*`
+never loads the grid stylesheet, fonts or theme script, and `<html lang>`/`dir` is
+correct from the root rather than set on a wrapper mid-tree.
+
+The only shared dependency is `src/lib/content.ts` — the copy should not fork.
+
+**Switching between them** is an admin setting (`Settings → Live site design`).
+`/` reads the `landing` value from D1 and redirects; both destinations stay
+prerendered and directly addressable, so switching costs nothing and loses
+nothing.
+
+`/film/*` is a *presentation* of the same content, not a second page: it declares
+`canonical` back to `/en` and `/ar` to avoid duplicate-content signals.
 
 ## Editing content
 
@@ -152,18 +185,26 @@ node scripts/hash-password.mjs "new-password"
 - **Inbox** — every contact submission with archive, delete, and mailto reply.
   The *Email undelivered* counter surfaces messages that saved to D1 but whose
   notification failed, which is the failure mode storage alone would hide.
-- **Settings** — title and description per locale plus a maintenance toggle.
-  Writes pass a key allow-list, so no arbitrary key can be persisted.
+- **Settings** — live site design (Grid or Film), title and description per locale,
+  a theme picker, and a maintenance toggle. Writes pass a key allow-list, so no
+  arbitrary key can be persisted, and enumerated values (`theme`, `landing`) are
+  validated against a known set before they are stored — a rejected value can
+  never leave the admin believing it applied.
 - **System** — deployment facts and the wrangler commands worth remembering.
 
 ## Themes
 
-Dark is the default. The toggle in the header switches to the paper theme and
-persists per visitor. It is a second identity — warm off-white ground, ink
-text, deep amber signal — not an inverted colour scheme.
+Themes apply to the **Grid** design only. Three are available — Nocturne (dark,
+lime signal), Paper (warm off-white, amber) and Ember (forge-warm, molten copper)
+— and the admin picks which one is live site-wide. The header toggle lets a
+visitor override it for themselves, and that choice is remembered locally.
+
+The Film design has one fixed palette by design and carries no theme toggle.
 
 A tiny inline script applies the choice before first paint, so a returning
-visitor never sees the wrong theme flash.
+visitor never sees the wrong theme flash. It resolves in order: the visitor's own
+stored choice → the admin's live choice (a synchronous request against the
+edge-cached `/api/site-config`) → the build-time default.
 
 ## Cloudflare configuration
 
