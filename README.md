@@ -211,6 +211,31 @@ visitor never sees the wrong theme flash. It resolves in order: the visitor's ow
 stored choice → the admin's live choice (a synchronous request against the
 edge-cached `/api/site-config`) → the build-time default.
 
+## Film backdrop
+
+`/film/*` sits on a looping video backdrop: out-of-focus light motes drifting
+across a near-black stage, `public/media/film/backdrop.{webm,mp4}`.
+
+It is generated, not sourced. `scripts/make-backdrop.mjs` renders the frames to
+raw PPM on stdout and ffmpeg encodes them:
+
+```sh
+node scripts/make-backdrop.mjs | ffmpeg -y -f image2pipe -vcodec ppm -r 24 -i - \
+  -vf "gblur=sigma=7,scale=1920:1080:flags=lanczos,format=yuv420p" \
+  -c:v libx264 -preset slow -crf 22 -movflags +faststart backdrop.mp4
+```
+
+Route it through `cmd /c` on Windows — PowerShell mangles binary pipes between
+native commands and silently truncates the stream to a couple of frames.
+
+Every moving term in the generator is periodic over the loop length, so the last
+frame matches the first and the clip needs no crossfade. The PRNG is seeded, so
+the output is reproducible.
+
+The backdrop is fixed and parallaxed against scroll. The portrait
+(`public/media/film/portrait.webp`) is a separate 4:5 crop used in the About
+plate — it is never used as background.
+
 ## Cloudflare configuration
 
 `wrangler.jsonc` is the source of truth for the Worker.

@@ -1,11 +1,12 @@
 import { type Locale } from "@/lib/content";
-import { About, Capabilities, Numbers, Statement } from "./chapters";
+import { About, Capabilities, Numbers, Stack, Statement } from "./chapters";
 import { Code } from "./code";
 import { Contact } from "./contact";
 import { FilmFooter } from "./film-footer";
 import { FilmHeader } from "./film-header";
 import { Opening } from "./opening";
 import { Platforms } from "./platforms";
+import { ScrollProgress } from "./scroll";
 
 /**
  * Composition root for the Film design.
@@ -18,6 +19,7 @@ export function FilmPage({ locale }: { locale: Locale }) {
     // No lang/dir wrapper needed: each locale has its own root layout, so
     // <html lang dir> is already correct and the stylesheet can key off it.
     <>
+      <ScrollProgress />
       <span id="top" />
 
       <a
@@ -33,6 +35,7 @@ export function FilmPage({ locale }: { locale: Locale }) {
         <Opening locale={locale} />
         <Statement locale={locale} />
         <Numbers locale={locale} />
+        <Stack />
         <Platforms locale={locale} />
         <About locale={locale} />
         <Code locale={locale} />
