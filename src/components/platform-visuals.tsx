@@ -172,6 +172,64 @@ export function FactoryVisual() {
   );
 }
 
+/** GH Store Telegram Bot — inline conversation with a reply keyboard. */
+export function BotVisual({ handle }: { handle: string }) {
+  const bubbles = [
+    { side: "in" as const, text: "مرحباً — اختر المتجر" },
+    { side: "out" as const, text: "Steam Wallet · $0.61" },
+    { side: "in" as const, text: "اختر طريقة الدفع" },
+  ];
+
+  const keys = ["🔥 شحن الألعاب", "🎟️ قسائم", "💎 Telegram Stars"];
+
+  return (
+    <div className="border border-line bg-bg-1">
+      <Chrome url={handle} />
+
+      <div className="p-4">
+        <div className="space-y-2.5">
+          {bubbles.map((bubble) => (
+            <div
+              key={bubble.text}
+              className={`flex ${bubble.side === "out" ? "justify-end" : "justify-start"}`}
+            >
+              <span
+                className={`max-w-[78%] px-3 py-2 text-[11.5px] leading-snug ${
+                  bubble.side === "out"
+                    ? "rounded-sm bg-acc-soft text-acc"
+                    : "rounded-sm border border-line bg-bg-2/70 text-fg-2"
+                }`}
+              >
+                {bubble.text}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Inline reply keyboard */}
+        <div className="mt-4 grid grid-cols-3 gap-1.5">
+          {keys.map((key) => (
+            <span
+              key={key}
+              className="truncate rounded-sm border border-line bg-bg-2/50 px-1.5 py-2 text-center text-[9.5px] text-fg-2"
+            >
+              {key}
+            </span>
+          ))}
+        </div>
+
+        <div className="mono mt-4 flex items-center justify-between border-t border-line pt-3 text-[10px] text-fg-3">
+          <span>Python · Aiogram 3</span>
+          <span className="flex items-center gap-1.5">
+            <span className="pulse-dot scale-75" aria-hidden="true" />
+            keys delivered
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Connector() {
   return (
     <div className="relative mx-auto h-6 w-px bg-line-2" aria-hidden="true">

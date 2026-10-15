@@ -1,22 +1,46 @@
-import { FactoryVisual, StoreVisual } from "@/components/platform-visuals";
+import { BotVisual, FactoryVisual, StoreVisual } from "@/components/platform-visuals";
 import { Reveal } from "@/components/reveal";
-import { links, platforms, type Copy, type Locale, type Platform } from "@/lib/content";
+import { platforms, type Copy, type Locale, type Platform } from "@/lib/content";
+
+/**
+ * One visual per platform id. An unknown id renders nothing rather than
+ * silently falling through to the wrong diagram.
+ */
+function Visual({ platform }: { platform: Platform }) {
+  switch (platform.id) {
+    case "gh-store":
+      return <StoreVisual url={platform.domain} />;
+    case "bot-factory":
+      return <FactoryVisual />;
+    case "store-bot":
+      return <BotVisual handle={platform.domain} />;
+    default:
+      return null;
+  }
+}
 
 function Card({
   platform,
   t,
+  reversed,
 }: {
   platform: Platform;
   t: Copy["platforms"];
+  /** Alternate the narrative/visual order so the stack never reads as a list. */
+  reversed: boolean;
 }) {
-  const reversed = platform.index === "02";
-
   return (
     <Reveal className="relative">
       <article className="group relative border border-line bg-bg-1/40 transition-colors duration-500 hover:border-line-2">
         {/* Hover wash */}
         <div
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(100%_55%_at_50%_0%,rgba(212,255,63,0.055),transparent_70%)] opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+          className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+          style={{
+            // Token-driven so each theme washes in its own accent rather than
+            // baking one theme's lime into every card.
+            backgroundImage:
+              "radial-gradient(100% 55% at 50% 0%, color-mix(in oklab, var(--acc) 9%, transparent), transparent 70%)",
+          }}
           aria-hidden="true"
         />
 
@@ -89,25 +113,16 @@ function Card({
                   ↗
                 </span>
               </a>
-              {platform.index === "02" ? (
+              {platform.source ? (
                 <a
-                  href={links.factoryBuild}
+                  href={platform.source}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mono inline-flex h-10 items-center border border-line px-5 text-[11px] tracking-[0.12em] text-fg-3 uppercase transition-colors duration-200 hover:border-acc hover:text-acc"
                 >
                   {t.source}
                 </a>
-              ) : (
-                <a
-                  href="https://github.com/GH-ZX/gh-store-dev"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mono inline-flex h-10 items-center border border-line px-5 text-[11px] tracking-[0.12em] text-fg-3 uppercase transition-colors duration-200 hover:border-acc hover:text-acc"
-                >
-                  {t.source}
-                </a>
-              )}
+              ) : null}
             </div>
           </div>
 
@@ -118,11 +133,7 @@ function Card({
             }`}
           >
             <div className="w-full max-w-[25rem] transition-transform duration-700 group-hover:-translate-y-1">
-              {platform.id === "gh-store" ? (
-                <StoreVisual url={platform.domain} />
-              ) : (
-                <FactoryVisual />
-              )}
+              <Visual platform={platform} />
             </div>
           </div>
         </div>
@@ -151,8 +162,8 @@ export function Platforms({ t, locale }: { t: Copy["platforms"]; locale: Locale 
         </Reveal>
 
         <div className="mt-14 space-y-6 lg:space-y-8">
-          {platforms[locale].map((platform) => (
-            <Card key={platform.id} platform={platform} t={t} />
+          {platforms[locale].map((platform, i) => (
+            <Card key={platform.id} platform={platform} t={t} reversed={i % 2 === 1} />
           ))}
         </div>
       </div>

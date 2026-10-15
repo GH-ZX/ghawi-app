@@ -37,7 +37,7 @@ export function Code({ t, locale }: { t: Copy["code"]; locale: Locale }) {
       </div>
 
       {/* Header row — desktop only */}
-      <div className="mono mt-14 hidden grid-cols-[minmax(0,15rem)_8rem_9rem_minmax(0,1fr)_2rem] gap-6 border-b border-line-2 pb-3 text-[10px] tracking-[0.16em] text-fg-3 uppercase lg:grid">
+      <div className="mono mt-14 hidden grid-cols-[minmax(0,15rem)_8rem_9rem_minmax(0,1fr)_6rem] gap-6 border-b border-line-2 pb-3 text-[10px] tracking-[0.16em] text-fg-3 uppercase lg:grid">
         <span>{t.column.repo}</span>
         <span>{t.column.lang}</span>
         <span>{t.column.type}</span>
@@ -47,19 +47,29 @@ export function Code({ t, locale }: { t: Copy["code"]; locale: Locale }) {
 
       <ul className="border-t border-line lg:border-t-0">
         {rows.map((repo, index) => (
-          <Reveal key={repo.name} as="li" delay={index * 55}>
+          <Reveal
+            key={repo.name}
+            as="li"
+            delay={index * 55}
+            className="group relative border-b border-line"
+          >
+            {/* Accent sweep on hover */}
+            <span
+              className="absolute inset-y-0 start-0 w-px scale-y-0 bg-acc transition-transform duration-300 group-hover:scale-y-100"
+              aria-hidden="true"
+            />
+
+            {/*
+              The row is one link, stretched over the whole cell via ::after.
+              A repo may also have a live site — that is a *separate* anchor,
+              nested outside this one, because anchors cannot nest.
+            */}
             <a
               href={repo.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative -mx-3 grid gap-x-6 gap-y-2 border-b border-line px-3 py-5 transition-colors duration-300 hover:bg-bg-1 lg:grid-cols-[minmax(0,15rem)_8rem_9rem_minmax(0,1fr)_2rem] lg:items-baseline"
+              className="-mx-3 grid gap-x-6 gap-y-2 px-3 py-5 transition-colors duration-300 after:absolute after:inset-0 after:content-[''] hover:bg-bg-1 lg:grid-cols-[minmax(0,15rem)_8rem_9rem_minmax(0,1fr)_6rem] lg:items-baseline"
             >
-              {/* Accent sweep on hover */}
-              <span
-                className="absolute inset-y-0 start-0 w-px scale-y-0 bg-acc transition-transform duration-300 group-hover:scale-y-100"
-                aria-hidden="true"
-              />
-
               <span className="mono flex items-center gap-2 text-[13px] text-fg">
                 <span className="text-fg-2 transition-colors duration-300 group-hover:text-acc">
                   /
@@ -78,14 +88,19 @@ export function Code({ t, locale }: { t: Copy["code"]; locale: Locale }) {
               <span className="text-[13.5px] leading-relaxed text-fg-2 transition-colors duration-300 group-hover:text-fg">
                 {repo.blurb}
               </span>
-
-              <span
-                className="mono hidden text-[12px] text-fg-3 opacity-50 transition-opacity duration-300 group-hover:opacity-100 lg:block"
-                aria-hidden="true"
-              >
-                ↗
-              </span>
             </a>
+
+            {repo.liveUrl ? (
+              <a
+                href={repo.liveUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mono relative z-10 inline-flex w-fit items-center gap-1.5 border border-line px-2.5 py-1 text-[10px] tracking-[0.12em] text-fg-3 uppercase transition-colors duration-200 hover:border-acc hover:text-acc lg:absolute lg:end-3 lg:top-1/2 lg:-translate-y-1/2"
+              >
+                live
+                <span aria-hidden="true">↗</span>
+              </a>
+            ) : null}
           </Reveal>
         ))}
       </ul>

@@ -20,12 +20,21 @@ export function Code({ locale }: { locale: Locale }) {
 
         <ul>
           {items.map((repo, i) => (
-            <Reveal as="li" key={repo.name} delay={Math.min(i, 5) * 60}>
+            <Reveal
+              as="li"
+              key={repo.name}
+              delay={Math.min(i, 5) * 60}
+              className="group relative"
+            >
+              {/*
+                Row is one link, stretched over the cell via ::after. A repo with
+                a live site gets a second, sibling anchor — anchors cannot nest.
+              */}
               <a
                 href={repo.url}
                 target="_blank"
                 rel="noreferrer noopener"
-                className="group grid gap-x-8 gap-y-3 rounded-2xl px-4 py-8 transition-colors duration-700 hover:bg-white/[0.035] md:grid-cols-12 md:px-6 md:py-10"
+                className="grid gap-x-8 gap-y-3 rounded-2xl px-4 py-8 transition-colors duration-700 after:absolute after:inset-0 after:content-[''] hover:bg-white/[0.035] md:grid-cols-12 md:px-6 md:py-10"
               >
                 <h3 className="display-sm text-[clamp(1.5rem,3.4vw,2.5rem)] transition-colors duration-700 group-hover:text-beam md:col-span-5">
                   {repo.name}
@@ -38,14 +47,22 @@ export function Code({ locale }: { locale: Locale }) {
                   </span>
                 </div>
 
-                <p className="body-quiet text-[0.9375rem] md:col-span-3 md:col-start-10 md:self-center">
+                <p className="body-quiet text-[0.9375rem] md:col-span-2 md:col-start-9 md:self-center">
                   {repo.blurb}
                 </p>
-
-                <span className="label hidden md:col-span-1 md:col-start-12 md:self-center md:justify-self-end md:block">
-                  ↗
-                </span>
               </a>
+
+              {repo.liveUrl ? (
+                <a
+                  href={repo.liveUrl}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="label relative z-10 mt-2 inline-flex w-fit items-center gap-1.5 rounded-full border border-white/12 px-3 py-1.5 transition-colors duration-500 hover:border-beam hover:text-beam md:absolute md:end-6 md:top-1/2 md:mt-0 md:-translate-y-1/2"
+                >
+                  live
+                  <span aria-hidden="true">↗</span>
+                </a>
+              ) : null}
             </Reveal>
           ))}
         </ul>

@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     siteName: "ghawi.app",
     title: "Ahmed Ghawi — Software Engineer & IT Systems Specialist",
     description:
-      "I build and operate the software behind digital commerce. Two platforms live right now: GH Store and Bot Factory.",
+      "I build and operate the software behind digital commerce. Three platforms live right now: GH Store, Bot Factory, and the GH Store Telegram bot.",
     url: "/en",
     locale: "en_US",
     alternateLocale: ["ar_SY"],

@@ -57,11 +57,16 @@ nothing.
 to change text.
 
 - `copy.en` / `copy.ar` — hero, about, platform, code, capabilities, contact, form copy
-- `platforms.en` / `platforms.ar` — the two platform deep-dives
-- `repos.en` / `repos.ar` — the repository table
+- `platforms.en` / `platforms.ar` — the three platform deep-dives
+- `repos.en` / `repos.ar` — the repository table (`liveUrl` adds a "live" badge)
 - `profile` — name, links, contact details, image paths
-- `links` — external product URLs
+- `links` — external product URLs (store, factory, Telegram bot, echocore)
 - `marqueeItems` — the scrolling technology strip
+
+Adding a platform means adding one object to `platforms.en` and `platforms.ar`.
+If its `id` has no matching case in the `Visual` switch in
+`src/components/platform-visuals.tsx`, the Grid card renders without a diagram
+rather than the wrong one — add a case alongside.
 
 To flip which language `/` defaults to, change `defaultLocale`.
 

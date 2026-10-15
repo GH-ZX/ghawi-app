@@ -37,6 +37,8 @@ export const links = {
   store: "https://gh-store.me",
   factory: "https://factory.gh-store.me",
   factoryBuild: "https://factory.gh-store.me/build/",
+  storeBot: "https://t.me/gh_store1_bot",
+  echocore: "https://echocore412.com",
 } as const;
 
 export interface Feature {
@@ -50,6 +52,8 @@ export interface Platform {
   name: string;
   domain: string;
   url: string;
+  /** Where the code lives. Shown as the card's secondary action. */
+  source?: string;
   category: string;
   headline: string;
   body: string;
@@ -63,6 +67,8 @@ export interface Repo {
   type: string;
   blurb: string;
   url: string;
+  /** The running site, when the project has one worth linking to. */
+  liveUrl?: string;
   stars?: number;
 }
 
@@ -164,14 +170,14 @@ const en: Copy = {
   meta: {
     title: "Ahmed Ghawi — Software Engineer & IT Systems Specialist",
     description:
-      "I build and operate the software behind digital commerce. Two platforms are live right now: GH Store, a bilingual digital-goods storefront, and Bot Factory, a multi-tenant Telegram commerce engine.",
+      "I build and operate the software behind digital commerce. Three platforms are live right now: GH Store, a bilingual digital-goods storefront; Bot Factory, a multi-tenant Telegram commerce engine; and the GH Store Telegram bot.",
   },
 
   hero: {
     kicker: "~/ghawi.app",
     name: ["Ahmed", "Ghawi"],
     role: "Software Engineer · IT Systems Specialist",
-    lead: "I design, build and run the whole stack — from a customer's first click to the order landing on a supplier's API. Today that means two platforms running in production, and a lot of infrastructure keeping them honest.",
+    lead: "I design, build and run the whole stack — from a customer's first click to the order landing on a supplier's API. Today that means three platforms running in production, and a lot of infrastructure keeping them honest.",
     primary: "See the platforms",
     secondary: "Start a conversation",
     scroll: "Scroll",
@@ -183,6 +189,8 @@ const en: Copy = {
     rows: [
       { label: "gh-store.me", value: "Digital goods storefront" },
       { label: "factory.gh-store.me", value: "Telegram commerce platform" },
+      { label: "t.me/gh_store1_bot", value: "Resale bot" },
+      { label: "echocore412.com", value: "Earlier storefront, still live" },
       { label: "github.com/GH-ZX", value: "Open source" },
     ],
     foot: [
@@ -192,7 +200,7 @@ const en: Copy = {
   },
 
   stats: [
-    { value: "02", label: "Platforms in production" },
+    { value: "03", label: "Platforms in production" },
     { value: "27", label: "Public repositories" },
     { value: "09", label: "Store categories" },
     { value: "AR/EN", label: "Shipped as default" },
@@ -217,7 +225,7 @@ const en: Copy = {
 
   platforms: {
     label: "Platforms",
-    headline: "Two systems, both running right now.",
+    headline: "Three systems, all running right now.",
     visit: "Open site",
     source: "Source",
   },
@@ -326,7 +334,7 @@ const ar: Copy = {
   meta: {
     title: "أحمد غاوي — مهندس برمجيات وأخصائي أنظمة تقنية",
     description:
-      "أبني وأشغّل البرمجيات التي تقف خلف التجارة الرقمية. منصّتان تعملان في الإنتاج الآن: متجر GH Store لبيع المنتجات الرقمية، ومصنع البوتات، محرّك تجارة متعدّد المستأجرين على تيليجرام.",
+      "أبني وأشغّل البرمجيات التي تقف خلف التجارة الرقمية. ثلاث منصّات تعمل في الإنتاج الآن: متجر GH Store لبيع المنتجات الرقمية، ومصنع البوتات محرّك تجارة متعدّد المستأجرين على تيليجرام، وبوت متجر GH على تيليجرام.",
   },
 
   hero: {
@@ -335,7 +343,7 @@ const ar: Copy = {
     kicker: "ghawi.app",
     name: ["أحمد", "غاوي"],
     role: "مهندس برمجيات · أخصائي أنظمة تقنية",
-    lead: "أصمّم وأبني وأشغّل المنظومة كاملة — من أول نقرة للعميل حتى وصول الطلب إلى واجهة المزوّد. اليوم يعني ذلك منصّتين تعملان في الإنتاج، وكميات كبيرة من البنية التحتية التي تُبقيهما صامدتين.",
+    lead: "أصمّم وأبني وأشغّل المنظومة كاملة — من أول نقرة للعميل حتى وصول الطلب إلى واجهة المزوّد. اليوم يعني ذلك ثلاث منصّات تعمل في الإنتاج، وكميات كبيرة من البنية التحتية التي تُبقيها صامدة.",
     primary: "شاهد المنصّات",
     secondary: "ابدأ محادثة",
     scroll: "مرّر",
@@ -347,6 +355,8 @@ const ar: Copy = {
     rows: [
       { label: "gh-store.me", value: "متجر منتجات رقمية" },
       { label: "factory.gh-store.me", value: "منصّة تجارة على تيليجرام" },
+      { label: "t.me/gh_store1_bot", value: "بوت إعادة بيع" },
+      { label: "echocore412.com", value: "المتجر الأوّل، ما زال يعمل" },
       { label: "github.com/GH-ZX", value: "مفتوح المصدر" },
     ],
     foot: [
@@ -356,7 +366,7 @@ const ar: Copy = {
   },
 
   stats: [
-    { value: "02", label: "منصّتان في الإنتاج" },
+    { value: "03", label: "منصّات في الإنتاج" },
     { value: "27", label: "مستودعاً مفتوحاً" },
     { value: "09", label: "فئات في المتجر" },
     { value: "عربي/إنجليزي", label: "لغتان افتراضياً" },
@@ -381,7 +391,7 @@ const ar: Copy = {
 
   platforms: {
     label: "المنصّات",
-    headline: "نظامان، يعملان كلاهما الآن.",
+    headline: "ثلاثة أنظمة، يعملان جميعها الآن.",
     visit: "زيارة الموقع",
     source: "الكود",
   },
@@ -492,6 +502,7 @@ export const platforms: Record<Locale, Platform[]> = {
       name: "GH Store",
       domain: "gh-store.me",
       url: links.store,
+      source: "https://github.com/GH-ZX/gh-store-dev",
       category: "Digital commerce · Production",
       headline: "A bilingual digital-goods storefront taking real transactions.",
       body: "Customers browse in Arabic or English, top up a wallet, pay, and receive keys or game credit — delivered automatically from suppliers, or after a quick team review depending on the offer. The same application carries a full admin console for catalog, providers, payments, fulfillment, customers, reviews, support tickets and audit logs.",
@@ -511,6 +522,7 @@ export const platforms: Record<Locale, Platform[]> = {
       name: "GH Bot Factory",
       domain: "factory.gh-store.me",
       url: links.factory,
+      source: links.factoryBuild,
       category: "Commerce platform · SaaS",
       headline: "A multi-tenant engine that turns a blank bot into a business.",
       body: "A public configurator collects a customer's scope and product preferences, the operator console turns that into a quote and provisions an isolated tenant, and the customer walks away with their own branded bot, Mini App and admin portal. Suppliers and payment credentials live in an encrypted vault — plaintext keys never touch the database or the browser.",
@@ -524,6 +536,26 @@ export const platforms: Record<Locale, Platform[]> = {
       ],
       stack: ["FastAPI", "Aiogram 3", "PostgreSQL", "Redis", "Docker", "React"],
     },
+    {
+      index: "03",
+      id: "store-bot",
+      name: "GH Store Telegram Bot",
+      domain: "t.me/gh_store1_bot",
+      url: links.storeBot,
+      source: "https://github.com/GH-ZX/gh-store-tele",
+      category: "Telegram bot · Production",
+      headline: "The same storefront, living inside Telegram.",
+      body: "The resale channel most customers already have open. A customer starts the bot, browses the catalog in Arabic or English, tops up and pays — with crypto, Telegram Stars or a local gateway — and receives the key automatically. No app to install, no site to load, no account to remember.",
+      features: [
+        { label: "Entry", value: "One tap from a Telegram chat — no install, no web UI" },
+        { label: "Catalog", value: "Inline browsing with Arabic and English copy" },
+        { label: "Payments", value: "Crypto, Telegram Stars and local gateways, multi-currency" },
+        { label: "Fulfillment", value: "Automated key delivery straight to the customer" },
+        { label: "Resale", value: "Built for resellers, priced the same way throughout" },
+        { label: "Stack", value: "Python, Aiogram 3, PostgreSQL, Redis, Docker" },
+      ],
+      stack: ["Python", "Aiogram 3", "Telegram Bot API", "PostgreSQL", "Redis", "Docker"],
+    },
   ],
   ar: [
     {
@@ -532,6 +564,7 @@ export const platforms: Record<Locale, Platform[]> = {
       name: "متجر GH",
       domain: "gh-store.me",
       url: links.store,
+      source: "https://github.com/GH-ZX/gh-store-dev",
       category: "تجارة رقمية · في الإنتاج",
       headline: "متجر منتجات رقمية ثنائي اللغة يستقبل مدفوعات حقيقية.",
       body: "يتصفّح العميل بالعربية أو الإنجليزية، يعبّئ محفظته، يدفع، ويستلم مفاتيح أو شحنات ألعاب — تُسلَّم تلقائياً من المزوّدين، أو بعد مراجعة سريعة من الفريق حسب العرض. ويحمل التطبيق نفسه لوحة تحكّم كاملة لإدارة الكتالوج والمزوّدين والدفع والتنفيذ والعملاء والتقييمات وتذاكر الدعم وسجل التدقيق.",
@@ -551,6 +584,7 @@ export const platforms: Record<Locale, Platform[]> = {
       name: "مصنع البوتات",
       domain: "factory.gh-store.me",
       url: links.factory,
+      source: links.factoryBuild,
       category: "منصّة تجارة · SaaS",
       headline: "محرك متعدّد المستأجرين يحوّل بوتاً فارغاً إلى مشروع.",
       body: "مُهيّئ عام يجمع نطاق العميل وتفضيلاته، وواجهة المشغّل تحوّل ذلك إلى عرض سعر وتُنشئ مستأجراً معزولاً، فيخرج العميل بوته وهويّته وتطبيقه المصغّر ولوحته الخاصة. أما بيانات المزوّدين والدفع فتُحفظ في خزنة مُشفّرة — المفاتيح لا تُخزَّن أبداً كنص صريح في قاعدة البيانات ولا في المتصفّح.",
@@ -563,6 +597,26 @@ export const platforms: Record<Locale, Platform[]> = {
         { label: "التسليم", value: "حزم تثبيت مُشفّرة للتثبيتات ذاتية الاستضافة" },
       ],
       stack: ["FastAPI", "Aiogram 3", "PostgreSQL", "Redis", "Docker", "React"],
+    },
+    {
+      index: "03",
+      id: "store-bot",
+      name: "بوت متجر GH على تيليجرام",
+      domain: "t.me/gh_store1_bot",
+      url: links.storeBot,
+      source: "https://github.com/GH-ZX/gh-store-tele",
+      category: "بوت تيليجرام · في الإنتاج",
+      headline: "المتجر نفسه، يعمل داخل تيليجرام.",
+      body: "قناة إعادة البيع التي يكون العميل قد فتحها أصلاً. يبدأ العميل البوت، يتصفّح الكتالوج بالعربية أو الإنجليزية، يعبّئ رصيده ويدفع — بالكريبتو أو نجوم تيليجرام أو بوابة محلية — ثم يستلم المفتاح تلقائياً. بلا تطبيق يُثبَّت، وبلا موقع يُحمَّل، وبلا حساب يُحفظ.",
+      features: [
+        { label: "الدخول", value: "نقرة واحدة من محادثة تيليجرام — بلا تثبيت وبلا واجهة ويب" },
+        { label: "الكتالوج", value: "تصفّح داخل المحادثة بنصوص عربية وإنجليزية" },
+        { label: "الدفع", value: "كريبتو، نجوم تيليجرام، وبوابات محلية بتعدّد العملات" },
+        { label: "التنفيذ", value: "تسليم آلي للمفتاح إلى العميل مباشرةً" },
+        { label: "إعادة البيع", value: "مبنيّ للموزّعين، وبنفس منطق التسعير في كل القنوات" },
+        { label: "التقنية", value: "Python، Aiogram 3، PostgreSQL، Redis، Docker" },
+      ],
+      stack: ["Python", "Aiogram 3", "Telegram Bot API", "PostgreSQL", "Redis", "Docker"],
     },
   ],
 };
@@ -579,6 +633,7 @@ export const repos: Record<Locale, Repo[]> = {
       type: "Storefront",
       blurb: "The earlier generation of the digital store — bilingual top-ups and gift cards, supplier catalog sync, auto-fulfillment and PDF invoices.",
       url: "https://github.com/GH-ZX/echocore-store",
+      liveUrl: links.echocore,
       stars: 1,
     },
     {
@@ -624,6 +679,7 @@ export const repos: Record<Locale, Repo[]> = {
       type: "متجر",
       blurb: "الجيل الأوّل من المتجر الرقمي — شحن ألعاب وبطاقات ثنائية اللغة، مزامنة كتالوج المزوّد، تنفيذ آلي وفواتير PDF.",
       url: "https://github.com/GH-ZX/echocore-store",
+      liveUrl: links.echocore,
       stars: 1,
     },
     {
