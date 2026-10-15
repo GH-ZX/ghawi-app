@@ -6,6 +6,14 @@ export function Hero({ t }: { t: Copy }) {
     <section className="relative isolate flex min-h-[100svh] items-center overflow-hidden pt-[var(--nav-h)] pb-16">
       {/* Atmosphere */}
       <div className="grid-lines pointer-events-none absolute inset-0 -z-10" aria-hidden="true" />
+
+      {/* Ember-only ambient drift. Invisible in the other two themes
+          because the colour stops resolve to transparent there. */}
+      <div className="ember-field" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+      </div>
       <div
         className="pointer-events-none absolute -top-40 inset-x-0 mx-auto -z-10 size-[46rem] rounded-full bg-[radial-gradient(closest-side,rgba(212,255,63,0.09),transparent)] blur-2xl"
         aria-hidden="true"
@@ -36,7 +44,7 @@ export function Hero({ t }: { t: Copy }) {
             <span className="relative block text-fg-2">
               {t.hero.name[1]}
               <span
-                className="absolute -bottom-1 start-0 h-[3px] w-full bg-acc"
+                className="accent-rule absolute -bottom-1 start-0 h-[3px] w-full"
                 aria-hidden="true"
               />
             </span>

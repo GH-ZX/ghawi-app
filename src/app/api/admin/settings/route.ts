@@ -12,7 +12,10 @@ const ALLOWED = new Set([
   "site_desc_ar",
   "maintenance",
   "maintenance_note",
+  "theme",
 ]);
+
+const THEMES = new Set(["nocturne", "paper", "ember"]);
 
 async function guard() {
   const env = (await getEnv()) as AdminEnv;
@@ -71,7 +74,16 @@ export async function PUT(request: Request) {
         // "0" and "false" are truthy strings, so an off toggle must be
         // normalised explicitly rather than relying on coercion.
         const isOff = value === false || value === "0" || value === "false" || value === "";
-        const normalised = key === "maintenance" ? (isOff ? "0" : "1") : String(value ?? "").slice(0, 400);
+        let normalised = String(value ?? "").slice(0, 400);
+
+        if (key === "maintenance") {
+          normalised = isOff ? "0" : "1";
+        } else if (key === "theme") {
+          // Never persist a theme the resolver would reject; a bad value would
+          // silently fall back and leave the admin thinking it had applied.
+          if (!THEMES.has(normalised)) throw new Error(`unknown theme: ${normalised}`);
+        }
+
         return db
           .prepare(
             `INSERT INTO site_settings (key, value) VALUES (?1, ?2)

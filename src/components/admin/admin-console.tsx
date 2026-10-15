@@ -27,6 +27,27 @@ const TABS: { id: Tab; label: string }[] = [
   { id: "system", label: "System" },
 ];
 
+const THEMES = [
+  {
+    id: "nocturne",
+    name: "Nocturne",
+    note: "Near-black, lime signal. The default engineering look.",
+    swatch: ["#07080a", "#151a1f", "#d4ff3f"],
+  },
+  {
+    id: "paper",
+    name: "Paper",
+    note: "Warm off-white, ink type, deep amber. Editorial and calm.",
+    swatch: ["#faf8f4", "#ebe7df", "#6b4d00"],
+  },
+  {
+    id: "ember",
+    name: "Ember",
+    note: "Forge-warm black, molten copper, slow ambient drift.",
+    swatch: ["#0c0907", "#241a15", "#ff8a3d"],
+  },
+] as const;
+
 export function AdminConsole() {
   const router = useRouter();
   const [tab, setTab] = useState<Tab>("inbox");
@@ -327,6 +348,51 @@ function Settings({
       </p>
 
       <div className="mt-8 space-y-6">
+        <fieldset>
+          <legend className={label}>Site theme</legend>
+          <p className="-mt-1 mb-3 text-[12.5px] text-fg-3">
+            Applies to every visitor within a minute. Anyone who picked a theme themselves keeps
+            theirs.
+          </p>
+
+          <div className="grid gap-2 sm:grid-cols-3">
+            {THEMES.map((theme) => {
+              const selected = (settings.theme ?? "nocturne") === theme.id;
+              return (
+                <label
+                  key={theme.id}
+                  className={`cursor-pointer border p-3 transition-colors ${
+                    selected ? "border-acc bg-acc-soft/20" : "border-line hover:border-line-2"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="theme"
+                    value={theme.id}
+                    checked={selected}
+                    onChange={() => onChange("theme", theme.id)}
+                    className="sr-only"
+                  />
+                  <span className="flex items-center gap-2">
+                    <span className="flex gap-1">
+                      {theme.swatch.map((colour) => (
+                        <span
+                          key={colour}
+                          className="size-3.5 border border-line-2"
+                          style={{ backgroundColor: colour }}
+                        />
+                      ))}
+                    </span>
+                    <span className="text-[13.5px] font-medium text-fg">{theme.name}</span>
+                    {selected ? <span className="mono text-[10px] text-acc">LIVE</span> : null}
+                  </span>
+                  <span className="mt-2 block text-[12px] leading-snug text-fg-3">{theme.note}</span>
+                </label>
+              );
+            })}
+          </div>
+        </fieldset>
+
         <div>
           <label htmlFor="s-title-en" className={label}>
             Title (English)

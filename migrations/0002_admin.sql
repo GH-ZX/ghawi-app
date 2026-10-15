@@ -19,7 +19,8 @@ INSERT OR IGNORE INTO site_settings (key, value) VALUES
   ('site_desc_en',     'Software engineer and IT systems specialist. Two commerce platforms in production.'),
   ('site_desc_ar',     'مهندس برمجيات وأخصائي أنظمة تقنية. منصّتان تجاريتان في الإنتاج.'),
   ('maintenance',      '0'),
-  ('maintenance_note', 'Back soon. Email me at ahmedghawi3@gmail.com if it is urgent.');
+  ('maintenance_note', 'Back soon. Email me at ahmedghawi3@gmail.com if it is urgent.'),
+  ('theme',            'nocturne');
 
 -- Failed-login counter, keyed by IP. Cleared on success.
 CREATE TABLE IF NOT EXISTS admin_login_attempts (

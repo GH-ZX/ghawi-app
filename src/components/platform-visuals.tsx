@@ -60,11 +60,20 @@ export function StoreVisual({ url }: { url: string }) {
             >
               {/* Image block */}
               <div
-                className={`mb-2 aspect-4/3 w-full ${
+                className="mb-2 aspect-4/3 w-full"
+                style={
                   tile.accent
-                    ? "bg-[linear-gradient(135deg,rgba(212,255,63,0.22),rgba(212,255,63,0.04))]"
-                    : "bg-[linear-gradient(135deg,rgba(255,255,255,0.05),rgba(255,255,255,0.01))]"
-                }`}
+                    ? // Token-driven so each theme tints its own accent rather
+                      // than inheriting one theme's lime in all three.
+                      {
+                        backgroundImage:
+                          "linear-gradient(135deg, color-mix(in oklab, var(--acc) 22%, transparent), color-mix(in oklab, var(--acc) 4%, transparent))",
+                      }
+                    : {
+                        backgroundImage:
+                          "linear-gradient(135deg, color-mix(in oklab, var(--fg) 5%, transparent), color-mix(in oklab, var(--fg) 1%, transparent))",
+                      }
+                }
               />
               <p
                 className={`mono truncate text-[10px] ${

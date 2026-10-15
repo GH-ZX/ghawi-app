@@ -53,17 +53,27 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#07080a",
-  colorScheme: "dark",
+  // The active theme is admin-selectable at runtime, so the browser UI is
+  // allowed to follow either scheme. The address bar colour is rewritten by
+  // themeScript once the real theme is known.
+  colorScheme: "dark light",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${fontVariables} h-full antialiased`}>
       <head>
+        {/* Exists so themeScript can retarget the address bar at runtime;
+            the content here is only the pre-hydration fallback. */}
+        <meta name="theme-color" content="#07080a" />
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        {/* Film grain. Only the ember theme paints it; the element exists once
+            so every route inherits it without a per-page opt-in. */}
+        <div className="ember-grain" aria-hidden="true" />
+        {children}
+      </body>
     </html>
   );
 }

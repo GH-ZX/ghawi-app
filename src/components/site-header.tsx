@@ -60,10 +60,10 @@ export function SiteHeader({ locale }: { locale: Locale }) {
 
         <div className="flex shrink-0 items-center gap-2.5">
           <ThemeToggle
-            label={
+            labels={
               locale === "ar"
-                ? { dark: "الوضع الداكن", light: "الوضع الفاتح" }
-                : { dark: "Dark theme", light: "Light theme" }
+                ? { nocturne: "السمة الليلية", paper: "السمة الورقية", ember: "سمة الجمر" }
+                : { nocturne: "Nocturne theme", paper: "Paper theme", ember: "Ember theme" }
             }
           />
           <LocaleSwitcher locale={locale} />
