@@ -17,7 +17,7 @@ const ALLOWED = new Set([
 ]);
 
 const THEMES = new Set(["nocturne", "paper", "ember"]);
-const LANDINGS = new Set(["grid", "film"]);
+const LANDINGS = new Set(["grid", "film", "atlas"]);
 
 async function guard() {
   const env = (await getEnv()) as AdminEnv;

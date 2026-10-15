@@ -61,6 +61,12 @@ const LANDINGS = [
     note: "A separate cinematic design — its own layout, fonts and stylesheet.",
     href: "/film/en",
   },
+  {
+    id: "atlas",
+    name: "Atlas",
+    note: "Light editorial. Word-by-word scroll reveal with inline plates.",
+    href: "/atlas/en",
+  },
 ] as const;
 
 export function AdminConsole() {

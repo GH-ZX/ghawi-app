@@ -41,6 +41,209 @@ export const links = {
   echocore: "https://echocore412.com",
 } as const;
 
+/* ------------------------------------------------------------------ *
+ *  Atlas — the third design
+ *
+ *  Built around one signature move: a long statement revealed word by
+ *  word as it scrolls, with small drawn plates surfacing inline between
+ *  certain words. Each plate is its own element in the token stream
+ *  rather than an overlay, so the reveal is real DOM order.
+ * ------------------------------------------------------------------ */
+
+/** A word in the Atlas statement. `plate` marks where a plate sits inline. */
+export interface AtlasWord {
+  t: string;
+  /** Renders a drawn plate after this word instead of continuing the run. */
+  plate?: "store" | "factory" | "bot";
+}
+
+export interface AtlasCopy {
+  role: string;
+  lead: string;
+  cta: string;
+  /** Words of the scroll-revealed statement. */
+  statement: AtlasWord[];
+  aside: string;
+  workKicker: string;
+  workTitle: string;
+  workNote: string;
+  viewCase: string;
+  recordKicker: string;
+  recordTitle: string;
+  record: { value: string; label: string }[];
+  profileKicker: string;
+  profileTitle: string;
+  profileBody: string[];
+  accordions: { title: string; body: string }[];
+  contactKicker: string;
+  contactTitle: string;
+}
+
+const atlasEn: AtlasCopy = {
+  role: "Software engineer · IT systems specialist",
+  lead: "I work across the whole stack, from the machine under the software to the order landing on a supplier's API.",
+  cta: "See the work",
+  aside: "Breadth only matters when the product still holds together.",
+  statement: [
+    { t: "I" },
+    { t: "take" },
+    { t: "a" },
+    { t: "system" },
+    { t: "from" },
+    { t: "a" },
+    { t: "blank" },
+    { t: "server", plate: "store" },
+    { t: "to" },
+    { t: "a" },
+    { t: "storefront" },
+    { t: "taking" },
+    { t: "real" },
+    { t: "money:", plate: "factory" },
+    { t: "the" },
+    { t: "schema," },
+    { t: "the" },
+    { t: "bot" },
+    { t: "that" },
+    { t: "talks" },
+    { t: "to" },
+    { t: "suppliers," },
+    { t: "the" },
+    { t: "edge" },
+    { t: "in" },
+    { t: "front," },
+    { t: "and" },
+    { t: "the" },
+    { t: "resale" },
+    { t: "channel", plate: "bot" },
+    { t: "customers" },
+    { t: "already" },
+    { t: "use" },
+    { t: "daily." },
+  ],
+  workKicker: "Selected work",
+  workTitle: "Proof, not promises.",
+  workNote: "Three systems in production, chosen for what they show about range and delivery.",
+  viewCase: "Open",
+  recordKicker: "The record",
+  recordTitle: "What the numbers say.",
+  record: [
+    { value: "03", label: "Platforms in production" },
+    { value: "27", label: "Public repositories" },
+    { value: "09", label: "Store categories" },
+    { value: "AR/EN", label: "Shipped as default" },
+  ],
+  profileKicker: "How I work",
+  profileTitle: "One accountable thread, brief to production.",
+  profileBody: [
+    "I started out diagnosing motherboards and rebuilding office networks, and I still think about the machine underneath the software.",
+    "That means I can scope a project, build the schema, write the bot, put the edge in front of it, and stay through deployment.",
+  ],
+  accordions: [
+    {
+      title: "Full-stack product engineering",
+      body: "TypeScript, React, Next.js, Tailwind, Flutter and C#, built to be maintained after launch rather than abandoned at handover.",
+    },
+    {
+      title: "Backend & commerce systems",
+      body: "FastAPI and PostgreSQL: ledgers, order state machines, fulfillment queues, and idempotent settlement that survives retries.",
+    },
+    {
+      title: "Telegram bots & Mini Apps",
+      body: "Aiogram 3 and the Bot API. Bot fleets, HMAC initData authentication, and supplier adapters that recover cleanly from failure.",
+    },
+    {
+      title: "Cloud & deployment",
+      body: "Cloudflare Workers, Supabase and Docker. CI/CD, backups, and self-hosted installs that do not depend on me staying reachable.",
+    },
+    {
+      title: "IT & hardware support",
+      body: "Server and network administration, laptop and motherboard repair, clean OS installs and security hardening.",
+    },
+  ],
+  contactKicker: "Start here",
+  contactTitle: "Bring me the part that needs more than one kind of thinking.",
+};
+
+const atlasAr: AtlasCopy = {
+  role: "مهندس برمجيات · أخصائي أنظمة تقنية",
+  lead: "أعمل عبر المنظومة كاملة، من الآلة التي تحت البرمجيات حتى وصول الطلب إلى واجهة المزوّد.",
+  cta: "شاهد الأعمال",
+  aside: "اتساع المجال لا يعني شيئاً ما لم يبقَ المنتج متماسكاً.",
+  statement: [
+    { t: "آخذ" },
+    { t: "منظومة" },
+    { t: "من" },
+    { t: "خادم" },
+    { t: "فارغ", plate: "store" },
+    { t: "إلى" },
+    { t: "متجر" },
+    { t: "يستقبل" },
+    { t: "أموالاً" },
+    { t: "حقيقية:" , plate: "factory" },
+    { t: "قاعدة" },
+    { t: "البيانات،" },
+    { t: "والبوت" },
+    { t: "الذي" },
+    { t: "يتحدّث" },
+    { t: "مع" },
+    { t: "المزوّدين،" },
+    { t: "وطبقة" },
+    { t: "الحافة" },
+    { t: "أمامه،" },
+    { t: "وقناة" },
+    { t: "إعادة" },
+    { t: "البيع" , plate: "bot" },
+    { t: "الّتي" },
+    { t: "يستخدمها" },
+    { t: "العملاء" },
+    { t: "يومياً." },
+  ],
+  workKicker: "أعمال مختارة",
+  workTitle: "أدلّة، لا وعود.",
+  workNote: "ثلاثة أنظمة تعمل في الإنتاج، اختيرت لتُظهر التنوّع في طريقة التسليم.",
+  viewCase: "زيارة",
+  recordKicker: "السجل",
+  recordTitle: "ما تقوله الأرقام.",
+  record: [
+    { value: "03", label: "منصّات في الإنتاج" },
+    { value: "27", label: "مستودعاً مفتوحاً" },
+    { value: "09", label: "فئات في المتجر" },
+    { value: "عربي/إنجليزي", label: "لغتان افتراضياً" },
+  ],
+  profileKicker: "كيف أعمل",
+  profileTitle: "خيط واحد مسؤول، من الطلب إلى الإنتاج.",
+  profileBody: [
+    "بدأت في تشخيص اللوحات الأمّية وإعادة بناء شبكات المكاتب، وما زلت أفكر في الآلة التي تعمل تحت البرمجيات.",
+    "هذا يعني أنني أستطيع تحديد نطاق المشروع، وبناء قاعدة البيانات، وكتابة البوت، ووضع الحافة أمامه، والبقاء حتى النشر.",
+  ],
+  accordions: [
+    {
+      title: "هندسة منتجات كاملة",
+      body: "TypeScript وReact وNext.js وTailwind وFlutter وC#، بُنيت لتُصان بعد الإطلاق لا لتُترك عند التسليم.",
+    },
+    {
+      title: "أنظمة خلفية وتجارية",
+      body: "FastAPI وPostgreSQL: دفاتر حسابات، وآلات حالات للطلبات، وطوابير تنفيذ، وتسديد غير قابل للتكرار يصمد أمام إعادة المحاولة.",
+    },
+    {
+      title: "بوتات وتطبيقات تيليجرام",
+      body: "Aiogram 3 وواجهة Bot API. أسراب بوتات، وتوثيق عبر initData، وموائمات مزوّدين تتعافى من الأعطال دون فقد الطلبات.",
+    },
+    {
+      title: "السحابة والنشر",
+      body: "Cloudflare Workers وSupabase وDocker. تكامل مستمر، ونسخ احتياطية، وتثبيتات ذاتية الاستضافة لا تعتمد على بقائي متاحاً.",
+    },
+    {
+      title: "دعم تقني وعتاد",
+      body: "إدارة الخوادم والشبكات، إصلاح الحواسيب واللوحات الأمّية، تثبيت أنظمة نظيف وتحصين أمني.",
+    },
+  ],
+  contactKicker: "ابدأ من هنا",
+  contactTitle: "أحضر لي الجزء الذي يحتاج أكثر من نوع واحد من التفكير.",
+};
+
+export const atlas: Record<Locale, AtlasCopy> = { en: atlasEn, ar: atlasAr };
+
 export interface Feature {
   label: string;
   value: string;

@@ -14,6 +14,12 @@ import { defaultLocale } from "@/lib/content";
  */
 export const dynamic = "force-dynamic";
 
+const ROUTES: Record<string, string> = {
+  grid: `/${defaultLocale}`,
+  film: `/film/${defaultLocale}`,
+  atlas: `/atlas/${defaultLocale}`,
+};
+
 export default async function RootPage() {
   let landing = "grid";
 
@@ -23,11 +29,13 @@ export default async function RootPage() {
       const row = await env.CONTACT_DB.prepare(
         `SELECT value FROM site_settings WHERE key = 'landing'`,
       ).first<{ value: string | null }>();
-      if (row?.value === "film") landing = "film";
+      // Unknown values fall through to the default rather than redirecting
+      // into a path that may not exist.
+      if (row?.value && row.value in ROUTES) landing = row.value;
     }
   } catch {
     // A lookup failure must never take the site down — serve the default.
   }
 
-  redirect(landing === "film" ? `/film/${defaultLocale}` : `/${defaultLocale}`);
+  redirect(ROUTES[landing]);
 }

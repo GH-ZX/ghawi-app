@@ -14,6 +14,8 @@ Built with **Next.js 16 (App Router, Turbopack)**, **React 19**, **Tailwind CSS 
 | `/ar` | Static | **Grid** design, Arabic, full RTL layout |
 | `/film/en` | Static | **Film** design, English — a separate presentation of the same page |
 | `/film/ar` | Static | **Film** design, Arabic, RTL |
+| `/atlas/en` | Static | **Atlas** design, English — light editorial, word-by-word reveal |
+| `/atlas/ar` | Static | **Atlas** design, Arabic, RTL |
 | `/admin`, `/admin/login` | Dynamic | Admin console, `noindex` |
 | `/api/contact` | Dynamic | Contact form endpoint (Workers runtime) |
 | `/api/site-config` | Dynamic | Public theme + live-design config, edge-cached 60s |
@@ -27,19 +29,26 @@ Both language routes declare `canonical` and `hreflang` alternates (`en`, `ar`, 
 The site ships **two independent landing page designs**. They are not two themes —
 they share no layout, no stylesheet, no fonts and no components.
 
-| | Grid (`(grid)` group) | Film (`(film-en)` / `(film-ar)` groups) |
-| --- | --- | --- |
-| Character | Engineering dashboard | Cinematic title card |
-| Structure | Hairline grid, bordered cards | No borders; scale and space only |
-| Type | Space Grotesk / Inter / JetBrains Mono | Instrument Serif / Plus Jakarta Sans / Noto Kufi |
-| Arabic | IBM Plex Sans Arabic | Noto Kufi + Noto Sans Arabic |
-| Palette | Three switchable themes (Nocturne, Paper, Ember) | One fixed near-black palette |
-| Stylesheet | `src/app/(grid)/globals.css` | `src/styles/film.css` |
-| Components | `src/components/*.tsx` | `src/components/film/*.tsx` |
+| | Grid (`(grid)` group) | Film (`(film-en)` / `(film-ar)` groups) | Atlas (`(atlas-en)` / `(atlas-ar)` groups) |
+| --- | --- | --- | --- |
+| Character | Engineering dashboard | Cinematic title card | Light editorial |
+| Structure | Hairline grid, bordered cards | No borders; scale and space only | Paper ground, cards as tone shifts |
+| Type | Space Grotesk / Inter / JetBrains Mono | Instrument Serif / Plus Jakarta Sans | Archivo / Instrument Sans |
+| Arabic | IBM Plex Sans Arabic | Noto Kufi + Noto Sans Arabic | Noto Kufi + Noto Naskh |
+| Palette | Three switchable themes (Nocturne, Paper, Ember) | One fixed near-black palette | Warm grey / ink / rust |
+| Stylesheet | `src/app/(grid)/globals.css` | `src/styles/film.css` | `src/styles/atlas.css` |
+| Components | `src/components/*.tsx` | `src/components/film/*.tsx` | `src/components/atlas/*.tsx` |
 
-They are built on **separate root layouts** via Next.js route groups, so `/film/*`
-never loads the grid stylesheet, fonts or theme script, and `<html lang>`/`dir` is
-correct from the root rather than set on a wrapper mid-tree.
+They are built on **separate root layouts** via Next.js route groups, so each
+design never loads another's stylesheet, fonts or theme script, and `<html
+lang>`/`dir` is correct from the root rather than set on a wrapper mid-tree.
+
+**Atlas** is built around one signature move: a long statement revealed word by
+word as it scrolls, with small drawn plates surfacing inline between certain
+words (`word-reveal.tsx`). The plates are real elements in the token stream, not
+an overlay, so the line wraps as authored and the copy stays selectable,
+translatable and crawlable. Words are observed individually against a band across
+the middle of the viewport, so the reveal tracks the reader.
 
 The only shared dependency is `src/lib/content.ts` — the copy should not fork.
 

@@ -1,3 +1,3 @@
--- Which design the front door (/ ) forwards to: 'grid' or 'film'.
--- Both designs remain directly addressable at /en and /film/en regardless.
+-- -- Which design the front door (/) forwards to: 'grid', 'film' or 'atlas'.
+-- Each remains directly addressable at /en, /film/en and /atlas/en regardless.
 INSERT OR IGNORE INTO site_settings (key, value) VALUES ('landing', 'grid');

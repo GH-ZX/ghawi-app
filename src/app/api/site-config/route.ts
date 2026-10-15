@@ -15,7 +15,7 @@ const CACHE = "public, max-age=0, s-maxage=60, stale-while-revalidate=300";
  */
 export async function GET() {
   let theme: ThemeName = "nocturne";
-  let landing: "grid" | "film" = "grid";
+  let landing: "grid" | "film" | "atlas" = "grid";
   let maintenance = "0";
   let note = "";
 
@@ -30,7 +30,7 @@ export async function GET() {
 
       for (const row of rows.results ?? []) {
         if (row.key === "theme") theme = row.value as ThemeName;
-        if (row.key === "landing") landing = row.value as "grid" | "film";
+        if (row.key === "landing") landing = row.value as "grid" | "film" | "atlas";
         if (row.key === "maintenance") maintenance = row.value ?? "0";
         if (row.key === "maintenance_note") note = row.value ?? "";
       }
@@ -42,7 +42,7 @@ export async function GET() {
   return NextResponse.json(
     {
       theme: THEMES.includes(theme) ? theme : "nocturne",
-      landing: landing === "film" ? "film" : "grid",
+      landing: landing === "film" || landing === "atlas" ? landing : "grid",
       maintenance,
       note,
     },
