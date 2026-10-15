@@ -110,6 +110,61 @@ rate limiting and abuse investigation only. If you would rather not retain them,
 two columns in `migrations/0001_contact_messages.sql` and the corresponding bind values in
 the route.
 
+## Admin console
+
+`https://ghawi.app/admin`
+
+**No credential material is in this repository.** The password is stored as a
+PBKDF2-SHA256 hash and the session secret is random, both in Workers Secrets.
+The username is a plain `vars` entry because it is not a secret.
+
+| Name | Where | Notes |
+| --- | --- | --- |
+| `ADMIN_USERNAME` | `wrangler.jsonc` → `vars` | `ahmedgh` |
+| `ADMIN_PASSWORD_HASH` | Workers Secret | PBKDF2, 100k iterations |
+| `ADMIN_SESSION_SECRET` | Workers Secret | HMAC signing key |
+
+Rotating the password:
+
+```bash
+node scripts/hash-password.mjs "new-password"
+# then pipe the single output line into the secret store
+```
+
+> Cloudflare's Web Crypto **rejects PBKDF2 above 100,000 iterations**, so that
+> is the ceiling here. The hash stores its own iteration count, so raising it
+> later will not invalidate existing credentials.
+
+### How it works
+
+- Password: PBKDF2-SHA256 with a constant-time compare. The KDF always runs, so
+  a wrong username and a wrong password take the same wall-clock time — the
+  endpoint never reveals which usernames exist.
+- Session: stateless HMAC-signed cookie, 8-hour TTL, `HttpOnly` + `Secure` +
+  `SameSite=Strict`. Nothing to store server-side, nothing to purge on restart.
+- Throttle: 8 attempts per IP with a 15-minute lockout, cleared on success. A
+  throttle outage fails closed rather than open.
+- `/admin` and `/api` are disallowed in `robots.txt` and send
+  `X-Robots-Tag: noindex, nofollow`.
+
+### What it gives you
+
+- **Inbox** — every contact submission with archive, delete, and mailto reply.
+  The *Email undelivered* counter surfaces messages that saved to D1 but whose
+  notification failed, which is the failure mode storage alone would hide.
+- **Settings** — title and description per locale plus a maintenance toggle.
+  Writes pass a key allow-list, so no arbitrary key can be persisted.
+- **System** — deployment facts and the wrangler commands worth remembering.
+
+## Themes
+
+Dark is the default. The toggle in the header switches to the paper theme and
+persists per visitor. It is a second identity — warm off-white ground, ink
+text, deep amber signal — not an inverted colour scheme.
+
+A tiny inline script applies the choice before first paint, so a returning
+visitor never sees the wrong theme flash.
+
 ## Cloudflare configuration
 
 `wrangler.jsonc` is the source of truth for the Worker.
