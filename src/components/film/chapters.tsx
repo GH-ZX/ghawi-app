@@ -18,7 +18,7 @@ export function Statement({ locale }: { locale: Locale }) {
   const t = copy[locale];
 
   return (
-    <section className="relative px-gutter py-40 md:py-56">
+    <section className="relative px-gutter py-24 md:py-32">
       <div className="mx-auto" style={{ maxWidth: "68rem" }}>
         <Scrub>
           <p className="display-sm text-[clamp(2rem,6.4vw,5.25rem)] text-balance">
@@ -26,7 +26,7 @@ export function Statement({ locale }: { locale: Locale }) {
           </p>
         </Scrub>
 
-        <div className="mt-20 grid gap-10 text-center md:mt-28 md:grid-cols-2">
+        <div className="mt-14 grid gap-10 text-center md:mt-20 md:grid-cols-2">
           {t.about.body.map((paragraph, i) => (
             <Reveal key={paragraph.slice(0, 24)} delay={120 + i * 120}>
               <p className="body-quiet mx-auto max-w-[48ch]">{paragraph}</p>
@@ -46,7 +46,7 @@ export function Numbers({ locale }: { locale: Locale }) {
   const t = copy[locale];
 
   return (
-    <section className="relative px-gutter py-28 md:py-40">
+    <section className="relative px-gutter py-20 md:py-24">
       <div
         className="mx-auto grid gap-y-14 sm:grid-cols-2 lg:grid-cols-4"
         style={{ maxWidth: "var(--film-shell)" }}
@@ -80,7 +80,7 @@ export function Stack() {
   ];
 
   return (
-    <section aria-hidden="true" className="relative py-16 md:py-24">
+    <section aria-hidden="true" className="relative py-10 md:py-14">
       <Drift distance={-22}>
         {[0, 1].map((copy) => (
           <div key={copy} className="flex shrink-0 items-center">
@@ -107,8 +107,8 @@ export function About({ locale }: { locale: Locale }) {
   const t = copy[locale];
 
   return (
-    <section id="about" className="relative px-gutter py-28 md:py-40">
-      <div className="mx-auto grid gap-16 md:grid-cols-12 md:gap-10">
+    <section id="about" className="relative px-gutter py-20 md:py-24">
+      <div className="mx-auto grid gap-12 md:grid-cols-12 md:gap-10">
         <div className="md:col-span-5">
           {/* Oversized and offset, so the plate bleeds past its column. */}
           <Parallax speed={-0.09} className="md:-ms-10">
@@ -142,8 +142,8 @@ export function About({ locale }: { locale: Locale }) {
 
         <div className="md:col-span-6 md:col-start-7">
           <Reveal>
-            <p className="label mb-8">{t.about.label}</p>
-            <h2 className="display-sm mb-14 text-[clamp(1.875rem,4.4vw,3.5rem)] text-balance">
+            <p className="label mb-6">{t.about.label}</p>
+            <h2 className="display-sm mb-10 text-[clamp(1.875rem,4.4vw,3.5rem)] text-balance">
               {t.about.disciplineTitle}
             </h2>
           </Reveal>
@@ -172,14 +172,14 @@ export function Capabilities({ locale }: { locale: Locale }) {
   const t = copy[locale];
 
   return (
-    <section id="capabilities" className="px-gutter py-28 md:py-40">
+    <section id="capabilities" className="px-gutter py-20 md:py-24">
       <div className="mx-auto" style={{ maxWidth: "var(--film-shell)" }}>
-        <Reveal className="mb-20 md:mb-28">
+        <Reveal className="mb-14 md:mb-18">
           <p className="label mb-6">{t.capabilities.label}</p>
           <h2 className="display-sm text-[clamp(2rem,5vw,3.75rem)]">{t.capabilities.headline}</h2>
         </Reveal>
 
-        <ol className="space-y-4">
+        <ol className="space-y-3">
           {t.capabilities.items.map((item, i) => (
             <Reveal as="li" key={item.index} delay={i * 80}>
               <article className="group grid gap-6 rounded-3xl bg-white/[0.022] p-8 transition-colors duration-700 hover:bg-white/[0.045] md:grid-cols-12 md:gap-10 md:p-12">

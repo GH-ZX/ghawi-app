@@ -11,9 +11,9 @@ export function Code({ locale }: { locale: Locale }) {
   const items = allRepos[locale];
 
   return (
-    <section id="code" className="px-gutter py-28 md:py-40">
+    <section id="code" className="px-gutter py-20 md:py-24">
       <div className="mx-auto" style={{ maxWidth: "var(--film-shell)" }}>
-        <Reveal className="mb-16 md:mb-24">
+        <Reveal className="mb-12 md:mb-16">
           <p className="label mb-6">{t.code.label}</p>
           <h2 className="display-sm text-[clamp(2rem,5vw,3.75rem)]">{t.code.headline}</h2>
         </Reveal>
@@ -34,7 +34,7 @@ export function Code({ locale }: { locale: Locale }) {
                 href={repo.url}
                 target="_blank"
                 rel="noreferrer noopener"
-                className="grid gap-x-8 gap-y-3 rounded-2xl px-4 py-8 transition-colors duration-700 after:absolute after:inset-0 after:content-[''] hover:bg-white/[0.035] md:grid-cols-12 md:px-6 md:py-10"
+                className="grid gap-x-8 gap-y-3 rounded-2xl px-4 py-6 transition-colors duration-700 after:absolute after:inset-0 after:content-[''] hover:bg-white/[0.035] md:grid-cols-12 md:px-6 md:py-8"
               >
                 <h3 className="display-sm text-[clamp(1.5rem,3.4vw,2.5rem)] transition-colors duration-700 group-hover:text-beam md:col-span-5">
                   {repo.name}
@@ -67,7 +67,7 @@ export function Code({ locale }: { locale: Locale }) {
           ))}
         </ul>
 
-        <Reveal delay={120} className="mt-14">
+        <Reveal delay={120} className="mt-10">
           <a
             href="https://github.com/GH-ZX"
             target="_blank"

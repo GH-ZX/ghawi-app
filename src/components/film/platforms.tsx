@@ -48,14 +48,14 @@ export function Platforms({ locale }: { locale: Locale }) {
   return (
     <section id="platforms" className="relative px-gutter">
       <div className="mx-auto" style={{ maxWidth: "var(--film-shell)" }}>
-        <Reveal className="mb-20 md:mb-32">
+        <Reveal className="mb-14 md:mb-20">
           <p className="label mb-6">{t.platforms.label}</p>
           <h2 className="display-sm text-[clamp(2rem,5.2vw,4rem)] text-balance">
             {t.platforms.headline}
           </h2>
         </Reveal>
 
-        <div className="grid gap-16 md:grid-cols-12 md:gap-12">
+        <div className="grid gap-12 md:grid-cols-12 md:gap-12">
           {/* Scene copy — tall blocks so the pinned plate has time to breathe. */}
           <div className="md:col-span-6 md:col-start-1">
             {items.map((platform, i) => (
@@ -64,7 +64,7 @@ export function Platforms({ locale }: { locale: Locale }) {
                 ref={(el) => {
                   blockRefs.current[i] = el;
                 }}
-                className="flex min-h-[78vh] flex-col justify-center border-t border-white/8 py-16 first:border-t-0 first:pt-0"
+                className="flex min-h-[68vh] flex-col justify-center border-t border-white/8 py-12 first:border-t-0 first:pt-0"
               >
                 <p className="label mb-5">{platform.category}</p>
 

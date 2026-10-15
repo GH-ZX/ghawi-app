@@ -211,30 +211,30 @@ visitor never sees the wrong theme flash. It resolves in order: the visitor's ow
 stored choice → the admin's live choice (a synchronous request against the
 edge-cached `/api/site-config`) → the build-time default.
 
-## Film backdrop
+## Film scroll motion
 
-`/film/*` sits on a looping video backdrop: out-of-focus light motes drifting
-across a near-black stage, `public/media/film/backdrop.{webm,mp4}`.
+`src/components/film/scroll.tsx` holds the choreography. Five distinct motions,
+rather than one reveal repeated:
 
-It is generated, not sourced. `scripts/make-backdrop.mjs` renders the frames to
-raw PPM on stdout and ffmpeg encodes them:
+| | |
+| --- | --- |
+| `ScrollProgress` | Hairline across the top that fills with read depth |
+| `Parallax` | Element drifts against the page as it passes (numbers, portrait) |
+| `Scrub` | Mask tracks scroll position instead of playing on entry (statement) |
+| `Drift` | Stack strip travels sideways against vertical scroll |
+| `CountUp` | Figures count once on entry, expo-eased |
 
-```sh
-node scripts/make-backdrop.mjs | ffmpeg -y -f image2pipe -vcodec ppm -r 24 -i - \
-  -vf "gblur=sigma=7,scale=1920:1080:flags=lanczos,format=yuv420p" \
-  -c:v libx264 -preset slow -crf 22 -movflags +faststart backdrop.mp4
-```
+Constraints the module holds to:
 
-Route it through `cmd /c` on Windows — PowerShell mangles binary pipes between
-native commands and silently truncates the stream to a couple of frames.
+- IntersectionObserver decides *when*; only continuous work reads scroll, and all
+  of it shares one rAF loop rather than a listener per element.
+- Only `transform` and `opacity` are animated, so the page never reflows.
+- `prefers-reduced-motion` short-circuits every path to its final state.
+- The media query is read with `useSyncExternalStore`, not `useState` + effect.
 
-Every moving term in the generator is periodic over the loop length, so the last
-frame matches the first and the clip needs no crossfade. The PRNG is seeded, so
-the output is reproducible.
-
-The backdrop is fixed and parallaxed against scroll. The portrait
-(`public/media/film/portrait.webp`) is a separate 4:5 crop used in the About
-plate — it is never used as background.
+The backdrop is intentionally flat: a fixed grain layer over the stage colour,
+plus the hero's `.shaft`. A video backdrop was tried and removed — it cost the
+page its scroll smoothness and added nothing.
 
 ## Cloudflare configuration
 

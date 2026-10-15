@@ -90,22 +90,22 @@ export function Contact({ locale }: { locale: Locale }) {
   }
 
   return (
-    <section id="contact" className="px-gutter pt-28 pb-24 md:pt-40 md:pb-32">
+    <section id="contact" className="px-gutter pt-20 pb-16 md:pt-28 md:pb-24">
       <div className="mx-auto" style={{ maxWidth: "var(--film-shell)" }}>
-        <Reveal className="mb-20 md:mb-28">
-          <p className="label mb-8">{t.label}</p>
-          <h2 className="display-sm mb-10 max-w-[18ch] text-[clamp(2.25rem,7vw,5.5rem)] text-balance">
+        <Reveal className="mb-14 md:mb-20">
+          <p className="label mb-6">{t.label}</p>
+          <h2 className="display-sm mb-8 max-w-[18ch] text-[clamp(2.25rem,7vw,5.5rem)] text-balance">
             {t.headline}
           </h2>
           <p className="lead">{t.body}</p>
         </Reveal>
 
-        <div className="grid gap-16 md:grid-cols-12 md:gap-10">
+        <div className="grid gap-12 md:grid-cols-12 md:gap-10">
           <Reveal className="md:col-span-5">
-            <p className="label mb-8">{t.fallback}</p>
+            <p className="label mb-6">{t.fallback}</p>
             <a
               href={`mailto:${profile.email}`}
-              className="display-sm mb-12 block break-all text-[clamp(1.25rem,2.4vw,1.875rem)] transition-colors duration-700 hover:text-beam"
+              className="display-sm mb-10 block break-all text-[clamp(1.25rem,2.4vw,1.875rem)] transition-colors duration-700 hover:text-beam"
             >
               {profile.email}
             </a>

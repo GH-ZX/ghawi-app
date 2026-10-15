@@ -5,7 +5,7 @@ export function FilmFooter({ locale }: { locale: Locale }) {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="px-gutter pt-20 pb-10">
+    <footer className="px-gutter pt-14 pb-8">
       <div
         className="mx-auto flex flex-col gap-10 border-t border-white/8 pt-10 md:flex-row md:items-end md:justify-between"
         style={{ maxWidth: "var(--film-shell)" }}
