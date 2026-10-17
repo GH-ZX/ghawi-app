@@ -22,6 +22,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       lang="en"
       dir="ltr"
       data-preset={storeTheme.preset}
+      data-site={storeTheme.preset}
       data-default={storeTheme.mode}
       className={fontVariables}
       suppressHydrationWarning

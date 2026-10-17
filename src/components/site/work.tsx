@@ -15,7 +15,7 @@ import {
 import { Logo } from "@/components/logo";
 import { links, profile, type Dictionary, type Locale, type Project } from "@/lib/content";
 import { Looks } from "./looks";
-import { StoreDemo } from "./store-demo";
+import { StoreShots } from "./store-shots";
 
 const DOOR_ICONS = [WindowIcon, PhoneIcon, SendIcon];
 const PRINCIPLE_ICONS = [LedgerIcon, BellIcon, RepeatIcon, ShieldIcon];
@@ -45,72 +45,72 @@ export function Work({ t, locale }: { t: Dictionary; locale: Locale }) {
         </header>
 
         {/* ── GH Store, the flagship ── */}
-        <article className="feature" aria-labelledby="store-title" data-reveal>
-          <div className="feature__text">
-            <span className="badge badge--good">
-              <span className="live-dot" aria-hidden="true" />
-              {store.kicker}
-            </span>
-            <div className="feature__brand">
-              <Logo height={26} label="GH Store" />
-              <span>GH Store</span>
+        <article className="feature spot" aria-labelledby="store-title" data-reveal>
+          <div className="feature__intro">
+            <div className="feature__text">
+              <span className="badge badge--good">
+                <span className="live-dot" aria-hidden="true" />
+                {store.kicker}
+              </span>
+              <div className="feature__brand">
+                <Logo height={26} label="GH Store" />
+                <span>GH Store</span>
+              </div>
+              <h3 id="store-title" className="feature__title">
+                {store.title}
+              </h3>
+              <p className="feature__body">{store.body}</p>
+              <div className="feature__actions">
+                <Out className="btn btn--sm press" href={links.store} newTab={t.ui.newTab}>
+                  {store.visit}
+                  <ExternalIcon />
+                </Out>
+                <Out className="btn btn--sm btn--soft press" href={links.storeBot} newTab={t.ui.newTab}>
+                  {store.openBot}
+                </Out>
+                <Out className="btn btn--sm btn--ghost press" href={links.storeSource} newTab={t.ui.newTab}>
+                  {store.source}
+                </Out>
+              </div>
             </div>
-            <h3 id="store-title" className="feature__title">
-              {store.title}
-            </h3>
-            <p className="feature__body">{store.body}</p>
 
-            <ul className="doors">
-              {store.doors.map((door, index) => {
-                const Icon = DOOR_ICONS[index];
-                return (
-                  <li key={door.name} className="door">
-                    <span className="door__icon" aria-hidden="true">
-                      <Icon size={19} />
-                    </span>
-                    <span className="door__text">
-                      <strong>{door.name}</strong>
-                      <span>
-                        <bdi>{door.detail}</bdi>
+            <div className="feature__side">
+              <ul className="doors">
+                {store.doors.map((door, index) => {
+                  const Icon = DOOR_ICONS[index];
+                  return (
+                    <li key={door.name} className="door">
+                      <span className="door__icon" aria-hidden="true">
+                        <Icon size={19} />
                       </span>
-                    </span>
+                      <span className="door__text">
+                        <strong>{door.name}</strong>
+                        <span>
+                          <bdi>{door.detail}</bdi>
+                        </span>
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+              <ul className="chips feature__stack">
+                {store.stack.map((item) => (
+                  <li key={item} className="chip">
+                    {item}
                   </li>
-                );
-              })}
-            </ul>
-
-            <div className="feature__actions">
-              <Out className="btn btn--sm press" href={links.store} newTab={t.ui.newTab}>
-                {store.visit}
-                <ExternalIcon />
-              </Out>
-              <Out className="btn btn--sm btn--soft press" href={links.storeBot} newTab={t.ui.newTab}>
-                {store.openBot}
-              </Out>
-              <Out className="btn btn--sm btn--ghost press" href={links.storeSource} newTab={t.ui.newTab}>
-                {store.source}
-              </Out>
+                ))}
+              </ul>
             </div>
-
-            <ul className="chips feature__stack">
-              {store.stack.map((item) => (
-                <li key={item} className="chip">
-                  {item}
-                </li>
-              ))}
-            </ul>
           </div>
 
-          <div className="demo">
-            <StoreDemo demo={store.demo} />
-          </div>
+          <StoreShots shots={store.shots} locale={locale} />
 
           <Looks looks={store.looks} locale={locale} />
         </article>
 
         <ul className="figures">
           {store.figures.map((figure) => (
-            <li key={figure.label} className="figure" data-reveal>
+            <li key={figure.label} className="figure spot" data-reveal>
               <span className="num">{figure.value}</span>
               <p>{figure.label}</p>
             </li>
@@ -124,7 +124,7 @@ export function Work({ t, locale }: { t: Dictionary; locale: Locale }) {
           {store.principles.map((principle, index) => {
             const Icon = PRINCIPLE_ICONS[index];
             return (
-              <li key={principle.title} className="principle" data-reveal>
+              <li key={principle.title} className="principle spot" data-reveal>
                 <span className="principle__icon" aria-hidden="true">
                   <Icon />
                 </span>
@@ -180,7 +180,7 @@ export function Work({ t, locale }: { t: Dictionary; locale: Locale }) {
 
 function ProjectCard({ project, newTab }: { project: Project; newTab: string }) {
   return (
-    <article className="project" aria-labelledby={`${project.id}-title`} data-reveal>
+    <article className="project spot" aria-labelledby={`${project.id}-title`} data-reveal>
       <div className="project__visual" aria-hidden="true">
         {project.id === "factory" ? <FactoryDiagram /> : <EchocoreWindow />}
       </div>

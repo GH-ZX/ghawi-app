@@ -40,8 +40,20 @@ async function resolveStoreTheme(): Promise<{ preset: string; mode: string }> {
   }
 }
 
+/** How many products GH Store has on sale, for the hero. 0 when unknown. */
+async function countStoreProducts(): Promise<number> {
+  try {
+    const response = await fetch("https://gh-store.me/api/catalog", { signal: AbortSignal.timeout(8000) });
+    if (!response.ok) return 0;
+    const body = (await response.json()) as { products?: unknown[] };
+    return Array.isArray(body.products) ? body.products.length : 0;
+  } catch {
+    return 0;
+  }
+}
+
 export default async function config(): Promise<NextConfig> {
-  const theme = await resolveStoreTheme();
+  const [theme, products] = await Promise.all([resolveStoreTheme(), countStoreProducts()]);
 
   return {
     // A static marketing site: no request-time page data, no ISR, so Cache
@@ -49,6 +61,7 @@ export default async function config(): Promise<NextConfig> {
     env: {
       GHSTORE_PRESET: theme.preset,
       GHSTORE_MODE: theme.mode,
+      GHSTORE_PRODUCTS: String(products),
     },
     images: {
       formats: ["image/avif", "image/webp"],

@@ -1,7 +1,8 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "ghawi-app",
-  "main": ".open-next/worker.js",
+  // worker.ts wraps OpenNext's .open-next/worker.js (live theme switch).
+  "main": "worker.ts",
   "compatibility_date": "2026-10-01",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
 

@@ -13,7 +13,7 @@ export function Services({ services }: { services: Dictionary["services"] }) {
         </header>
         <ul className="services">
           {services.items.map((item) => (
-            <li key={item.title} className="service" data-reveal>
+            <li key={item.title} className="service spot" data-reveal>
               <span className="service__icon" aria-hidden="true">
                 <ServiceIcon name={item.icon} />
               </span>

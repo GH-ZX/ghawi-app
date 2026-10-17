@@ -80,6 +80,7 @@ export default async function SiteLayout({ children, params }: Params & { childr
       lang={locale}
       dir={dirOf(locale)}
       data-preset={storeTheme.preset}
+      data-site={storeTheme.preset}
       data-default={storeTheme.mode}
       className={fontVariables}
       // The pre-paint script may set data-preset / data-mode before React runs.

@@ -2,8 +2,8 @@
 
 import { useSyncExternalStore } from "react";
 import { THEMES } from "@/lib/ghstore-ui";
-import { PRESETS, storeTheme } from "@/lib/theme";
-import { getPreset, setPreset, subscribeTheme } from "@/lib/theme-client";
+import { labelOf, PRESETS, storeTheme } from "@/lib/theme";
+import { getPreset, getSiteTheme, setPreset, subscribeTheme } from "@/lib/theme-client";
 import type { Dictionary, Locale } from "@/lib/content";
 
 /**
@@ -12,6 +12,7 @@ import type { Dictionary, Locale } from "@/lib/content";
  */
 export function Looks({ looks, locale }: { looks: Dictionary["store"]["looks"]; locale: Locale }) {
   const current = useSyncExternalStore(subscribeTheme, getPreset, () => storeTheme.preset);
+  const site = useSyncExternalStore(subscribeTheme, getSiteTheme, () => storeTheme.preset);
 
   return (
     <div className="looks">
@@ -48,6 +49,11 @@ export function Looks({ looks, locale }: { looks: Dictionary["store"]["looks"]; 
           );
         })}
       </div>
+      {current !== site ? (
+        <button type="button" className="btn btn--xs btn--ghost press looks__reset" onClick={() => setPreset(site)}>
+          ↺ {looks.reset} · {labelOf(site, locale)}
+        </button>
+      ) : null}
     </div>
   );
 }

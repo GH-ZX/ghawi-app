@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ExternalIcon, MoonIcon, SunIcon } from "@/components/icons";
 import { Logo } from "@/components/logo";
+import { ThemePanel } from "./theme-panel";
 import { getEffectiveMode, setMode } from "@/lib/theme-client";
 
 type Message = {
@@ -50,6 +51,7 @@ export function AdminConsole() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [view, setView] = useState<View>("inbox");
   const [query, setQuery] = useState("");
+  const [section, setSection] = useState<"inbox" | "theme">("inbox");
 
   // Bumped after every change; the effect below refetches when it moves.
   const [version, setVersion] = useState(0);
@@ -146,6 +148,19 @@ export function AdminConsole() {
       </header>
 
       <main className="admin__main">
+        <div className="seg admin__tabs" role="group" aria-label="Section">
+          <button type="button" className="press" aria-pressed={section === "inbox"} onClick={() => setSection("inbox")}>
+            Inbox{stats.unread ? ` · ${stats.unread}` : ""}
+          </button>
+          <button type="button" className="press" aria-pressed={section === "theme"} onClick={() => setSection("theme")}>
+            Theme
+          </button>
+        </div>
+
+        {section === "theme" ? (
+          <ThemePanel />
+        ) : (
+          <>
         <dl className="kpis">
           <div className="kpi">
             <dt>Inbox</dt>
@@ -263,6 +278,8 @@ export function AdminConsole() {
             </div>
           </dl>
         </details>
+          </>
+        )}
       </main>
     </div>
   );

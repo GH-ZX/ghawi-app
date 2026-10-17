@@ -5,6 +5,8 @@ import { Footer } from "@/components/site/footer";
 import { Header } from "@/components/site/header";
 import { Hero } from "@/components/site/hero";
 import { Services } from "@/components/site/services";
+import { Spotlight } from "@/components/site/spotlight";
+import { StackStrip } from "@/components/site/stack-strip";
 import { Tabbar } from "@/components/site/tabbar";
 import { Work } from "@/components/site/work";
 import { dictionaries, isLocale, links, profile, SITE_URL } from "@/lib/content";
@@ -40,6 +42,7 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
 
       <main id="main">
         <Hero t={t} locale={lang} />
+        <StackStrip />
         <Work t={t} locale={lang} />
         <About about={t.about} />
         <Services services={t.services} />
@@ -48,6 +51,7 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
 
       <Footer t={t} locale={lang} />
       <Tabbar nav={t.nav} label={t.ui.nav} />
+      <Spotlight />
 
       <script
         type="application/ld+json"

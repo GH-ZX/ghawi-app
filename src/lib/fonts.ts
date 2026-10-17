@@ -1,4 +1,14 @@
-import { Alexandria, El_Messiri, JetBrains_Mono, Readex_Pro, Rubik, Tajawal } from "next/font/google";
+import {
+  Alexandria,
+  El_Messiri,
+  IBM_Plex_Sans_Arabic,
+  Inter,
+  JetBrains_Mono,
+  Readex_Pro,
+  Rubik,
+  Space_Grotesk,
+  Tajawal,
+} from "next/font/google";
 
 /*
  * One family per GH Store preset (see THEMES in ghstore-ui.ts), self-hosted
@@ -55,6 +65,31 @@ export const mono = JetBrains_Mono({
   preload: false,
 });
 
-export const fontVariables = [rubik, readex, alexandria, tajawal, messiri, mono]
+/* The classic themes (Nocturne, Ember) keep the original ghawi.app faces:
+   Space Grotesk headings, Inter text, IBM Plex Sans Arabic for Arabic glyphs. */
+export const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--ff-space",
+  display: "swap",
+  preload: false,
+});
+
+export const inter = Inter({
+  subsets: ["latin"],
+  variable: "--ff-inter",
+  display: "swap",
+  preload: false,
+});
+
+/** Not variable upstream. */
+export const plexArabic = IBM_Plex_Sans_Arabic({
+  subsets: ["arabic"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--ff-plex-ar",
+  display: "swap",
+  preload: false,
+});
+
+export const fontVariables = [rubik, readex, alexandria, tajawal, messiri, mono, spaceGrotesk, inter, plexArabic]
   .map((font) => font.variable)
   .join(" ");

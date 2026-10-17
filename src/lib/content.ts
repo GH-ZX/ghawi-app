@@ -51,6 +51,12 @@ export const links = {
   echocoreSource: "https://github.com/GH-ZX/echocore-store",
 } as const;
 
+/** The scrolling strip under the hero: tools in daily use. */
+export const stackStrip = [
+  "TypeScript", "React", "Next.js", "Cloudflare Workers", "Supabase", "PostgreSQL", "FastAPI",
+  "Python", "Aiogram 3", "Telegram Mini Apps", "Redis", "Docker", "Flutter", "C#", "Linux", "Networking",
+];
+
 export type IconName = "store" | "bot" | "code" | "globe" | "cloud" | "chip";
 
 export interface Project {
@@ -87,12 +93,17 @@ export interface Dictionary {
     status: string;
     eyebrow: string;
     title: string;
+    /** The part of the title set in the accent. */
+    titleAccent: string;
     lead: string;
     primary: string;
     secondary: string;
     facts: string[];
     portraitAlt: string;
     liveChip: string;
+    /** Floating cards beside the portrait; {n} is GH Store's live product count. */
+    productsCard: { value: string; label: string };
+    languageCard: { value: string; label: string };
   };
   work: { label: string; title: string; lead: string };
   store: {
@@ -107,20 +118,8 @@ export interface Dictionary {
     visit: string;
     openBot: string;
     source: string;
-    looks: { title: string; body: string; live: string; group: string };
-    demo: {
-      label: string;
-      close: string;
-      miniApp: string;
-      badge: string;
-      slideTitle: string;
-      slideSub: string;
-      slideCta: string;
-      picks: string;
-      all: string;
-      categories: string[];
-      tabs: string[];
-    };
+    looks: { title: string; body: string; live: string; group: string; reset: string };
+    shots: { desktop: string; mobile: string };
   };
   projects: Project[];
   more: {
@@ -172,6 +171,8 @@ export interface Dictionary {
     rights: string;
     built: string;
     synced: string;
+    /** Shown instead of `synced` when the page wears a classic theme. */
+    theme: string;
     localTime: string;
     top: string;
   };
@@ -205,12 +206,15 @@ const en: Dictionary = {
     status: "Open to new projects",
     eyebrow: "Ahmed Ghawi · Software engineer & IT systems specialist",
     title: "From a blank server to a store taking real money.",
+    titleAccent: "real money",
     lead: "I design, build and run commerce systems end to end: the database, the payment ledger, the bot that talks to suppliers, the storefront customers see, and the machines it all runs on. The proof is GH Store, live on the web and inside Telegram.",
     primary: "See the work",
     secondary: "Start a conversation",
     facts: ["Aleppo, Syria · UTC+3", "Arabic & English", "Remote, worldwide"],
     portraitAlt: "Portrait of Ahmed Ghawi",
     liveChip: "GH Store is live",
+    productsCard: { value: "{n}+", label: "products on sale in GH Store" },
+    languageCard: { value: "AR · EN", label: "Arabic first, both ways" },
   },
 
   work: {
@@ -262,19 +266,11 @@ const en: Dictionary = {
       body: "The store's owner picks a look in its admin and every screen follows, in light and dark. This page wears the same design system and changes with the store — try it:",
       live: "Live on the store",
       group: "GH Store design presets",
+      reset: "Back to this site's look",
     },
-    demo: {
-      label: "Illustration of the GH Store Mini App home screen",
-      close: "Close",
-      miniApp: "mini app",
-      badge: "Instant",
-      slideTitle: "PUBG Mobile UC",
-      slideSub: "Top up in seconds, delivered automatically.",
-      slideCta: "Top up now",
-      picks: "Today's picks",
-      all: "See all",
-      categories: ["Games", "AI", "Cards", "Streaming"],
-      tabs: ["Store", "Orders", "Wallet", "Profile"],
+    shots: {
+      desktop: "GH Store's home page in a desktop browser",
+      mobile: "GH Store on a phone",
     },
   },
 
@@ -462,6 +458,7 @@ const en: Dictionary = {
     rights: "All rights reserved.",
     built: "Designed and built in Aleppo, Syria.",
     synced: "Wears GH Store's design system",
+    theme: "Theme",
     localTime: "Local time in Aleppo",
     top: "Back to top",
   },
@@ -496,12 +493,15 @@ const ar: Dictionary = {
     status: "متاح لمشاريع جديدة",
     eyebrow: "أحمد غاوي · مهندس برمجيات وأخصائي أنظمة تقنية",
     title: "من خادم فارغ إلى متجر يستقبل أموالاً حقيقية.",
+    titleAccent: "أموالاً حقيقية",
     lead: "أصمّم أنظمة التجارة الرقمية وأبنيها وأشغّلها من أولها إلى آخرها: قاعدة البيانات، ودفتر المدفوعات، والبوت الذي يتحدّث مع المزوّدين، والمتجر الذي يراه العميل، والأجهزة التي يعمل عليها كل ذلك. والدليل GH Store، يعمل الآن على الويب وداخل تيليجرام.",
     primary: "شاهد الأعمال",
     secondary: "ابدأ محادثة",
     facts: ["حلب، سوريا · UTC+3", "العربية والإنجليزية", "عن بُعد، لأي مكان"],
     portraitAlt: "صورة أحمد غاوي",
     liveChip: "GH Store يعمل الآن",
+    productsCard: { value: "+{n}", label: "منتج معروض في GH Store" },
+    languageCard: { value: "ع · EN", label: "العربية أولاً، وبالاتجاهين" },
   },
 
   work: {
@@ -553,19 +553,11 @@ const ar: Dictionary = {
       body: "يختار مالك المتجر الشكل من لوحة التحكّم فتتبعه كل الشاشات، فاتحةً وداكنة. وهذه الصفحة تلبس نظام التصميم نفسه وتتغيّر مع المتجر — جرّبه:",
       live: "المعتمد في المتجر",
       group: "أشكال تصميم GH Store",
+      reset: "العودة إلى شكل الموقع",
     },
-    demo: {
-      label: "رسم توضيحي للشاشة الرئيسية في تطبيق GH Store المصغّر",
-      close: "إغلاق",
-      miniApp: "تطبيق مصغّر",
-      badge: "فوري",
-      slideTitle: "شدّات ببجي موبايل",
-      slideSub: "اشحن في ثوانٍ، والتسليم تلقائي.",
-      slideCta: "اشحن الآن",
-      picks: "اختيارات اليوم",
-      all: "عرض الكل",
-      categories: ["ألعاب", "ذكاء", "بطاقات", "ترفيه"],
-      tabs: ["المتجر", "الطلبات", "المحفظة", "حسابي"],
+    shots: {
+      desktop: "الصفحة الرئيسية لمتجر GH Store في متصفّح حاسوب",
+      mobile: "متجر GH Store على الهاتف",
     },
   },
 
@@ -753,6 +745,7 @@ const ar: Dictionary = {
     rights: "جميع الحقوق محفوظة.",
     built: "صُمّم وبُني في حلب، سوريا.",
     synced: "بنظام تصميم GH Store",
+    theme: "السمة",
     localTime: "التوقيت في حلب",
     top: "العودة للأعلى",
   },

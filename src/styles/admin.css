@@ -59,3 +59,25 @@
 .login__blob { position: absolute; z-index: -1; width: 46vmax; aspect-ratio: 1; border-radius: 50%; filter: blur(80px); opacity: .28; background: var(--accent); top: -18vmax; inset-inline-end: -12vmax; }
 .login__back { font-size: 13px; color: var(--muted); text-decoration: none; text-align: center; }
 .login__back:hover { color: var(--accent-text); }
+
+.admin__tabs { align-self: flex-start; }
+
+/* Admin → Theme */
+.theme-panel { display: flex; flex-direction: column; gap: 18px; }
+.theme-panel__head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 10px; }
+.theme-panel__head h2 { font-size: 22px; font-weight: 800; }
+.theme-panel__head p { margin-top: 4px; font-size: 14px; max-width: 60ch; }
+.theme-panel__status { font-size: 13px; font-weight: 600; color: var(--accent-text); min-height: 18px; }
+.theme-grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+.theme-option { position: relative; border-radius: 20px; border: 1.5px solid var(--line); background: var(--surface); transition: border-color .2s ease; }
+.theme-option[data-on] { border-color: var(--accent); background: var(--tile); }
+.theme-option__pick {
+  width: 100%; border: 0; background: transparent; color: inherit; text-align: start;
+  padding: 14px 14px 34px; display: flex; flex-direction: column; gap: 6px; border-radius: inherit;
+}
+.theme-option__top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; min-height: 24px; }
+.theme-option__pick strong { font-size: 15px; }
+.theme-option__preview { position: absolute; inset-inline-start: 14px; bottom: 10px; font-size: 12.5px; font-weight: 600; color: var(--accent-text); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+.look__swatches { display: flex; }
+.look__swatches span { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--surface); box-shadow: 0 0 0 1px color-mix(in srgb, var(--ink) 16%, transparent); }
+.look__swatches span + span { margin-inline-start: -5px; }

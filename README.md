@@ -25,6 +25,9 @@ ghawi.app is built on **GH Store's own design system**, not a lookalike:
 - **Staying in sync.** The deploy workflow runs every six hours, compares the store's
   look with the deployed page and redeploys only when they differ. "Run workflow" in
   GitHub Actions syncs immediately.
+- **Real screenshots.** `public/media/store/` holds retina captures of gh-store.me —
+  desktop and phone, Arabic and English, light and dark. The page shows the store in
+  its own language and mode. Retake them when the store changes visibly.
 - **Showing it off.** The GH Store section has a preset picker that re-themes the whole
   page for the visit. `?preset=calm|energetic|minimal|warm` and `?mode=light|dark`
   preview a look from any URL. The favicon, home-screen icon and link-preview card are
@@ -33,6 +36,28 @@ ghawi.app is built on **GH Store's own design system**, not a lookalike:
 Fonts are self-hosted with `next/font` (Rubik, Readex Pro, Alexandria, Tajawal,
 El Messiri, JetBrains Mono — every family carries Arabic). Only the live preset's face
 is preloaded; the others cost nothing until a preset uses them.
+
+## Themes, and choosing one from the admin
+
+The page can wear six themes: GH Store's four presets (Calm, Energetic, Minimal,
+Warm) and two classic ghawi.app themes rebuilt in the same token format
+(`src/lib/classic-themes.ts`):
+
+- **Nocturne** — near-black, lime signal, hairline grid, mono labels.
+- **Ember** — forge-warm black, molten copper headline, drifting heat, film grain.
+
+Both classics open dark and have a light half (AA-checked), use Space Grotesk and
+Inter with IBM Plex Sans Arabic for Arabic, and respect reduced motion.
+
+**Admin → Theme** picks the live theme: *Follow GH Store* (the default) or any of the
+six. The choice is stored in D1 (`site_settings.site_theme`) and applied **at the
+edge**: `worker.ts` wraps OpenNext's Worker and, for `/en` and `/ar`, rewrites the
+`<html>` theme attributes with `HTMLRewriter` as the prerendered page streams
+through. Pages stay static; a change is live within 30 seconds (per-isolate cache),
+with no deploy. Visitors still choose light or dark themselves.
+
+`next dev` runs without the wrapper, so locally the page shows GH Store's preset;
+use `?preset=nocturne` (or `pnpm run preview`) to see a pinned theme.
 
 ## Routes
 
@@ -129,7 +154,8 @@ D1 database `ghawi-app-contacts`, migrations in `migrations/` (append-only; appl
 
 - `contact_messages` — the inbox.
 - `admin_login_attempts` — the sign-in throttle.
-- `site_settings` — left from the earlier admin settings page; nothing reads it now.
+- `site_settings` — `site_theme` (the landing theme, read by `worker.ts`). Older keys
+  from the previous settings page are unused.
 
 Timestamps are stored as `strftime('%Y-%m-%dT%H:%M:%fZ')`. Compare them against
 `new Date().toISOString()` (see `minutesAgo` in `src/lib/request.ts`), never a
@@ -137,7 +163,8 @@ space-separated date, or the string comparison stops being a time comparison.
 
 ## Cloudflare
 
-`wrangler.jsonc` is the source of truth for the Worker `ghawi-app`: `nodejs_compat`,
+`wrangler.jsonc` is the source of truth for the Worker `ghawi-app`. Its `main` is
+`worker.ts`, which wraps the generated `.open-next/worker.js`. Also: `nodejs_compat`,
 static assets, the R2 incremental cache, D1 (`CONTACT_DB`), email (`EMAIL`), the image
 binding, the `ghawi.app` and `www.ghawi.app` custom domains, and the non-secret vars.
 `public/_headers` sets long-lived caching for hashed assets and a week for `/media`.

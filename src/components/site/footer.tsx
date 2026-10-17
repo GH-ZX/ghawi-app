@@ -44,7 +44,7 @@ export function Footer({ t, locale }: { t: Dictionary; locale: Locale }) {
             © {year} {profile.name}. {t.footer.rights}
           </span>
           <span className="footer__meta">
-            <SyncedPreset label={t.footer.synced} locale={locale} />
+            <SyncedPreset synced={t.footer.synced} theme={t.footer.theme} locale={locale} />
             <LocalTime label={t.footer.localTime} timeZone={profile.timeZone} />
             <a className="footer__top-link" href="#top">
               {t.footer.top} ↑

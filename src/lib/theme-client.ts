@@ -1,9 +1,10 @@
-import { PRESETS, storeTheme, type ThemePreset } from "@/lib/theme";
+import { DEFAULT_MODES, isSiteTheme, storeTheme, type SiteTheme } from "@/lib/theme";
 
 /*
  * Browser-side theme state. The source of truth is the <html> element itself
- * (`data-preset`, `data-mode`), written before paint by prePaintScript, so
- * components subscribe to attribute changes instead of keeping copies.
+ * (`data-preset`, `data-site`, `data-default`, `data-mode`), written by the
+ * server, the edge and the pre-paint script, so components subscribe to
+ * attribute changes instead of keeping copies.
  */
 
 export type ModeChoice = "system" | "light" | "dark";
@@ -12,7 +13,7 @@ const root = () => document.documentElement;
 
 export function subscribeTheme(onChange: () => void): () => void {
   const observer = new MutationObserver(onChange);
-  observer.observe(root(), { attributes: true, attributeFilter: ["data-preset", "data-mode"] });
+  observer.observe(root(), { attributes: true, attributeFilter: ["data-preset", "data-mode", "data-site"] });
   const media = window.matchMedia("(prefers-color-scheme: dark)");
   media.addEventListener("change", onChange);
   return () => {
@@ -21,9 +22,16 @@ export function subscribeTheme(onChange: () => void): () => void {
   };
 }
 
-export function getPreset(): ThemePreset {
+/** The theme on screen now. */
+export function getPreset(): SiteTheme {
   const value = root().getAttribute("data-preset");
-  return PRESETS.includes(value as ThemePreset) ? (value as ThemePreset) : storeTheme.preset;
+  return isSiteTheme(value) ? value : storeTheme.preset;
+}
+
+/** The site's own theme: GH Store's, or the one pinned in the admin. */
+export function getSiteTheme(): SiteTheme {
+  const value = root().getAttribute("data-site");
+  return isSiteTheme(value) ? value : storeTheme.preset;
 }
 
 export function getModeChoice(): ModeChoice {
@@ -64,14 +72,17 @@ export function setMode(mode: ModeChoice) {
 }
 
 /**
- * Previews a preset for this visit. Picking the store's live preset clears the
- * override, so the page goes back to following GH Store.
+ * Previews a theme for this visit, opening in that theme's default mode.
+ * Picking the site's own theme clears the preview.
  */
-export function setPreset(preset: ThemePreset) {
-  transition(() => root().setAttribute("data-preset", preset));
+export function setPreset(theme: SiteTheme) {
+  transition(() => {
+    root().setAttribute("data-preset", theme);
+    root().setAttribute("data-default", DEFAULT_MODES[theme]);
+  });
   try {
-    if (preset === storeTheme.preset) sessionStorage.removeItem("gh.preset");
-    else sessionStorage.setItem("gh.preset", preset);
+    if (theme === getSiteTheme()) sessionStorage.removeItem("gh.preset");
+    else sessionStorage.setItem("gh.preset", theme);
   } catch {
     // Private mode: the preview lasts until the next page load.
   }

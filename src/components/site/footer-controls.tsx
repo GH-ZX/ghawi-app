@@ -1,8 +1,8 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { THEMES } from "@/lib/ghstore-ui";
-import { storeTheme } from "@/lib/theme";
+import { isPreset } from "@/lib/ghstore-ui";
+import { labelOf, storeTheme } from "@/lib/theme";
 import { getModeChoice, getPreset, setMode, subscribeTheme, type ModeChoice } from "@/lib/theme-client";
 import type { Dictionary, Locale } from "@/lib/content";
 
@@ -26,13 +26,13 @@ export function ModeSeg({ ui }: { ui: Dictionary["ui"] }) {
   );
 }
 
-/** Names the GH Store preset this page is wearing. */
-export function SyncedPreset({ label, locale }: { label: string; locale: Locale }) {
+/** Names the theme this page is wearing, and whether it is GH Store's. */
+export function SyncedPreset({ synced, theme, locale }: { synced: string; theme: string; locale: Locale }) {
   const preset = useSyncExternalStore(subscribeTheme, getPreset, () => storeTheme.preset);
   return (
     <span className="footer__synced">
       <span className="footer__swatch" aria-hidden="true" />
-      {label} · {THEMES[preset].label[locale]}
+      {isPreset(preset) ? synced : theme} · {labelOf(preset, locale)}
     </span>
   );
 }
