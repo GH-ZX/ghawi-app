@@ -1,3 +1,8 @@
+/*
+ * All of the site's words live here, in both languages. Components never hold
+ * copy of their own, so changing text never means touching layout code.
+ */
+
 export const locales = ["en", "ar"] as const;
 export type Locale = (typeof locales)[number];
 
@@ -5,15 +10,21 @@ export const defaultLocale: Locale = "en";
 
 export const SITE_URL = "https://ghawi.app";
 
+export const isLocale = (value: string): value is Locale =>
+  (locales as readonly string[]).includes(value);
+
+export const dirOf = (locale: Locale) => (locale === "ar" ? "rtl" : "ltr");
+
 export const profile = {
   name: "Ahmed Ghawi",
   nameAr: "أحمد غاوي",
-  handle: "@GH-ZX",
-  role: "Software Engineer & IT Systems Specialist",
-  roleAr: "مهندس برمجيات وأخصائي أنظمة تقنية",
-  location: "Aleppo, Syria",
-  locationAr: "حلب، سوريا",
-  timezone: "UTC+3",
+  role: {
+    en: "Software Engineer & IT Systems Specialist",
+    ar: "مهندس برمجيات وأخصائي أنظمة تقنية",
+  },
+  location: { en: "Aleppo, Syria", ar: "حلب، سوريا" },
+  /** Syria has kept UTC+3 all year since 2022. */
+  timeZone: "Asia/Damascus",
   email: "ahmedghawi3@gmail.com",
   telegram: "ahmedghx",
   telegramUrl: "https://t.me/ahmedghx",
@@ -22,473 +33,403 @@ export const profile = {
   github: "https://github.com/GH-ZX",
   githubHandle: "GH-ZX",
   linkedin: "https://www.linkedin.com/in/ahmed-gh-17aa35227/",
-  portrait: "/media/ahmed.jpg",
-  storeMark: "/media/gh-store-mark.png",
+  portrait: "/media/portrait.jpg",
 } as const;
 
 /**
- * Turnstile site key. Public by design — this value is meant to be visible in
- * page source. The matching secret lives in Workers Secrets, never in the repo.
- * Created with `wrangler turnstile widget create ghawi-app`.
+ * Turnstile site key. Public by design — it is meant to be visible in page
+ * source. The matching secret lives in Workers Secrets, never in the repo.
  */
 export const turnstileSiteKey = "0x4AAAAAAFWI655DLJFx_2zZ";
 
 export const links = {
   store: "https://gh-store.me",
-  factory: "https://factory.gh-store.me",
-  factoryBuild: "https://factory.gh-store.me/build/",
-  storeBot: "https://t.me/gh_store1_bot",
-  echocore: "https://echocore412.com",
+  storeBot: "https://t.me/ghstore_robot",
+  storeSource: "https://github.com/GH-ZX/ghstore",
+  factorySource: "https://github.com/GH-ZX/GH-Bot-Factory",
+  echocore: "https://www.echocore412.com",
+  echocoreSource: "https://github.com/GH-ZX/echocore-store",
 } as const;
 
-/* ------------------------------------------------------------------ *
- *  Atlas — the third design
- *
- *  Built around one signature move: a long statement revealed word by
- *  word as it scrolls, with small drawn plates surfacing inline between
- *  certain words. Each plate is its own element in the token stream
- *  rather than an overlay, so the reveal is real DOM order.
- * ------------------------------------------------------------------ */
+export type IconName = "store" | "bot" | "code" | "globe" | "cloud" | "chip";
 
-/** A word in the Atlas statement. `plate` marks where a plate sits inline. */
-export interface AtlasWord {
-  t: string;
-  /** Renders a drawn plate after this word instead of continuing the run. */
-  plate?: "store" | "factory" | "bot";
-}
-
-export interface AtlasCopy {
-  role: string;
-  lead: string;
-  cta: string;
-  /** Words of the scroll-revealed statement. */
-  statement: AtlasWord[];
-  aside: string;
-  workKicker: string;
-  workTitle: string;
-  workNote: string;
-  viewCase: string;
-  recordKicker: string;
-  recordTitle: string;
-  record: { value: string; label: string }[];
-  profileKicker: string;
-  profileTitle: string;
-  profileBody: string[];
-  accordions: { title: string; body: string }[];
-  contactKicker: string;
-  contactTitle: string;
-}
-
-const atlasEn: AtlasCopy = {
-  role: "Software engineer · IT systems specialist",
-  lead: "I work across the whole stack, from the machine under the software to the order landing on a supplier's API.",
-  cta: "See the work",
-  aside: "Breadth only matters when the product still holds together.",
-  statement: [
-    { t: "I" },
-    { t: "take" },
-    { t: "a" },
-    { t: "system" },
-    { t: "from" },
-    { t: "a" },
-    { t: "blank" },
-    { t: "server", plate: "store" },
-    { t: "to" },
-    { t: "a" },
-    { t: "storefront" },
-    { t: "taking" },
-    { t: "real" },
-    { t: "money:", plate: "factory" },
-    { t: "the" },
-    { t: "schema," },
-    { t: "the" },
-    { t: "bot" },
-    { t: "that" },
-    { t: "talks" },
-    { t: "to" },
-    { t: "suppliers," },
-    { t: "the" },
-    { t: "edge" },
-    { t: "in" },
-    { t: "front," },
-    { t: "and" },
-    { t: "the" },
-    { t: "resale" },
-    { t: "channel", plate: "bot" },
-    { t: "customers" },
-    { t: "already" },
-    { t: "use" },
-    { t: "daily." },
-  ],
-  workKicker: "Selected work",
-  workTitle: "Proof, not promises.",
-  workNote: "Three systems in production, chosen for what they show about range and delivery.",
-  viewCase: "Open",
-  recordKicker: "The record",
-  recordTitle: "What the numbers say.",
-  record: [
-    { value: "03", label: "Platforms in production" },
-    { value: "27", label: "Public repositories" },
-    { value: "09", label: "Store categories" },
-    { value: "AR/EN", label: "Shipped as default" },
-  ],
-  profileKicker: "How I work",
-  profileTitle: "One accountable thread, brief to production.",
-  profileBody: [
-    "I started out diagnosing motherboards and rebuilding office networks, and I still think about the machine underneath the software.",
-    "That means I can scope a project, build the schema, write the bot, put the edge in front of it, and stay through deployment.",
-  ],
-  accordions: [
-    {
-      title: "Full-stack product engineering",
-      body: "TypeScript, React, Next.js, Tailwind, Flutter and C#, built to be maintained after launch rather than abandoned at handover.",
-    },
-    {
-      title: "Backend & commerce systems",
-      body: "FastAPI and PostgreSQL: ledgers, order state machines, fulfillment queues, and idempotent settlement that survives retries.",
-    },
-    {
-      title: "Telegram bots & Mini Apps",
-      body: "Aiogram 3 and the Bot API. Bot fleets, HMAC initData authentication, and supplier adapters that recover cleanly from failure.",
-    },
-    {
-      title: "Cloud & deployment",
-      body: "Cloudflare Workers, Supabase and Docker. CI/CD, backups, and self-hosted installs that do not depend on me staying reachable.",
-    },
-    {
-      title: "IT & hardware support",
-      body: "Server and network administration, laptop and motherboard repair, clean OS installs and security hardening.",
-    },
-  ],
-  contactKicker: "Start here",
-  contactTitle: "Bring me the part that needs more than one kind of thinking.",
-};
-
-const atlasAr: AtlasCopy = {
-  role: "مهندس برمجيات · أخصائي أنظمة تقنية",
-  lead: "أعمل عبر المنظومة كاملة، من الآلة التي تحت البرمجيات حتى وصول الطلب إلى واجهة المزوّد.",
-  cta: "شاهد الأعمال",
-  aside: "اتساع المجال لا يعني شيئاً ما لم يبقَ المنتج متماسكاً.",
-  statement: [
-    { t: "آخذ" },
-    { t: "منظومة" },
-    { t: "من" },
-    { t: "خادم" },
-    { t: "فارغ", plate: "store" },
-    { t: "إلى" },
-    { t: "متجر" },
-    { t: "يستقبل" },
-    { t: "أموالاً" },
-    { t: "حقيقية:" , plate: "factory" },
-    { t: "قاعدة" },
-    { t: "البيانات،" },
-    { t: "والبوت" },
-    { t: "الذي" },
-    { t: "يتحدّث" },
-    { t: "مع" },
-    { t: "المزوّدين،" },
-    { t: "وطبقة" },
-    { t: "الحافة" },
-    { t: "أمامه،" },
-    { t: "وقناة" },
-    { t: "إعادة" },
-    { t: "البيع" , plate: "bot" },
-    { t: "الّتي" },
-    { t: "يستخدمها" },
-    { t: "العملاء" },
-    { t: "يومياً." },
-  ],
-  workKicker: "أعمال مختارة",
-  workTitle: "أدلّة، لا وعود.",
-  workNote: "ثلاثة أنظمة تعمل في الإنتاج، اختيرت لتُظهر التنوّع في طريقة التسليم.",
-  viewCase: "زيارة",
-  recordKicker: "السجل",
-  recordTitle: "ما تقوله الأرقام.",
-  record: [
-    { value: "03", label: "منصّات في الإنتاج" },
-    { value: "27", label: "مستودعاً مفتوحاً" },
-    { value: "09", label: "فئات في المتجر" },
-    { value: "عربي/إنجليزي", label: "لغتان افتراضياً" },
-  ],
-  profileKicker: "كيف أعمل",
-  profileTitle: "خيط واحد مسؤول، من الطلب إلى الإنتاج.",
-  profileBody: [
-    "بدأت في تشخيص اللوحات الأمّية وإعادة بناء شبكات المكاتب، وما زلت أفكر في الآلة التي تعمل تحت البرمجيات.",
-    "هذا يعني أنني أستطيع تحديد نطاق المشروع، وبناء قاعدة البيانات، وكتابة البوت، ووضع الحافة أمامه، والبقاء حتى النشر.",
-  ],
-  accordions: [
-    {
-      title: "هندسة منتجات كاملة",
-      body: "TypeScript وReact وNext.js وTailwind وFlutter وC#، بُنيت لتُصان بعد الإطلاق لا لتُترك عند التسليم.",
-    },
-    {
-      title: "أنظمة خلفية وتجارية",
-      body: "FastAPI وPostgreSQL: دفاتر حسابات، وآلات حالات للطلبات، وطوابير تنفيذ، وتسديد غير قابل للتكرار يصمد أمام إعادة المحاولة.",
-    },
-    {
-      title: "بوتات وتطبيقات تيليجرام",
-      body: "Aiogram 3 وواجهة Bot API. أسراب بوتات، وتوثيق عبر initData، وموائمات مزوّدين تتعافى من الأعطال دون فقد الطلبات.",
-    },
-    {
-      title: "السحابة والنشر",
-      body: "Cloudflare Workers وSupabase وDocker. تكامل مستمر، ونسخ احتياطية، وتثبيتات ذاتية الاستضافة لا تعتمد على بقائي متاحاً.",
-    },
-    {
-      title: "دعم تقني وعتاد",
-      body: "إدارة الخوادم والشبكات، إصلاح الحواسيب واللوحات الأمّية، تثبيت أنظمة نظيف وتحصين أمني.",
-    },
-  ],
-  contactKicker: "ابدأ من هنا",
-  contactTitle: "أحضر لي الجزء الذي يحتاج أكثر من نوع واحد من التفكير.",
-};
-
-export const atlas: Record<Locale, AtlasCopy> = { en: atlasEn, ar: atlasAr };
-
-export interface Feature {
-  label: string;
-  value: string;
-}
-
-export interface Platform {
-  index: string;
-  id: string;
+export interface Project {
+  id: "factory" | "echocore";
+  kicker: string;
   name: string;
-  domain: string;
-  url: string;
-  /** Where the code lives. Shown as the card's secondary action. */
-  source?: string;
-  category: string;
-  headline: string;
-  body: string;
-  features: Feature[];
-  stack: string[];
-}
-
-export interface Repo {
-  name: string;
-  language: string;
-  type: string;
-  blurb: string;
-  url: string;
-  /** The running site, when the project has one worth linking to. */
-  liveUrl?: string;
-  stars?: number;
-}
-
-export interface Capability {
-  index: string;
   title: string;
   body: string;
+  points: string[];
+  stack: string[];
+  /** Shown with a live dot when the product is publicly reachable. */
+  live: boolean;
+  links: { label: string; href: string }[];
 }
 
-export interface Copy {
-  langLabel: string;
-  switchTo: { ar: string; en: string };
-
-  nav: { work: string; platforms: string; code: string; capabilities: string; contact: string };
-
-  meta: { title: string; description: string };
-
+export interface Dictionary {
+  meta: { title: string; description: string; ogAlt: string };
+  ui: {
+    skip: string;
+    nav: string;
+    switchLanguage: string;
+    /** The other language's own name, shown on the switch. */
+    otherLanguage: string;
+    toLight: string;
+    toDark: string;
+    appearance: string;
+    auto: string;
+    light: string;
+    dark: string;
+    newTab: string;
+  };
+  nav: { work: string; about: string; services: string; contact: string; cta: string };
   hero: {
-    kicker: string;
-    /** Split into two stacked lines in the hero. */
-    name: [string, string];
-    role: string;
+    status: string;
+    eyebrow: string;
+    title: string;
     lead: string;
     primary: string;
     secondary: string;
-    scroll: string;
+    facts: string[];
+    portraitAlt: string;
+    liveChip: string;
   };
-
-  board: {
+  work: { label: string; title: string; lead: string };
+  store: {
+    kicker: string;
     title: string;
-    live: string;
-    rows: { label: string; value: string }[];
-    foot: { label: string; value: string }[];
+    body: string;
+    doors: { name: string; detail: string }[];
+    figures: { value: string; label: string }[];
+    principlesTitle: string;
+    principles: { title: string; body: string }[];
+    stack: string[];
+    visit: string;
+    openBot: string;
+    source: string;
+    looks: { title: string; body: string; live: string; group: string };
+    demo: {
+      label: string;
+      close: string;
+      miniApp: string;
+      badge: string;
+      slideTitle: string;
+      slideSub: string;
+      slideCta: string;
+      picks: string;
+      all: string;
+      categories: string[];
+      tabs: string[];
+    };
   };
-
-  stats: { value: string; label: string }[];
-
+  projects: Project[];
+  more: {
+    title: string;
+    all: string;
+    items: { name: string; kind: string; blurb: string; url: string }[];
+  };
   about: {
     label: string;
-    headline: string;
+    title: string;
     body: string[];
-    disciplineTitle: string;
-    discipline: Feature[];
+    layersTitle: string;
+    layersNote: string;
+    layers: { name: string; tools: string }[];
   };
-
-  platforms: {
+  services: {
     label: string;
-    headline: string;
-    visit: string;
-    source: string;
+    title: string;
+    items: { icon: IconName; title: string; body: string }[];
   };
-
-  code: {
-    label: string;
-    headline: string;
-    all: string;
-    column: { repo: string; lang: string; type: string; about: string };
-  };
-
-  capabilities: { label: string; headline: string; items: Capability[] };
-
   contact: {
     label: string;
-    headline: string;
+    title: string;
     body: string;
-    emailCta: string;
-    fallback: string;
-    channels: { id: string; label: string; value: string }[];
+    emailLabel: string;
+    copy: string;
+    copied: string;
+    channelsTitle: string;
+    channels: { id: "telegram" | "whatsapp" | "github" | "linkedin"; label: string; value: string }[];
+    formTitle: string;
     form: {
       name: string;
       email: string;
       topic: string;
+      topicPlaceholder: string;
       topics: { value: string; label: string }[];
       message: string;
       messageHint: string;
       submit: string;
       sending: string;
-      success: string;
+      verifying: string;
+      successTitle: string;
+      successBody: string;
       sendAnother: string;
       errors: Record<string, string>;
     };
   };
-
-  footer: { rights: string; built: string; backToTop: string };
+  footer: {
+    rights: string;
+    built: string;
+    synced: string;
+    localTime: string;
+    top: string;
+  };
 }
 
-const en: Copy = {
-  langLabel: "English",
-  switchTo: { ar: "العربية", en: "English" },
-
-  nav: {
-    work: "About",
-    platforms: "Platforms",
-    code: "Code",
-    capabilities: "Capabilities",
-    contact: "Contact",
-  },
-
+const en: Dictionary = {
   meta: {
     title: "Ahmed Ghawi — Software Engineer & IT Systems Specialist",
     description:
-      "I build and operate the software behind digital commerce. Three platforms are live right now: GH Store, a bilingual digital-goods storefront; Bot Factory, a multi-tenant Telegram commerce engine; and the GH Store Telegram bot.",
+      "I design, build and run commerce systems end to end. My flagship, GH Store, sells digital goods on the web, in a Telegram Mini App and through a bot — one core, in Arabic and English.",
+    ogAlt: "Ahmed Ghawi — software engineer. From a blank server to a store taking real money.",
   },
+
+  ui: {
+    skip: "Skip to content",
+    nav: "Main",
+    switchLanguage: "Read this page in Arabic",
+    otherLanguage: "العربية",
+    toLight: "Switch to light mode",
+    toDark: "Switch to dark mode",
+    appearance: "Appearance",
+    auto: "Auto",
+    light: "Light",
+    dark: "Dark",
+    newTab: "(opens in a new tab)",
+  },
+
+  nav: { work: "Work", about: "About", services: "Services", contact: "Contact", cta: "Let's talk" },
 
   hero: {
-    kicker: "~/ghawi.app",
-    name: ["Ahmed", "Ghawi"],
-    role: "Software Engineer · IT Systems Specialist",
-    lead: "I design, build and run the whole stack — from a customer's first click to the order landing on a supplier's API. Today that means three platforms running in production, and a lot of infrastructure keeping them honest.",
-    primary: "See the platforms",
+    status: "Open to new projects",
+    eyebrow: "Ahmed Ghawi · Software engineer & IT systems specialist",
+    title: "From a blank server to a store taking real money.",
+    lead: "I design, build and run commerce systems end to end: the database, the payment ledger, the bot that talks to suppliers, the storefront customers see, and the machines it all runs on. The proof is GH Store, live on the web and inside Telegram.",
+    primary: "See the work",
     secondary: "Start a conversation",
-    scroll: "Scroll",
+    facts: ["Aleppo, Syria · UTC+3", "Arabic & English", "Remote, worldwide"],
+    portraitAlt: "Portrait of Ahmed Ghawi",
+    liveChip: "GH Store is live",
   },
 
-  board: {
-    title: "Deployed properties",
-    live: "LIVE",
-    rows: [
-      { label: "gh-store.me", value: "Digital goods storefront" },
-      { label: "factory.gh-store.me", value: "Telegram commerce platform" },
-      { label: "t.me/gh_store1_bot", value: "Resale bot" },
-      { label: "echocore412.com", value: "Earlier storefront, still live" },
-      { label: "github.com/GH-ZX", value: "Open source" },
-    ],
-    foot: [
-      { label: "Base", value: "Aleppo, Syria" },
-      { label: "Timezone", value: "UTC+3" },
-    ],
+  work: {
+    label: "Work",
+    title: "Shipped, running, taking orders.",
+    lead: "Real products, not concept shots — each one designed, built and shipped by me.",
   },
 
-  stats: [
-    { value: "03", label: "Platforms in production" },
-    { value: "27", label: "Public repositories" },
-    { value: "09", label: "Store categories" },
-    { value: "AR/EN", label: "Shipped as default" },
+  store: {
+    kicker: "Flagship · Live",
+    title: "One store, three doors.",
+    body: "A multi-supplier store for digital goods: game top-ups, gift cards, subscriptions and virtual numbers. Customers buy on the website, inside a Telegram Mini App or straight from the bot — one account, one wallet, one catalogue and one order history across all three.",
+    doors: [
+      { name: "Website", detail: "gh-store.me" },
+      { name: "Mini App", detail: "Inside Telegram" },
+      { name: "Bot", detail: "@ghstore_robot" },
+    ],
+    figures: [
+      { value: "1", label: "Cloudflare Worker serves the site, Mini App, bot, API and jobs" },
+      { value: "5", label: "suppliers behind a single catalogue" },
+      { value: "4", label: "payment methods, from Telegram Stars to USDT" },
+      { value: "2", label: "languages, Arabic first and right-to-left" },
+    ],
+    principlesTitle: "Built to be trusted with money",
+    principles: [
+      {
+        title: "Money moves only in SQL",
+        body: "Balances are integer cents and change only inside database functions that write a ledger row. The Worker itself cannot touch a wallet.",
+      },
+      {
+        title: "A callback is only a wake-up",
+        body: "No provider callback credits anything by itself. The store asks the provider again before it credits a top-up or delivers an order.",
+      },
+      {
+        title: "Retries never charge twice",
+        body: "Every order and top-up is idempotent, so double taps, retries and duplicate webhooks cannot charge or credit twice.",
+      },
+      {
+        title: "Prices behind a guard",
+        body: "When a supplier's cost jumps past its limit, the package pauses for review instead of quietly repricing.",
+      },
+    ],
+    stack: ["Cloudflare Workers", "Supabase Postgres", "Hyperdrive", "TypeScript", "React", "Telegram Bot API"],
+    visit: "Visit gh-store.me",
+    openBot: "Open in Telegram",
+    source: "Source code",
+    looks: {
+      title: "Four looks, one codebase",
+      body: "The store's owner picks a look in its admin and every screen follows, in light and dark. This page wears the same design system and changes with the store — try it:",
+      live: "Live on the store",
+      group: "GH Store design presets",
+    },
+    demo: {
+      label: "Illustration of the GH Store Mini App home screen",
+      close: "Close",
+      miniApp: "mini app",
+      badge: "Instant",
+      slideTitle: "PUBG Mobile UC",
+      slideSub: "Top up in seconds, delivered automatically.",
+      slideCta: "Top up now",
+      picks: "Today's picks",
+      all: "See all",
+      categories: ["Games", "AI", "Cards", "Streaming"],
+      tabs: ["Store", "Orders", "Wallet", "Profile"],
+    },
+  },
+
+  projects: [
+    {
+      id: "factory",
+      kicker: "Platform · Self-hosted",
+      name: "GH Bot Factory",
+      title: "A multi-tenant engine for Telegram commerce.",
+      body: "One installation runs many branded stores, each with its own bots, Mini App, catalogue and staff. Prices, payments, wallets and fulfilment stay on the server; Telegram and the browser only present them.",
+      points: [
+        "Tenant isolation with owner, admin, staff and customer roles",
+        "Telegram Stars checkout with exactly-once settlement",
+        "Supplier routing and a durable fulfilment worker",
+        "Supplier and payment keys kept in an encrypted vault",
+        "One-command Easy Start installer for self-hosting",
+      ],
+      stack: ["Python", "FastAPI", "Aiogram 3", "PostgreSQL", "Redis", "Docker"],
+      live: false,
+      links: [{ label: "Source on GitHub", href: links.factorySource }],
+    },
+    {
+      id: "echocore",
+      kicker: "Earlier storefront · Live",
+      name: "Echocore Store",
+      title: "Where it started.",
+      body: "A bilingual game top-up and gift-card shop on React and Supabase, served from GitHub Pages. It syncs a supplier's catalogue, fulfils orders automatically and issues invoices.",
+      points: [
+        "Supplier catalogue sync with automatic fulfilment",
+        "ShamCash recharge and checkout",
+        "Order and recharge invoices as PNG or PDF",
+        "Arabic and English throughout",
+      ],
+      stack: ["React", "Supabase", "Edge Functions", "GitHub Pages"],
+      live: true,
+      links: [
+        { label: "Visit echocore412.com", href: links.echocore },
+        { label: "Source", href: links.echocoreSource },
+      ],
+    },
   ],
 
-  about: {
-    label: "Background",
-    headline: "Most engineers live in one layer. I work across all of them.",
-    body: [
-      "I started out diagnosing motherboards and rebuilding office networks. That instinct never really left — I still think about the machine underneath the software.",
-      "Today it means I can take a project from a blank server to a storefront taking real money: the schema, the bot that talks to suppliers, the edge layer that serves it, and the hardware and network it all runs on.",
-    ],
-    disciplineTitle: "What I actually do",
-    discipline: [
-      { label: "Infrastructure", value: "Server and network administration, hardware diagnostics, OS installation and hardening" },
-      { label: "Product engineering", value: "TypeScript, React, Next.js, Tailwind, Flutter, C#" },
-      { label: "Backend & data", value: "FastAPI, PostgreSQL, Redis, Supabase, PL/pgSQL" },
-      { label: "Telegram & automation", value: "Aiogram 3, Bot API, Mini App authentication, supplier adapters" },
-      { label: "Cloud & operations", value: "Cloudflare Workers, Docker, CI/CD, encrypted deployment handoffs" },
-    ],
-  },
-
-  platforms: {
-    label: "Platforms",
-    headline: "Three systems, all running right now.",
-    visit: "Open site",
-    source: "Source",
-  },
-
-  code: {
-    label: "Selected code",
-    headline: "Other things I have shipped.",
-    all: "View all 27 repositories",
-    column: { repo: "Repository", lang: "Language", type: "Type", about: "What it is" },
-  },
-
-  capabilities: {
-    label: "Capabilities",
-    headline: "What you can hand me.",
+  more: {
+    title: "More on GitHub",
+    all: "All repositories",
     items: [
       {
-        index: "01",
-        title: "Full-stack product engineering",
-        body: "From schema to screen. TypeScript, React, Next.js, Tailwind, Flutter and C#, built to be maintained after launch rather than abandoned at handover.",
+        name: "gh-store-tele",
+        kind: "Telegram bot · Python",
+        blurb: "The first GH Store bot: a reseller catalogue with crypto, Telegram Stars and ShamCash top-ups.",
+        url: "https://github.com/GH-ZX/gh-store-tele",
       },
       {
-        index: "02",
-        title: "Backend & commerce systems",
-        body: "FastAPI and PostgreSQL behind the scenes: ledgers, order state machines, fulfillment queues, idempotent payment settlement and refunds that survive retries.",
+        name: "TechVerse-App",
+        kind: "Mobile app · Flutter",
+        blurb: "Cross-platform e-commerce app with a full admin panel, on clean architecture.",
+        url: "https://github.com/GH-ZX/TechVerse-App",
       },
       {
-        index: "03",
+        name: "doomsday-arabic-fix",
+        kind: "Localization · C#",
+        blurb: "Arabic localization for a C# game: string tables, right-to-left layout and font handling.",
+        url: "https://github.com/GH-ZX/doomsday-arabic-fix",
+      },
+      {
+        name: "Za-app",
+        kind: "Mobile app · Flutter",
+        blurb: "Authentication, offline-first storage and API-backed screens.",
+        url: "https://github.com/GH-ZX/Za-app",
+      },
+      {
+        name: "CarrefourMall",
+        kind: "Web · React",
+        blurb: "Responsive storefront interface built with React and Tailwind CSS.",
+        url: "https://github.com/GH-ZX/CarrefourMall",
+      },
+    ],
+  },
+
+  about: {
+    label: "About",
+    title: "Most engineers live in one layer. I work across all of them.",
+    body: [
+      "I started out diagnosing motherboards and rebuilding office networks. The habit stuck: I still think about the machine underneath the software.",
+      "Today that means I can take a project from a blank server to a store taking real money — the schema, the ledger, the bot that talks to suppliers, the edge in front of it and the deployment that keeps it up. One accountable person, from brief to production.",
+    ],
+    layersTitle: "The whole stack",
+    layersNote: "Where I work, top to bottom",
+    layers: [
+      { name: "Customer", tools: "Websites, Telegram bots, Mini Apps" },
+      { name: "Interface", tools: "React, Next.js, TypeScript, Flutter" },
+      { name: "Application", tools: "FastAPI, Aiogram 3, Workers, C#" },
+      { name: "Data", tools: "PostgreSQL, PL/pgSQL, Redis, Supabase" },
+      { name: "Delivery", tools: "Cloudflare, Docker, CI/CD" },
+      { name: "Machine", tools: "Linux, networks, hardware repair" },
+    ],
+  },
+
+  services: {
+    label: "Services",
+    title: "What you can hand me.",
+    items: [
+      {
+        icon: "store",
+        title: "Commerce platforms",
+        body: "Storefronts, wallets, ledgers and order pipelines that take real payments and survive retries.",
+      },
+      {
+        icon: "bot",
         title: "Telegram bots & Mini Apps",
-        body: "Aiogram 3 and the Bot API. Bot fleets, HMAC initData authentication, branded Mini Apps, and supplier adapters that recover cleanly from failure.",
+        body: "Bots and Mini Apps on Aiogram and the Bot API, with verified sign-in, Stars checkout and supplier integrations that recover from failure.",
       },
       {
-        index: "04",
+        icon: "code",
+        title: "Full-stack products",
+        body: "TypeScript, React, Next.js and Flutter — built to be maintained after launch, not abandoned at handover.",
+      },
+      {
+        icon: "globe",
+        title: "Arabic-first interfaces",
+        body: "Right-to-left layouts and bilingual content done properly from day one, not mirrored as an afterthought.",
+      },
+      {
+        icon: "cloud",
         title: "Cloud & deployment",
-        body: "Cloudflare Workers, Supabase and Docker. CI/CD, backups, encrypted customer handoffs and self-hosted installs that do not depend on me staying reachable.",
+        body: "Cloudflare Workers, Supabase and Docker. CI/CD, backups and self-hosted installs that don't depend on me staying reachable.",
       },
       {
-        index: "05",
-        title: "IT & hardware support",
-        body: "Server and network administration, laptop and motherboard repair, clean OS installs and security hardening — physical and virtual.",
+        icon: "chip",
+        title: "IT & hardware",
+        body: "Server and network administration, laptop and motherboard repair, clean installs and security hardening.",
       },
     ],
   },
 
   contact: {
     label: "Contact",
-    headline: "Let's build something that actually runs.",
-    body: "Open to product engineering, Telegram commerce and infrastructure work. Remote, worldwide, and comfortable taking a system end to end.",
-    emailCta: "Send an email",
-    fallback: "Prefer email?",
+    title: "Let's build something that actually runs.",
+    body: "Open to product engineering, Telegram commerce and infrastructure work — remote, worldwide. Tell me what you're building and where it's stuck.",
+    emailLabel: "Email",
+    copy: "Copy",
+    copied: "Copied",
+    channelsTitle: "Or reach me on",
     channels: [
-      { id: "email", label: "Email", value: "ahmedghawi3@gmail.com" },
       { id: "telegram", label: "Telegram", value: "@ahmedghx" },
       { id: "whatsapp", label: "WhatsApp", value: "+963 968 098 330" },
       { id: "github", label: "GitHub", value: "GH-ZX" },
-      { id: "linkedin", label: "LinkedIn", value: "ahmed-gh" },
+      { id: "linkedin", label: "LinkedIn", value: "Ahmed Ghawi" },
     ],
+    formTitle: "Send a message",
     form: {
       name: "Name",
       email: "Email",
-      topic: "What is this about?",
+      topic: "Topic",
+      topicPlaceholder: "Choose one (optional)",
       topics: [
         { value: "product", label: "Product engineering" },
         { value: "telegram", label: "Telegram commerce" },
@@ -497,164 +438,289 @@ const en: Copy = {
         { value: "other", label: "Something else" },
       ],
       message: "Message",
-      messageHint: "A few sentences is plenty.",
+      messageHint: "What are you building? A few sentences is plenty.",
       submit: "Send message",
-      sending: "Sending",
-      success: "Message received. I'll reply to your email.",
+      sending: "Sending…",
+      verifying: "Checking you're human…",
+      successTitle: "Message received",
+      successBody: "Thanks for writing. I'll reply to the email you gave.",
       sendAnother: "Send another",
       errors: {
         generic: "Something went wrong. Try again, or email me directly.",
-        rate_limited: "Too many messages from this connection. Try again later.",
+        rate_limited: "Too many messages from this connection. Try again in an hour.",
         invalid_json: "Something went wrong. Try again.",
         name_required: "Please add your name.",
         email_invalid: "That email address doesn't look right.",
-        message_too_short: "Please add a little more detail.",
+        message_too_short: "Please add a little more detail (10 characters or more).",
         topic_invalid: "Please pick a topic from the list.",
-        turnstile_failed: "Please confirm you're human and try again.",
+        turnstile_failed: "We couldn't confirm you're human. Try again.",
       },
     },
   },
 
   footer: {
     rights: "All rights reserved.",
-    built: "Designed & built in Aleppo, Syria",
-    backToTop: "Back to top",
+    built: "Designed and built in Aleppo, Syria.",
+    synced: "Wears GH Store's design system",
+    localTime: "Local time in Aleppo",
+    top: "Back to top",
   },
 };
 
-const ar: Copy = {
-  langLabel: "العربية",
-  switchTo: { ar: "العربية", en: "English" },
-
-  nav: {
-    work: "من أنا",
-    platforms: "المنصّات",
-    code: "الكود",
-    capabilities: "ما أقدّمه",
-    contact: "تواصل",
-  },
-
+// "\u200E" (a left-to-right mark) after "C#" keeps the "#" beside its letter in Arabic text.
+const ar: Dictionary = {
   meta: {
     title: "أحمد غاوي — مهندس برمجيات وأخصائي أنظمة تقنية",
     description:
-      "أبني وأشغّل البرمجيات التي تقف خلف التجارة الرقمية. ثلاث منصّات تعمل في الإنتاج الآن: متجر GH Store لبيع المنتجات الرقمية، ومصنع البوتات محرّك تجارة متعدّد المستأجرين على تيليجرام، وبوت متجر GH على تيليجرام.",
+      "أصمّم أنظمة التجارة الرقمية وأبنيها وأشغّلها من أولها إلى آخرها. مشروعي الرئيسي GH Store يبيع المنتجات الرقمية عبر الموقع وتطبيق تيليجرام المصغّر والبوت — بنواة واحدة، بالعربية والإنجليزية.",
+    ogAlt: "أحمد غاوي — مهندس برمجيات. من خادم فارغ إلى متجر يستقبل أموالاً حقيقية.",
   },
+
+  ui: {
+    skip: "تخطَّ إلى المحتوى",
+    nav: "التنقّل الرئيسي",
+    switchLanguage: "اقرأ هذه الصفحة بالإنجليزية",
+    otherLanguage: "English",
+    toLight: "التبديل إلى الوضع الفاتح",
+    toDark: "التبديل إلى الوضع الداكن",
+    appearance: "المظهر",
+    auto: "تلقائي",
+    light: "فاتح",
+    dark: "داكن",
+    newTab: "(يفتح في نافذة جديدة)",
+  },
+
+  nav: { work: "الأعمال", about: "عنّي", services: "الخدمات", contact: "تواصل", cta: "لنتحدّث" },
 
   hero: {
-    // No `~/` prefix here: in an RTL context the bidi algorithm reorders the
-    // leading run to the far side and it renders as "ghawi.app/~".
-    kicker: "ghawi.app",
-    name: ["أحمد", "غاوي"],
-    role: "مهندس برمجيات · أخصائي أنظمة تقنية",
-    lead: "أصمّم وأبني وأشغّل المنظومة كاملة — من أول نقرة للعميل حتى وصول الطلب إلى واجهة المزوّد. اليوم يعني ذلك ثلاث منصّات تعمل في الإنتاج، وكميات كبيرة من البنية التحتية التي تُبقيها صامدة.",
-    primary: "شاهد المنصّات",
+    status: "متاح لمشاريع جديدة",
+    eyebrow: "أحمد غاوي · مهندس برمجيات وأخصائي أنظمة تقنية",
+    title: "من خادم فارغ إلى متجر يستقبل أموالاً حقيقية.",
+    lead: "أصمّم أنظمة التجارة الرقمية وأبنيها وأشغّلها من أولها إلى آخرها: قاعدة البيانات، ودفتر المدفوعات، والبوت الذي يتحدّث مع المزوّدين، والمتجر الذي يراه العميل، والأجهزة التي يعمل عليها كل ذلك. والدليل GH Store، يعمل الآن على الويب وداخل تيليجرام.",
+    primary: "شاهد الأعمال",
     secondary: "ابدأ محادثة",
-    scroll: "مرّر",
+    facts: ["حلب، سوريا · UTC+3", "العربية والإنجليزية", "عن بُعد، لأي مكان"],
+    portraitAlt: "صورة أحمد غاوي",
+    liveChip: "GH Store يعمل الآن",
   },
 
-  board: {
-    title: "الخدمات المنشورة",
-    live: "يعمل",
-    rows: [
-      { label: "gh-store.me", value: "متجر منتجات رقمية" },
-      { label: "factory.gh-store.me", value: "منصّة تجارة على تيليجرام" },
-      { label: "t.me/gh_store1_bot", value: "بوت إعادة بيع" },
-      { label: "echocore412.com", value: "المتجر الأوّل، ما زال يعمل" },
-      { label: "github.com/GH-ZX", value: "مفتوح المصدر" },
-    ],
-    foot: [
-      { label: "المقر", value: "حلب، سوريا" },
-      { label: "التوقيت", value: "UTC+3" },
-    ],
+  work: {
+    label: "الأعمال",
+    title: "منشورة، تعمل، وتستقبل الطلبات.",
+    lead: "منتجات حقيقية لا نماذج عرض — كلّ منها صمّمته وبنيته وأطلقته بنفسي.",
   },
 
-  stats: [
-    { value: "03", label: "منصّات في الإنتاج" },
-    { value: "27", label: "مستودعاً مفتوحاً" },
-    { value: "09", label: "فئات في المتجر" },
-    { value: "عربي/إنجليزي", label: "لغتان افتراضياً" },
+  store: {
+    kicker: "المشروع الرئيسي · يعمل الآن",
+    title: "متجر واحد بثلاث واجهات.",
+    body: "متجر للمنتجات الرقمية يجمع عدّة مزوّدين: شحن الألعاب، والبطاقات، والاشتراكات، والأرقام الافتراضية. يشتري العميل من الموقع أو من تطبيق تيليجرام المصغّر أو من البوت مباشرةً — بحساب واحد ومحفظة واحدة وكتالوج واحد وسجلّ طلبات واحد في الواجهات الثلاث.",
+    doors: [
+      { name: "الموقع", detail: "gh-store.me" },
+      { name: "التطبيق المصغّر", detail: "داخل تيليجرام" },
+      { name: "البوت", detail: "@ghstore_robot" },
+    ],
+    figures: [
+      { value: "1", label: "Cloudflare Worker واحد يخدم الموقع والتطبيق المصغّر والبوت والواجهة البرمجية والمهام" },
+      { value: "5", label: "مزوّدين خلف كتالوج واحد" },
+      { value: "4", label: "طرق دفع، من نجوم تيليجرام إلى USDT" },
+      { value: "2", label: "لغتان، والعربية أولاً من اليمين إلى اليسار" },
+    ],
+    principlesTitle: "مبنيّ ليُؤتمَن على المال",
+    principles: [
+      {
+        title: "المال يتحرّك داخل SQL فقط",
+        body: "الأرصدة أعداد صحيحة بالسنتات، ولا تتغيّر إلا داخل دوال قاعدة البيانات التي تكتب قيداً في الدفتر. الخادم نفسه لا يستطيع لمس أي محفظة.",
+      },
+      {
+        title: "إشعار المزوّد مجرّد تنبيه",
+        body: "لا يضيف أي إشعار من المزوّد رصيداً بمفرده؛ يسأل المتجر المزوّدَ من جديد قبل أن يشحن الرصيد أو يسلّم الطلب.",
+      },
+      {
+        title: "إعادة المحاولة لا تخصم مرّتين",
+        body: "كل طلب وكل شحن رصيد محميّ من التكرار، فالنقر المزدوج وإعادة المحاولة وتكرار الإشعارات لا تخصم ولا تضيف مرّتين.",
+      },
+      {
+        title: "أسعار تحت الحراسة",
+        body: "إذا قفزت تكلفة المزوّد فوق حدّها، تتوقّف الباقة للمراجعة بدل أن يتغيّر سعرها بصمت.",
+      },
+    ],
+    stack: ["Cloudflare Workers", "Supabase Postgres", "Hyperdrive", "TypeScript", "React", "Telegram Bot API"],
+    visit: "زيارة gh-store.me",
+    openBot: "افتح في تيليجرام",
+    source: "الكود المصدري",
+    looks: {
+      title: "أربعة أشكال، شيفرة واحدة",
+      body: "يختار مالك المتجر الشكل من لوحة التحكّم فتتبعه كل الشاشات، فاتحةً وداكنة. وهذه الصفحة تلبس نظام التصميم نفسه وتتغيّر مع المتجر — جرّبه:",
+      live: "المعتمد في المتجر",
+      group: "أشكال تصميم GH Store",
+    },
+    demo: {
+      label: "رسم توضيحي للشاشة الرئيسية في تطبيق GH Store المصغّر",
+      close: "إغلاق",
+      miniApp: "تطبيق مصغّر",
+      badge: "فوري",
+      slideTitle: "شدّات ببجي موبايل",
+      slideSub: "اشحن في ثوانٍ، والتسليم تلقائي.",
+      slideCta: "اشحن الآن",
+      picks: "اختيارات اليوم",
+      all: "عرض الكل",
+      categories: ["ألعاب", "ذكاء", "بطاقات", "ترفيه"],
+      tabs: ["المتجر", "الطلبات", "المحفظة", "حسابي"],
+    },
+  },
+
+  projects: [
+    {
+      id: "factory",
+      kicker: "منصّة · استضافة ذاتية",
+      name: "GH Bot Factory",
+      title: "محرّك متعدّد المستأجرين لتجارة تيليجرام.",
+      body: "تثبيت واحد يشغّل متاجر كثيرة بهويّات مختلفة، لكلّ منها بوتاتها وتطبيقها المصغّر وكتالوجها وفريقها. الأسعار والمدفوعات والمحافظ والتسليم تبقى على الخادم، وتيليجرام والمتصفّح مجرّد واجهات عرض.",
+      points: [
+        "عزل كامل للمستأجرين بأدوار المالك والمدير والموظف والعميل",
+        "دفع بنجوم تيليجرام بتسوية تحدث مرّة واحدة بالضبط",
+        "توجيه الطلبات بين المزوّدين وعامل تسليم موثوق",
+        "مفاتيح المزوّدين والدفع محفوظة في خزنة مشفّرة",
+        "مثبّت Easy Start بأمر واحد للاستضافة الذاتية",
+      ],
+      stack: ["Python", "FastAPI", "Aiogram 3", "PostgreSQL", "Redis", "Docker"],
+      live: false,
+      links: [{ label: "الكود على GitHub", href: links.factorySource }],
+    },
+    {
+      id: "echocore",
+      kicker: "متجر سابق · يعمل الآن",
+      name: "Echocore Store",
+      title: "من هنا بدأت.",
+      body: "متجر ثنائي اللغة لشحن الألعاب والبطاقات، مبنيّ بـ React وSupabase ومستضاف على GitHub Pages. يزامن كتالوج المزوّد، وينفّذ الطلبات تلقائياً، ويُصدر الفواتير.",
+      points: [
+        "مزامنة كتالوج المزوّد مع تنفيذ تلقائي للطلبات",
+        "شحن ودفع عبر ShamCash",
+        "فواتير الطلبات والشحن بصيغتي PNG وPDF",
+        "بالعربية والإنجليزية في كل مكان",
+      ],
+      stack: ["React", "Supabase", "Edge Functions", "GitHub Pages"],
+      live: true,
+      links: [
+        { label: "زيارة echocore412.com", href: links.echocore },
+        { label: "الكود المصدري", href: links.echocoreSource },
+      ],
+    },
   ],
 
-  about: {
-    label: "نبذة",
-    headline: "معظم المهندسين يعملون في طبقة واحدة. أنا أعمل عبر الطبقات كلها.",
-    body: [
-      "بدأت في تشخيص اللوحات الأمّية وإعادة بناء شبكات المكاتب. لم يتلاشَ ذلك الانطباع أبداً — ما زلت أفكر في الآلة التي تعمل تحت البرمجيات.",
-      "اليوم يعني ذلك أنني أستطيع أن أنقل مشروعاً من خادم فارغ إلى متجر يستقبل أموالاً حقيقية: قاعدة البيانات، والبوت الذي يتحدّث مع المزوّدين، وطبقة الحافة التي تخدمه، والعتاد والشبكة التي يعمل عليها كل ذلك.",
-    ],
-    disciplineTitle: "ما أعمله فعلياً",
-    discipline: [
-      { label: "البنية التحتية", value: "إدارة الخوادم والشبكات، تشخيص العتاد، تركيب الأنظمة وتحصينها" },
-      { label: "هندسة المنتجات", value: "TypeScript، React، Next.js، Tailwind، Flutter، C#" },
-      { label: "الخلفية والبيانات", value: "FastAPI، PostgreSQL، Redis، Supabase، PL/pgSQL" },
-      { label: "تيليجرام والأتمتة", value: "Aiogram 3، Bot API، توثيق Mini Apps، موائمات المزوّدين" },
-      { label: "السحابة والتشغيل", value: "Cloudflare Workers، Docker، التكامل المستمر، تسليمات نشر مُشفّرة" },
-    ],
-  },
-
-  platforms: {
-    label: "المنصّات",
-    headline: "ثلاثة أنظمة، يعملان جميعها الآن.",
-    visit: "زيارة الموقع",
-    source: "الكود",
-  },
-
-  code: {
-    label: "كود مختار",
-    headline: "أشياء أخرى أنجزتها.",
-    all: "كل المستودعات الـ 27",
-    column: { repo: "المستودع", lang: "اللغة", type: "النوع", about: "ما هو" },
-  },
-
-  capabilities: {
-    label: "ما أقدّمه",
-    headline: "ما يمكنك أن تسلّمه لي.",
+  more: {
+    title: "المزيد على GitHub",
+    all: "كل المستودعات",
     items: [
       {
-        index: "01",
-        title: "هندسة منتجات كاملة",
-        body: "من قاعدة البيانات إلى الواجهة. TypeScript وReact وNext.js وTailwind وFlutter وC#، بُنيت لتُصان بعد الإطلاق لا لتُترك عند التسليم.",
+        name: "gh-store-tele",
+        kind: "بوت تيليجرام · Python",
+        blurb: "أوّل بوت لـ GH Store: كتالوج لإعادة البيع مع شحن بالكريبتو ونجوم تيليجرام وShamCash.",
+        url: "https://github.com/GH-ZX/gh-store-tele",
       },
       {
-        index: "02",
-        title: "أنظمة خلفية وتجارية",
-        body: "FastAPI وPostgreSQL في الخلفية: دفاتر حسابات، آلات حالات للطلبات، طوابير تنفيذ، وتسديد دفعات غير قابل للتكرار يصمد أمام إعادة المحاولة.",
+        name: "TechVerse-App",
+        kind: "تطبيق جوال · Flutter",
+        blurb: "تطبيق تجارة إلكترونية متعدّد المنصّات بلوحة تحكّم كاملة، على بنية نظيفة.",
+        url: "https://github.com/GH-ZX/TechVerse-App",
       },
       {
-        index: "03",
+        name: "doomsday-arabic-fix",
+        kind: "تعريب · C#\u200E",
+        blurb: "تعريب لعبة مكتوبة بـ C#\u200E: جداول النصوص، والتخطيط من اليمين إلى اليسار، ومعالجة الخطوط.",
+        url: "https://github.com/GH-ZX/doomsday-arabic-fix",
+      },
+      {
+        name: "Za-app",
+        kind: "تطبيق جوال · Flutter",
+        blurb: "مصادقة، وتخزين يعمل دون اتصال، وشاشات مبنيّة على واجهات برمجية.",
+        url: "https://github.com/GH-ZX/Za-app",
+      },
+      {
+        name: "CarrefourMall",
+        kind: "ويب · React",
+        blurb: "واجهة متجر متجاوبة مبنيّة بـ React وTailwind CSS.",
+        url: "https://github.com/GH-ZX/CarrefourMall",
+      },
+    ],
+  },
+
+  about: {
+    label: "عنّي",
+    title: "معظم المهندسين يعملون في طبقة واحدة. أنا أعمل عبر الطبقات كلّها.",
+    body: [
+      "بدأت بتشخيص اللوحات الأم وإعادة بناء شبكات المكاتب، وبقيت تلك العادة: ما زلت أفكّر في الآلة التي تعمل تحت البرمجيات.",
+      "واليوم يعني ذلك أنني أستطيع أن أنقل مشروعاً من خادم فارغ إلى متجر يستقبل أموالاً حقيقية: قاعدة البيانات، والدفتر المالي، والبوت الذي يتحدّث مع المزوّدين، وطبقة الحافة أمامه، والنشر الذي يبقيه قائماً. شخص واحد مسؤول، من الفكرة حتى الإنتاج.",
+    ],
+    layersTitle: "المنظومة كاملة",
+    layersNote: "أين أعمل، من الأعلى إلى الأسفل",
+    layers: [
+      { name: "العميل", tools: "مواقع، بوتات تيليجرام، تطبيقات مصغّرة" },
+      { name: "الواجهة", tools: "React، Next.js، TypeScript، Flutter" },
+      { name: "التطبيق", tools: "FastAPI، Aiogram 3، Workers، C#\u200E" },
+      { name: "البيانات", tools: "PostgreSQL، PL/pgSQL، Redis، Supabase" },
+      { name: "التشغيل", tools: "Cloudflare، Docker، CI/CD" },
+      { name: "الآلة", tools: "Linux، الشبكات، صيانة العتاد" },
+    ],
+  },
+
+  services: {
+    label: "الخدمات",
+    title: "ما يمكنك أن تسلّمه لي.",
+    items: [
+      {
+        icon: "store",
+        title: "منصّات تجارة",
+        body: "متاجر ومحافظ ودفاتر حسابات ومسارات طلبات تستقبل مدفوعات حقيقية وتصمد أمام إعادة المحاولة.",
+      },
+      {
+        icon: "bot",
         title: "بوتات وتطبيقات تيليجرام",
-        body: "Aiogram 3 وواجهة Bot API. أسراب بوتات، توثيق عبر initData، تطبيقات مصغّرة بهوية واضحة، وموائمات مزوّدين تتعافى من الأعطال دون فقد الطلبات.",
+        body: "بوتات وتطبيقات مصغّرة على Aiogram وBot API، بتسجيل دخول موثّق ودفع بالنجوم وربط مع المزوّدين يتعافى من الأعطال.",
       },
       {
-        index: "04",
+        icon: "code",
+        title: "منتجات متكاملة",
+        body: "TypeScript وReact وNext.js وFlutter — مبنيّة لتُصان بعد الإطلاق، لا لتُترك عند التسليم.",
+      },
+      {
+        icon: "globe",
+        title: "واجهات عربية أولاً",
+        body: "تخطيط من اليمين إلى اليسار ومحتوى ثنائي اللغة مُتقَن من اليوم الأول، لا انعكاساً يُضاف في النهاية.",
+      },
+      {
+        icon: "cloud",
         title: "السحابة والنشر",
-        body: "Cloudflare Workers وSupabase وDocker. تكامل مستمر، نسخ احتياطية، تسليمات مُشفّرة للعملاء، وتثبيتات ذاتية الاستضافة لا تعتمد على بقائي متاحاً.",
+        body: "Cloudflare Workers وSupabase وDocker. تكامل ونشر مستمرّان، ونسخ احتياطية، وتثبيتات ذاتية الاستضافة لا تعتمد على بقائي متاحاً.",
       },
       {
-        index: "05",
-        title: "دعم تقني وعتاد",
-        body: "إدارة خوادم وشبكات، إصلاح الحواسيب واللوحات الأمّية، تثبيت أنظمة نظيف وتحصين أمني — فعلياً وافتراضياً.",
+        icon: "chip",
+        title: "الدعم التقني والعتاد",
+        body: "إدارة الخوادم والشبكات، وصيانة الحواسيب واللوحات الأم، وتثبيت أنظمة نظيف وتحصين أمني.",
       },
     ],
   },
 
   contact: {
     label: "تواصل",
-    headline: "لنبنِ شيئاً يعمل فعلاً.",
-    body: "مفتوح لمشاريع هندسة المنتجات وتجارة تيليجرام والبنية التحتية. عن بُعد، مع أي مكان، ومستعد لأن آخذ النظام من البداية إلى النهاية.",
-    emailCta: "أرسل رسالة",
-    fallback: "تفضّل البريد؟",
+    title: "لنبنِ شيئاً يعمل فعلاً.",
+    body: "متاح لمشاريع هندسة المنتجات وتجارة تيليجرام والبنية التحتية — عن بُعد، ولأي مكان. أخبرني ماذا تبني وأين تعثّر.",
+    emailLabel: "البريد",
+    copy: "نسخ",
+    copied: "نُسخ",
+    channelsTitle: "أو تواصل عبر",
     channels: [
-      { id: "email", label: "البريد", value: "ahmedghawi3@gmail.com" },
       { id: "telegram", label: "تيليجرام", value: "@ahmedghx" },
       { id: "whatsapp", label: "واتساب", value: "+963 968 098 330" },
       { id: "github", label: "GitHub", value: "GH-ZX" },
-      { id: "linkedin", label: "لينكدإن", value: "ahmed-gh" },
+      { id: "linkedin", label: "لينكدإن", value: "Ahmed Ghawi" },
     ],
+    formTitle: "أرسل رسالة",
     form: {
       name: "الاسم",
       email: "البريد الإلكتروني",
-      topic: "ما موضوع الرسالة؟",
+      topic: "الموضوع",
+      topicPlaceholder: "اختر موضوعاً (اختياري)",
       topics: [
         { value: "product", label: "هندسة منتجات" },
         { value: "telegram", label: "تجارة تيليجرام" },
@@ -663,290 +729,33 @@ const ar: Copy = {
         { value: "other", label: "شيء آخر" },
       ],
       message: "الرسالة",
-      messageHint: "بضعة أسطر تكفي.",
+      messageHint: "ماذا تبني؟ بضعة أسطر تكفي.",
       submit: "إرسال الرسالة",
-      sending: "جارٍ الإرسال",
-      success: "وصلت الرسالة. سأردّ على بريدك.",
+      sending: "جارٍ الإرسال…",
+      verifying: "نتحقّق من أنك لست روبوتاً…",
+      successTitle: "وصلت الرسالة",
+      successBody: "شكراً لك. سأردّ على البريد الذي كتبته.",
       sendAnother: "إرسال رسالة أخرى",
       errors: {
         generic: "حدث خطأ ما. أعد المحاولة أو راسلني مباشرة.",
-        rate_limited: "رسائل كثيرة من هذا الاتصال. أعد المحاولة لاحقاً.",
+        rate_limited: "رسائل كثيرة من هذا الاتصال. أعد المحاولة بعد ساعة.",
         invalid_json: "حدث خطأ ما. أعد المحاولة.",
         name_required: "الرجاء كتابة الاسم.",
         email_invalid: "يبدو أن البريد الإلكتروني غير صحيح.",
-        message_too_short: "الرجاء إضافة بعض التفاصيل.",
+        message_too_short: "الرجاء إضافة بعض التفاصيل (10 أحرف على الأقل).",
         topic_invalid: "الرجاء اختيار موضوع من القائمة.",
-        turnstile_failed: "الرجاء تأكيد أنك لست روبوتاً ثم أعد المحاولة.",
+        turnstile_failed: "لم نتمكّن من التحقّق من أنك لست روبوتاً. أعد المحاولة.",
       },
     },
   },
 
   footer: {
     rights: "جميع الحقوق محفوظة.",
-    built: "صُمّم وبُني في حلب، سوريا",
-    backToTop: "العودة للأعلى",
+    built: "صُمّم وبُني في حلب، سوريا.",
+    synced: "بنظام تصميم GH Store",
+    localTime: "التوقيت في حلب",
+    top: "العودة للأعلى",
   },
 };
 
-export const copy: Record<Locale, Copy> = { en, ar };
-
-export const dirOf = (locale: Locale) => (locale === "ar" ? "rtl" : "ltr");
-export const htmlLangOf = (locale: Locale) => (locale === "ar" ? "ar" : "en");
-
-/* ------------------------------------------------------------------ *
- *  Platforms
- * ------------------------------------------------------------------ */
-
-export const platforms: Record<Locale, Platform[]> = {
-  en: [
-    {
-      index: "01",
-      id: "gh-store",
-      name: "GH Store",
-      domain: "gh-store.me",
-      url: links.store,
-      source: "https://github.com/GH-ZX/gh-store-dev",
-      category: "Digital commerce · Production",
-      headline: "A bilingual digital-goods storefront taking real transactions.",
-      body: "Customers browse in Arabic or English, top up a wallet, pay, and receive keys or game credit — delivered automatically from suppliers, or after a quick team review depending on the offer. The same application carries a full admin console for catalog, providers, payments, fulfillment, customers, reviews, support tickets and audit logs.",
-      features: [
-        { label: "Catalog", value: "Nine categories, Arabic and English, RTL-aware routing" },
-        { label: "Payments", value: "Wallet balances, coupons, reseller price groups" },
-        { label: "Fulfillment", value: "Automated supplier delivery with a manual review path" },
-        { label: "Support", value: "Tickets, warranties, and downloadable PDF invoices" },
-        { label: "Admin", value: "Products, providers, payments, reviews, activity log" },
-        { label: "Edge", value: "Cloudflare Workers in front of Supabase and PostgreSQL" },
-      ],
-      stack: ["React Router", "TypeScript", "Supabase", "PostgreSQL", "Cloudflare Workers", "Tailwind"],
-    },
-    {
-      index: "02",
-      id: "bot-factory",
-      name: "GH Bot Factory",
-      domain: "factory.gh-store.me",
-      url: links.factory,
-      source: links.factoryBuild,
-      category: "Commerce platform · SaaS",
-      headline: "A multi-tenant engine that turns a blank bot into a business.",
-      body: "A public configurator collects a customer's scope and product preferences, the operator console turns that into a quote and provisions an isolated tenant, and the customer walks away with their own branded bot, Mini App and admin portal. Suppliers and payment credentials live in an encrypted vault — plaintext keys never touch the database or the browser.",
-      features: [
-        { label: "Pipeline", value: "Configurator → inquiry → quote → tenant provisioning" },
-        { label: "Tenancy", value: "Per-tenant bot fleets, branding, themes and entitlements" },
-        { label: "Secrets", value: "Write-only encrypted credential storage, never returned to clients" },
-        { label: "Money", value: "Currency-safe ledger, reconciliation cases, refund guards" },
-        { label: "Access", value: "Owner, admin, manager, staff and customer roles" },
-        { label: "Handoff", value: "Encrypted installation bundles for self-hosted deployments" },
-      ],
-      stack: ["FastAPI", "Aiogram 3", "PostgreSQL", "Redis", "Docker", "React"],
-    },
-    {
-      index: "03",
-      id: "store-bot",
-      name: "GH Store Telegram Bot",
-      domain: "t.me/gh_store1_bot",
-      url: links.storeBot,
-      source: "https://github.com/GH-ZX/gh-store-tele",
-      category: "Telegram bot · Production",
-      headline: "The same storefront, living inside Telegram.",
-      body: "The resale channel most customers already have open. A customer starts the bot, browses the catalog in Arabic or English, tops up and pays — with crypto, Telegram Stars or a local gateway — and receives the key automatically. No app to install, no site to load, no account to remember.",
-      features: [
-        { label: "Entry", value: "One tap from a Telegram chat — no install, no web UI" },
-        { label: "Catalog", value: "Inline browsing with Arabic and English copy" },
-        { label: "Payments", value: "Crypto, Telegram Stars and local gateways, multi-currency" },
-        { label: "Fulfillment", value: "Automated key delivery straight to the customer" },
-        { label: "Resale", value: "Built for resellers, priced the same way throughout" },
-        { label: "Stack", value: "Python, Aiogram 3, PostgreSQL, Redis, Docker" },
-      ],
-      stack: ["Python", "Aiogram 3", "Telegram Bot API", "PostgreSQL", "Redis", "Docker"],
-    },
-  ],
-  ar: [
-    {
-      index: "01",
-      id: "gh-store",
-      name: "متجر GH",
-      domain: "gh-store.me",
-      url: links.store,
-      source: "https://github.com/GH-ZX/gh-store-dev",
-      category: "تجارة رقمية · في الإنتاج",
-      headline: "متجر منتجات رقمية ثنائي اللغة يستقبل مدفوعات حقيقية.",
-      body: "يتصفّح العميل بالعربية أو الإنجليزية، يعبّئ محفظته، يدفع، ويستلم مفاتيح أو شحنات ألعاب — تُسلَّم تلقائياً من المزوّدين، أو بعد مراجعة سريعة من الفريق حسب العرض. ويحمل التطبيق نفسه لوحة تحكّم كاملة لإدارة الكتالوج والمزوّدين والدفع والتنفيذ والعملاء والتقييمات وتذاكر الدعم وسجل التدقيق.",
-      features: [
-        { label: "الكتالوج", value: "تسع فئات، بالعربية والإنجليزية، مع دعم اتجاه RTL" },
-        { label: "الدفع", value: "أرصدة محفظة، قسائم، ومجموعات أسعار للموزّعين" },
-        { label: "التنفيذ", value: "تسليم آلي من المزوّد مع مسار مراجعة يدوي" },
-        { label: "الدعم", value: "تذاكر، ضمانات، وفواتير PDF قابلة للتحميل" },
-        { label: "الإدارة", value: "منتجات ومزوّدون ومدفوعات وتقييمات وسجل نشاط" },
-        { label: "الحافة", value: "Cloudflare Workers أمام Supabase وPostgreSQL" },
-      ],
-      stack: ["React Router", "TypeScript", "Supabase", "PostgreSQL", "Cloudflare Workers", "Tailwind"],
-    },
-    {
-      index: "02",
-      id: "bot-factory",
-      name: "مصنع البوتات",
-      domain: "factory.gh-store.me",
-      url: links.factory,
-      source: links.factoryBuild,
-      category: "منصّة تجارة · SaaS",
-      headline: "محرك متعدّد المستأجرين يحوّل بوتاً فارغاً إلى مشروع.",
-      body: "مُهيّئ عام يجمع نطاق العميل وتفضيلاته، وواجهة المشغّل تحوّل ذلك إلى عرض سعر وتُنشئ مستأجراً معزولاً، فيخرج العميل بوته وهويّته وتطبيقه المصغّر ولوحته الخاصة. أما بيانات المزوّدين والدفع فتُحفظ في خزنة مُشفّرة — المفاتيح لا تُخزَّن أبداً كنص صريح في قاعدة البيانات ولا في المتصفّح.",
-      features: [
-        { label: "المسار", value: "مُهيّئ ← طلب ← عرض سعر ← إنشاء مستأجر" },
-        { label: "التعدّد", value: "أسراب بوتات وهوية وسمات وصلاحيات لكل مستأجر" },
-        { label: "الأسرار", value: "تخزين مُشفّر للكتابة فقط، لا يعود أبداً إلى العميل" },
-        { label: "المال", value: "دفتر آمن بين العملات، حالات تسوية، وحماية للاسترداد" },
-        { label: "الصلاحيات", value: "مالك ومدير ومشرف وموظف وعميل" },
-        { label: "التسليم", value: "حزم تثبيت مُشفّرة للتثبيتات ذاتية الاستضافة" },
-      ],
-      stack: ["FastAPI", "Aiogram 3", "PostgreSQL", "Redis", "Docker", "React"],
-    },
-    {
-      index: "03",
-      id: "store-bot",
-      name: "بوت متجر GH على تيليجرام",
-      domain: "t.me/gh_store1_bot",
-      url: links.storeBot,
-      source: "https://github.com/GH-ZX/gh-store-tele",
-      category: "بوت تيليجرام · في الإنتاج",
-      headline: "المتجر نفسه، يعمل داخل تيليجرام.",
-      body: "قناة إعادة البيع التي يكون العميل قد فتحها أصلاً. يبدأ العميل البوت، يتصفّح الكتالوج بالعربية أو الإنجليزية، يعبّئ رصيده ويدفع — بالكريبتو أو نجوم تيليجرام أو بوابة محلية — ثم يستلم المفتاح تلقائياً. بلا تطبيق يُثبَّت، وبلا موقع يُحمَّل، وبلا حساب يُحفظ.",
-      features: [
-        { label: "الدخول", value: "نقرة واحدة من محادثة تيليجرام — بلا تثبيت وبلا واجهة ويب" },
-        { label: "الكتالوج", value: "تصفّح داخل المحادثة بنصوص عربية وإنجليزية" },
-        { label: "الدفع", value: "كريبتو، نجوم تيليجرام، وبوابات محلية بتعدّد العملات" },
-        { label: "التنفيذ", value: "تسليم آلي للمفتاح إلى العميل مباشرةً" },
-        { label: "إعادة البيع", value: "مبنيّ للموزّعين، وبنفس منطق التسعير في كل القنوات" },
-        { label: "التقنية", value: "Python، Aiogram 3، PostgreSQL، Redis، Docker" },
-      ],
-      stack: ["Python", "Aiogram 3", "Telegram Bot API", "PostgreSQL", "Redis", "Docker"],
-    },
-  ],
-};
-
-/* ------------------------------------------------------------------ *
- *  Selected repositories — pulled from github.com/GH-ZX
- * ------------------------------------------------------------------ */
-
-export const repos: Record<Locale, Repo[]> = {
-  en: [
-    {
-      name: "echocore-store",
-      language: "JavaScript",
-      type: "Storefront",
-      blurb: "The earlier generation of the digital store — bilingual top-ups and gift cards, supplier catalog sync, auto-fulfillment and PDF invoices.",
-      url: "https://github.com/GH-ZX/echocore-store",
-      liveUrl: links.echocore,
-      stars: 1,
-    },
-    {
-      name: "gh-store-tele",
-      language: "Python",
-      type: "Telegram bot",
-      blurb: "Telegram reseller bot with automated key fulfillment and multi-currency top-up through crypto, Telegram Stars and local gateways.",
-      url: "https://github.com/GH-ZX/gh-store-tele",
-    },
-    {
-      name: "TechVerse-App",
-      language: "Dart",
-      type: "Mobile app",
-      blurb: "Cross-platform e-commerce application with a full admin panel, built in Flutter on clean architecture.",
-      url: "https://github.com/GH-ZX/TechVerse-App",
-    },
-    {
-      name: "doomsday-arabic-fix",
-      language: "C#",
-      type: "Localization",
-      blurb: "Full Arabic localization pass over a C# game codebase — string tables, bidirectional layout and font handling.",
-      url: "https://github.com/GH-ZX/doomsday-arabic-fix",
-    },
-    {
-      name: "Za-app",
-      language: "Dart",
-      type: "Mobile app",
-      blurb: "Flutter application covering authentication, offline-first storage and API-backed screens.",
-      url: "https://github.com/GH-ZX/Za-app",
-    },
-    {
-      name: "CarrefourMall",
-      language: "JavaScript",
-      type: "Web",
-      blurb: "Responsive storefront interface built with React and Tailwind CSS.",
-      url: "https://github.com/GH-ZX/CarrefourMall",
-    },
-  ],
-  ar: [
-    {
-      name: "echocore-store",
-      language: "JavaScript",
-      type: "متجر",
-      blurb: "الجيل الأوّل من المتجر الرقمي — شحن ألعاب وبطاقات ثنائية اللغة، مزامنة كتالوج المزوّد، تنفيذ آلي وفواتير PDF.",
-      url: "https://github.com/GH-ZX/echocore-store",
-      liveUrl: links.echocore,
-      stars: 1,
-    },
-    {
-      name: "gh-store-tele",
-      language: "Python",
-      type: "بوت تيليجرام",
-      blurb: "بوت إعادة بيع على تيليجرام بتنفيذ آلي للمفاتيح وتعبئة متعدّدة العملات عبر الكريبتو وTelegram Stars والبوابات المحلية.",
-      url: "https://github.com/GH-ZX/gh-store-tele",
-    },
-    {
-      name: "TechVerse-App",
-      language: "Dart",
-      type: "تطبيق جوال",
-      blurb: "تطبيق تجارة إلكترونية متعدّد المنصّات بلوحة تحكّم كاملة، مبني بـ Flutter على بنية نظيفة.",
-      url: "https://github.com/GH-ZX/TechVerse-App",
-    },
-    {
-      name: "doomsday-arabic-fix",
-      language: "C#",
-      type: "توطين",
-      blurb: "تمرير توطين عربي كامل على قاعدة شيفرة لعبة بـ C# — جداول النصوص، وتخطيط ثنائي الاتجاه، ومعالجة الخطوط.",
-      url: "https://github.com/GH-ZX/doomsday-arabic-fix",
-    },
-    {
-      name: "Za-app",
-      language: "Dart",
-      type: "تطبيق جوال",
-      blurb: "تطبيق Flutter يغطّي المصادقة والتخزين للعمل دون اتصال والشاشات المبنية على واجهات برمجية.",
-      url: "https://github.com/GH-ZX/Za-app",
-    },
-    {
-      name: "CarrefourMall",
-      language: "JavaScript",
-      type: "ويب",
-      blurb: "واجهة متجر متجاوبة مبنية بـ React وTailwind CSS.",
-      url: "https://github.com/GH-ZX/CarrefourMall",
-    },
-  ],
-};
-
-/* ------------------------------------------------------------------ *
- *  Running marquee
- * ------------------------------------------------------------------ */
-
-export const marqueeItems: string[] = [
-  "TypeScript",
-  "React",
-  "Next.js",
-  "Tailwind CSS",
-  "FastAPI",
-  "Python",
-  "Aiogram 3",
-  "Telegram Mini Apps",
-  "PostgreSQL",
-  "PL/pgSQL",
-  "Supabase",
-  "Redis",
-  "Cloudflare Workers",
-  "Docker",
-  "C#",
-  ".NET",
-  "Flutter",
-  "Dart",
-  "Linux",
-  "Networking",
-  "Git",
-];
+export const dictionaries: Record<Locale, Dictionary> = { en, ar };

@@ -4,14 +4,42 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # ghawi.app wears GH Store's design preset, read at build time. Every six
+  # hours, check whether the store's look has changed and redeploy if it has.
+  schedule:
+    - cron: "17 */6 * * *"
 
 concurrency:
   group: deploy-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  sync-check:
+    name: Compare with GH Store's look
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.compare.outputs.changed }}
+    steps:
+      - id: compare
+        run: |
+          store=$(curl -fsS --max-time 15 https://gh-store.me/api/config | jq -r '"\(.theme.preset) \(.theme.defaultMode)"' || true)
+          html=$(curl -fsS --max-time 15 https://ghawi.app/en || true)
+          preset=$(grep -o 'data-preset="[a-z]*"' <<<"$html" | head -1 | cut -d'"' -f2)
+          mode=$(grep -o 'data-default="[a-z]*"' <<<"$html" | head -1 | cut -d'"' -f2)
+          echo "GH Store: '$store'  ghawi.app: '$preset $mode'"
+          # An unreachable store is not a change; the site keeps its last look.
+          if [ -n "$store" ] && [ "$store" != "$preset $mode" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
   deploy:
     name: Build and deploy to Cloudflare
+    needs: sync-check
+    # Pushes and manual runs always deploy; scheduled runs only on a change.
+    if: ${{ !cancelled() && (github.event_name != 'schedule' || needs.sync-check.outputs.changed == 'true') }}
     runs-on: ubuntu-latest
 
     steps:
@@ -26,20 +54,24 @@ jobs:
           node-version: 24
           cache: pnpm
 
-      # node-linker is hoisted because the build must run on Linux CI.
-      # Remove it from pnpm-workspace.yaml first if you would rather keep the
-      # Windows-only workaround and pin a custom linker per-platform.
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Lint
         run: pnpm lint
 
-      - name: Typecheck
-        run: pnpm exec tsc --noEmit
+      # worker-configuration.d.ts (the Cloudflare binding types) is generated,
+      # not committed; without it the typecheck cannot see D1Database etc.
+      - name: Generate Cloudflare binding types
+        run: pnpm cf-typegen
 
+      - name: Typecheck
+        run: pnpm typecheck
+
+      # `pnpm run`, not `pnpm deploy`: the latter is pnpm's own built-in
+      # workspace command and never reaches the package script.
       - name: Build and deploy
-        run: pnpm deploy
+        run: pnpm run deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

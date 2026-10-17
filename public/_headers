@@ -7,11 +7,11 @@
 /media/*
   Cache-Control: public,max-age=604800,stale-while-revalidate=86400
 
-/opengraph-image
-  Cache-Control: public,max-age=0,s-maxage=86400,stale-while-revalidate=604800
+/og.png
+  Cache-Control: public,max-age=86400,stale-while-revalidate=604800
 
-/icon
-  Cache-Control: public,max-age=0,s-maxage=86400,stale-while-revalidate=604800
+/favicon.svg
+  Cache-Control: public,max-age=86400,stale-while-revalidate=604800
 
-/apple-icon
-  Cache-Control: public,max-age=0,s-maxage=86400,stale-while-revalidate=604800
+/apple-touch-icon.png
+  Cache-Control: public,max-age=86400,stale-while-revalidate=604800

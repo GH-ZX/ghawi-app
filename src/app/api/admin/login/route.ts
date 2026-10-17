@@ -8,23 +8,17 @@ import {
   sessionCookieOptions,
   verifyPassword,
 } from "@/lib/admin-server";
+import { clientIp, minutesAgo } from "@/lib/request";
 
 const MAX_ATTEMPTS = 8;
 const LOCKOUT_MINUTES = 15;
 
-type D1Row = { attempts: number; last_attempt: string };
+type AttemptRow = { attempts: number; last_attempt: string };
 
-function clientIp(request: Request): string {
-  return (
-    request.headers.get("cf-connecting-ip") ??
-    (request.headers.get("x-forwarded-for") ?? "").split(",")[0].trim() ??
-    "unknown"
-  );
-}
+const noStore = { "Cache-Control": "no-store" };
 
 export async function POST(request: Request) {
-  const env = (await getEnv()) as AdminEnv;
-  const noStore = { "Cache-Control": "no-store" };
+  const env = ((await getEnv()) ?? {}) as AdminEnv;
 
   if (!env.ADMIN_USERNAME || !env.ADMIN_PASSWORD_HASH || !env.ADMIN_SESSION_SECRET) {
     return NextResponse.json({ ok: false, error: "not_configured" }, { status: 503, headers: noStore });
@@ -35,28 +29,30 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as { username?: string; password?: string };
     username = String(body.username ?? "").slice(0, 128);
-    password = String(body.password ?? "");
+    password = String(body.password ?? "").slice(0, 1024);
   } catch {
     return NextResponse.json({ ok: false, error: "invalid_json" }, { status: 400, headers: noStore });
   }
 
   const ip = clientIp(request);
   const db = env.CONTACT_DB;
+  // Same text form D1 stores `last_attempt` in, so comparing strings compares times.
+  const cutoff = minutesAgo(LOCKOUT_MINUTES);
 
   /* -- Throttle ----------------------------------------------------- */
   if (db) {
     try {
-      const cutoff = new Date(Date.now() - LOCKOUT_MINUTES * 60_000).toISOString().replace("T", " ").slice(0, 19);
       const row = await db
         .prepare(`SELECT attempts, last_attempt FROM admin_login_attempts WHERE ip = ?1`)
         .bind(ip)
-        .first<D1Row>();
+        .first<AttemptRow>();
 
       if (row && row.attempts >= MAX_ATTEMPTS && row.last_attempt >= cutoff) {
         return NextResponse.json({ ok: false, error: "locked" }, { status: 429, headers: noStore });
       }
     } catch {
-      // A throttle outage must not become an auth bypass.
+      // Fail closed: a throttle we cannot read must not become unlimited guesses.
+      return NextResponse.json({ ok: false, error: "unavailable" }, { status: 503, headers: noStore });
     }
   }
 
@@ -69,18 +65,20 @@ export async function POST(request: Request) {
   if (!usernameOk || !passwordOk) {
     if (db) {
       try {
+        // A failure after a quiet spell starts a fresh window rather than
+        // inheriting old strikes.
         await db
           .prepare(
             `INSERT INTO admin_login_attempts (ip, attempts, last_attempt)
              VALUES (?1, 1, strftime('%Y-%m-%dT%H:%M:%fZ','now'))
              ON CONFLICT(ip) DO UPDATE SET
-               attempts = attempts + 1,
+               attempts = CASE WHEN last_attempt < ?2 THEN 1 ELSE attempts + 1 END,
                last_attempt = strftime('%Y-%m-%dT%H:%M:%fZ','now')`,
           )
-          .bind(ip)
+          .bind(ip, cutoff)
           .run();
       } catch {
-        // Non-fatal.
+        // Non-fatal: the next attempt reads the throttle again.
       }
     }
     return NextResponse.json({ ok: false, error: "invalid_credentials" }, { status: 401, headers: noStore });

@@ -1,7 +1,16 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Logo } from "@/components/logo";
+
+const ERRORS: Record<string, string> = {
+  locked: "Too many attempts. Wait 15 minutes and try again.",
+  not_configured: "Admin sign-in is not configured on this deployment.",
+  unavailable: "Sign-in is briefly unavailable. Try again in a minute.",
+  invalid_credentials: "Incorrect username or password.",
+};
 
 export function LoginForm({ locked }: { locked: boolean }) {
   const router = useRouter();
@@ -10,9 +19,7 @@ export function LoginForm({ locked }: { locked: boolean }) {
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = event.currentTarget;
-    const data = new FormData(form);
-
+    const data = new FormData(event.currentTarget);
     setBusy(true);
     setError(null);
 
@@ -22,21 +29,13 @@ export function LoginForm({ locked }: { locked: boolean }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: data.get("username"), password: data.get("password") }),
       });
-      const body = (await response.json()) as { ok?: boolean; error?: string };
+      const body = (await response.json().catch(() => ({}))) as { ok?: boolean; error?: string };
 
       if (response.ok && body.ok) {
-        router.replace("/admin");
         router.refresh();
         return;
       }
-
-      setError(
-        body.error === "locked"
-          ? "Too many attempts. Wait 15 minutes and try again."
-          : body.error === "not_configured"
-            ? "Admin auth is not configured on this deployment."
-            : "Incorrect username or password.",
-      );
+      setError(ERRORS[body.error ?? ""] ?? ERRORS.invalid_credentials);
     } catch {
       setError("Could not reach the server. Try again.");
     } finally {
@@ -45,81 +44,45 @@ export function LoginForm({ locked }: { locked: boolean }) {
   }
 
   return (
-    <div className="flex min-h-svh items-center justify-center px-6 py-16">
-      <div className="w-full max-w-sm">
-        <div className="mb-10 flex items-center gap-2.5">
-          <span className="relative grid size-7 place-items-center border border-line-2 bg-bg-2 font-mono text-[11px] text-fg">
-            GH
-            <span className="absolute -end-px -bottom-px size-1.5 bg-acc" />
-          </span>
-          <span className="mono text-xs tracking-[0.14em] text-fg-2 uppercase">
-            ghawi<span className="text-fg-3">.app</span>
-            <span className="text-fg-3"> / admin</span>
-          </span>
+    <main className="login">
+      <span className="login__blob" aria-hidden="true" />
+      <div className="card login__card">
+        <Logo draw height={26} />
+        <div>
+          <h1>Sign in</h1>
+          <p>The ghawi.app inbox. Sessions last 8 hours.</p>
         </div>
 
-        <h1 className="font-display text-3xl font-medium tracking-[-0.03em] text-fg">Sign in</h1>
-        <p className="mt-2 text-[13.5px] text-fg-3">Restricted area. Sessions expire after 8 hours.</p>
-
         {locked ? (
-          <div className="mt-8 border-s-2 border-acc bg-acc-soft/20 px-4 py-3 text-[13px] text-fg">
-            This deployment is missing <code className="mono">ADMIN_PASSWORD_HASH</code> or{" "}
-            <code className="mono">ADMIN_SESSION_SECRET</code>.
-          </div>
+          <p className="login__alert" role="alert">
+            This deployment is missing <code>ADMIN_PASSWORD_HASH</code> or <code>ADMIN_SESSION_SECRET</code>.
+          </p>
         ) : (
-          <form onSubmit={onSubmit} className="mt-8 space-y-5">
-            <div>
-              <label htmlFor="username" className="mono mb-2 block text-[10.5px] tracking-[0.14em] text-fg-3 uppercase">
-                Username
-              </label>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                required
-                autoComplete="username"
-                autoFocus
-                className="w-full border border-line bg-bg-1 px-4 py-3 text-[14px] text-fg focus:border-acc focus:outline-none"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="mono mb-2 block text-[10.5px] tracking-[0.14em] text-fg-3 uppercase">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                autoComplete="current-password"
-                className="w-full border border-line bg-bg-1 px-4 py-3 text-[14px] text-fg focus:border-acc focus:outline-none"
-              />
-            </div>
-
+          <form onSubmit={onSubmit} className="form-grid" style={{ gridTemplateColumns: "1fr" }}>
+            <label className="field">
+              <span className="field__label">Username</span>
+              <input className="input" name="username" type="text" required autoComplete="username" autoFocus />
+            </label>
+            <label className="field">
+              <span className="field__label">Password</span>
+              <input className="input" name="password" type="password" required autoComplete="current-password" />
+            </label>
             {error ? (
-              <p role="alert" className="border-s-2 border-acc bg-acc-soft/20 px-4 py-3 text-[13px] text-fg">
+              <p className="login__alert" role="alert">
                 {error}
               </p>
             ) : null}
-
-            <button
-              type="submit"
-              disabled={busy}
-              className="sweep mono h-11 w-full border border-line-2 text-[12px] tracking-[0.12em] text-fg uppercase transition-colors duration-200 hover:text-bg disabled:opacity-50"
-            >
-              <span className="relative z-10">{busy ? "Checking" : "Sign in"}</span>
+            <button type="submit" className="btn btn--block press" disabled={busy}>
+              {busy ? <span className="spinner" aria-hidden="true" /> : null}
+              {busy ? "Checking" : "Sign in"}
             </button>
           </form>
         )}
 
-        <a
-          href="/en"
-          className="mono mt-10 inline-block text-[11px] text-fg-3 transition-colors hover:text-acc"
-        >
+        <Link className="login__back" href="/en">
           ← Back to the site
-        </a>
+        </Link>
       </div>
-    </div>
+    </main>
   );
 }

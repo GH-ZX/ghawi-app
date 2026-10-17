@@ -10,7 +10,9 @@
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
-    "cf-typegen": "wrangler types --env-interface CloudflareEnv worker-configuration.d.ts"
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv worker-configuration.d.ts",
+    "sync:design": "node scripts/sync-design.mjs",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "next": "16.3.8",
@@ -19,15 +21,11 @@
   },
   "devDependencies": {
     "@opennextjs/cloudflare": "^1.20.11",
-    "@tailwindcss/postcss": "^4.3.3",
-    "@tailwindcss/turbopack": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.0",
-    "postcss": "^8.5.30",
-    "tailwindcss": "^4",
     "typescript": "^5",
     "wrangler": "^4.149.0"
   },

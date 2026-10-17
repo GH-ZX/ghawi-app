@@ -1,8 +1,9 @@
 /**
  * Admin authentication.
  *
- * Passwords are stored as PBKDF2-SHA256 (210k iterations) and verified with
- * Web Crypto so the same code runs in `next dev` and on workerd.
+ * Passwords are stored as PBKDF2-SHA256 (100k iterations, the Workers
+ * ceiling — see verifyPassword) and verified with Web Crypto, so the same code
+ * runs in `next dev` and on workerd.
  * Sessions are stateless HMAC-signed tokens in an HttpOnly cookie — no server
  * session store to keep alive or invalidate on restart.
  */

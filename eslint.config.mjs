@@ -16,6 +16,8 @@ const eslintConfig = defineConfig([
     ".open-next/**",
     ".wrangler/**",
     "worker-configuration.d.ts",
+    // Synced verbatim from GH Store (scripts/sync-design.mjs); linted there.
+    "src/lib/ghstore-ui.ts",
   ]),
 ]);
 

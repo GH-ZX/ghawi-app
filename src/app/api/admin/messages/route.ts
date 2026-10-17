@@ -19,7 +19,7 @@ type MessageRow = {
 };
 
 async function guard() {
-  const env = (await getEnv()) as AdminEnv;
+  const env = ((await getEnv()) ?? {}) as AdminEnv;
   if (!env.ADMIN_SESSION_SECRET) return { error: "not_configured" as const };
   const jar = await cookies();
   const ok = await isAuthenticated(jar.get(ADMIN_COOKIE)?.value, env);

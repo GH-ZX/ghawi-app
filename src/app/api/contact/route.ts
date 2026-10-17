@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { clientIp, minutesAgo } from "@/lib/request";
 
 /* ------------------------------------------------------------------ *
  *  POST /api/contact
@@ -110,13 +111,6 @@ function clean(value: unknown, max: number): string {
   return value.replace(CONTROL_CHARS, "").trim().slice(0, max);
 }
 
-function clientIp(request: Request): string {
-  const edge = request.headers.get("cf-connecting-ip");
-  if (edge) return edge.slice(0, 45);
-  const forwarded = (request.headers.get("x-forwarded-for") ?? "").split(",")[0].trim();
-  return forwarded.slice(0, 45) || "unknown";
-}
-
 function json(body: Result, status = 200) {
   return NextResponse.json(body, { status, headers: { "Cache-Control": "no-store" } });
 }
@@ -174,10 +168,8 @@ export async function POST(request: Request) {
   const db = env.CONTACT_DB;
   if (db) {
     try {
-      const windowStart = new Date(Date.now() - RATE_LIMIT.windowMinutes * 60_000)
-        .toISOString()
-        .replace("T", " ")
-        .slice(0, 19);
+      // Same text form as `created_at`, so the string comparison is a time one.
+      const windowStart = minutesAgo(RATE_LIMIT.windowMinutes);
 
       const recent = await db
         .prepare(
@@ -261,34 +253,30 @@ export async function POST(request: Request) {
 /* ------------------------------------------------------------------ */
 
 function renderHtml(p: Payload): string {
+  // GH Store's "energetic" light palette, inlined: mail clients ignore CSS variables.
   const row = (label: string, value: string) =>
     `<tr>
-       <td style="padding:6px 12px 6px 0;color:#67717a;font:12px ui-monospace,monospace;white-space:nowrap;vertical-align:top">${escapeHtml(label)}</td>
-       <td style="padding:6px 0;color:#edf0f2;font:14px -apple-system,Segoe UI,sans-serif">${escapeHtml(value)}</td>
+       <td style="padding:6px 16px 6px 0;color:#5E5677;font:13px -apple-system,Segoe UI,sans-serif;white-space:nowrap;vertical-align:top">${escapeHtml(label)}</td>
+       <td style="padding:6px 0;color:#160F2E;font:14px -apple-system,Segoe UI,sans-serif">${escapeHtml(value)}</td>
      </tr>`;
 
   return `<!doctype html>
-<html><body style="margin:0;background:#07080a;padding:24px">
-  <div style="max-width:600px;margin:0 auto;border:1px solid #1c2126;background:#0a0c0f">
-    <div style="border-bottom:1px solid #1c2126;padding:16px 24px">
-      <span style="color:#d4ff3f;font:12px ui-monospace,monospace;letter-spacing:.14em">GHAWI.APP</span>
-      <span style="color:#67717a;font:12px ui-monospace,monospace;letter-spacing:.14em">&#8195;/&#8195;CONTACT${p.id ? ` #${p.id}` : ""}</span>
+<html><body style="margin:0;background:#F8F6FF;padding:24px">
+  <div style="max-width:600px;margin:0 auto;border:1px solid #E6DFFB;border-radius:22px;background:#FFFFFF;overflow:hidden">
+    <div style="padding:18px 24px;border-bottom:1px solid #E6DFFB">
+      <span style="color:#6D28D9;font:700 15px -apple-system,Segoe UI,sans-serif">GH.</span>
+      <span style="color:#5E5677;font:14px -apple-system,Segoe UI,sans-serif">&nbsp;ghawi.app · new message${p.id ? ` #${p.id}` : ""}</span>
     </div>
     <div style="padding:24px">
       <table role="presentation" style="border-collapse:collapse;width:100%">
         ${row("From", p.name)}
         ${row("Email", p.email)}
         ${row("Topic", p.topic ? (TOPIC_LABELS[p.topic] ?? p.topic) : "-")}
-        ${row("Locale", p.locale || "-")}
+        ${row("Language", p.locale || "-")}
         ${row("IP", p.ip)}
       </table>
-      <div style="margin-top:20px;border-top:1px solid #1c2126;padding-top:20px">
-        <div style="color:#67717a;font:12px ui-monospace,monospace;letter-spacing:.14em;margin-bottom:8px">MESSAGE</div>
-        <div style="color:#edf0f2;font:15px/1.65 -apple-system,Segoe UI,sans-serif;white-space:pre-wrap">${escapeHtml(p.message)}</div>
-      </div>
-    </div>
-    <div style="border-top:1px solid #1c2126;padding:14px 24px">
-      <a href="https://ghawi.app" style="color:#67717a;font:12px ui-monospace,monospace;text-decoration:none">ghawi.app</a>
+      <div style="margin-top:20px;border-radius:16px;background:#F1ECFF;padding:18px 20px;color:#160F2E;font:15px/1.65 -apple-system,Segoe UI,sans-serif;white-space:pre-wrap">${escapeHtml(p.message)}</div>
+      <p style="margin:20px 0 0;color:#5E5677;font:13px -apple-system,Segoe UI,sans-serif">Reply to this email to answer ${escapeHtml(p.name)} directly.</p>
     </div>
   </div>
 </body></html>`;
