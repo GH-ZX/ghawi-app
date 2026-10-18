@@ -44,8 +44,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   return new Response(object.body, {
     headers: {
       "Content-Type": size === "full" ? row.full_type : row.thumb_type,
-      // The file under an id never changes; private photos stay out of shared caches.
-      "Cache-Control": open ? "public, max-age=31536000, immutable" : "private, max-age=86400",
+      // Private, and short: if the admin narrows a photo's audience or deletes
+      // it, no shared cache keeps serving it and browsers let go within the hour.
+      "Cache-Control": "private, max-age=3600",
       "X-Content-Type-Options": "nosniff",
     },
   });

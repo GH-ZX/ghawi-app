@@ -20,7 +20,7 @@ import {
   type InviteConfig,
   type InviteGuest,
 } from "@/lib/invite";
-import { inviteDb, loadConfig, loadGuest, loadPhotos, loadRsvp, logoVersion } from "@/lib/invite-server";
+import { inviteDb, isAdminSession, loadConfig, loadGuest, loadPhotos, loadRsvp, logoVersion } from "@/lib/invite-server";
 
 /* Every visit reads D1: the admin's edits show on the next load. */
 export const dynamic = "force-dynamic";
@@ -91,7 +91,9 @@ export default async function InvitePage({ params, searchParams }: PageProps) {
   const query = await searchParams;
   const previewTheme = query.preview !== undefined && isInviteTheme(query.theme) ? query.theme : null;
   const previewFont = query.preview !== undefined && isInviteFont(query.font) ? query.font : null;
-  const previewEnded = query.preview !== undefined && query.ended !== undefined;
+  // Theme and font previews are cosmetic; the thank-you page and its photos
+  // before the wedding is over are for the signed-in admin only.
+  const previewEnded = query.preview !== undefined && query.ended !== undefined && (await isAdminSession());
   const found = await resolve(slug);
   if (!found) notFound();
 
