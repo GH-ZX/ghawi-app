@@ -170,3 +170,10 @@
 .ivp__contacts { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
 .ivp__contact { width: 100%; display: grid; gap: 8px; grid-template-columns: minmax(0, 1fr); }
 @media (min-width: 640px) { .ivp__contact { grid-template-columns: 1fr 1fr auto; align-items: center; } }
+
+/* QR card dialog */
+.ivp__qr { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 16px; background: rgb(0 0 0 / .55); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+.ivp__qr-card { width: min(100%, 440px); max-height: calc(100dvh - 32px); overflow: auto; display: flex; flex-direction: column; gap: 12px; }
+.ivp__qr-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.ivp__qr-canvas { width: 100%; height: auto; aspect-ratio: 1080 / 1380; border-radius: 14px; background: var(--surface-2); opacity: .4; transition: opacity .3s ease; }
+.ivp__qr-canvas[data-ready] { opacity: 1; }

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Monogram } from "@/components/invite/monogram";
 import { PhotosPanel } from "./invite-photos";
+import { QrDialog } from "./qr-card";
 import {
   addressee,
   arabicDigits,
@@ -277,7 +278,7 @@ function GuestsView({ config, guests, general, reload }: { config: InviteConfig;
           <strong>الرابط العام</strong>
           <span className="muted small">بدون اسم، ويعرض الحفلتين. يكتب الزائر اسمه عند تأكيد الحضور.</span>
         </div>
-        <LinkTools slug="" to="" template={config.shareMessage} />
+        <LinkTools slug="" to="" config={config} theme={config.theme} />
       </div>
 
       {draft ? (
@@ -327,7 +328,7 @@ function GuestsView({ config, guests, general, reload }: { config: InviteConfig;
                   )}
                 </div>
                 {g.message ? <p className="message__text">«{g.message}»</p> : null}
-                <LinkTools slug={g.slug} to={to} template={config.shareMessage} />
+                <LinkTools slug={g.slug} to={to} config={config} theme={g.theme ?? config.theme} />
                 <div className="message__actions">
                   <button
                     type="button"
@@ -391,10 +392,13 @@ function GuestsView({ config, guests, general, reload }: { config: InviteConfig;
 }
 
 /** The link, plus copy, WhatsApp and preview. An empty slug is the general link. */
-function LinkTools({ slug, to, template }: { slug: string; to: string; template: string }) {
+function LinkTools({ slug, to, config, theme }: { slug: string; to: string; config: InviteConfig; theme: InviteTheme }) {
   const [copied, setCopied] = useState(false);
+  const [qr, setQr] = useState(false);
   const link = slug ? `${INVITE_URL}/${slug}` : `${INVITE_URL}/general`;
-  const message = shareText(template, to || "أهلنا وأحبتنا", link);
+  // The general QR points at the bare subdomain: a shorter link, a simpler code.
+  const qrLink = slug ? link : INVITE_URL;
+  const message = shareText(config.shareMessage, to || "أهلنا وأحبتنا", link);
 
   async function copy() {
     try {
@@ -420,6 +424,10 @@ function LinkTools({ slug, to, template }: { slug: string; to: string; template:
       <a className="btn btn--xs btn--ghost press" href={`/invite/${slug || "general"}?preview=1`} target="_blank" rel="noopener noreferrer">
         معاينة
       </a>
+      <button type="button" className="btn btn--xs btn--ghost press" onClick={() => setQr(true)}>
+        QR
+      </button>
+      {qr ? <QrDialog link={qrLink} to={to} theme={theme} config={config} message={message} onClose={() => setQr(false)} /> : null}
     </div>
   );
 }
