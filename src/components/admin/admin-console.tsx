@@ -52,7 +52,7 @@ export function AdminConsole() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [view, setView] = useState<View>("inbox");
   const [query, setQuery] = useState("");
-  const [section, setSection] = useState<"inbox" | "theme" | "invite">("inbox");
+  const [section, setSection] = useState<"inbox" | "theme" | "invite">("invite");
 
   // Bumped after every change; the effect below refetches when it moves.
   const [version, setVersion] = useState(0);
@@ -150,14 +150,14 @@ export function AdminConsole() {
 
       <main className="admin__main">
         <div className="seg admin__tabs" role="group" aria-label="Section">
+          <button type="button" className="press" aria-pressed={section === "invite"} onClick={() => setSection("invite")}>
+            Invitation
+          </button>
           <button type="button" className="press" aria-pressed={section === "inbox"} onClick={() => setSection("inbox")}>
             Inbox{stats.unread ? ` · ${stats.unread}` : ""}
           </button>
           <button type="button" className="press" aria-pressed={section === "theme"} onClick={() => setSection("theme")}>
             Theme
-          </button>
-          <button type="button" className="press" aria-pressed={section === "invite"} onClick={() => setSection("invite")}>
-            Invitation
           </button>
         </div>
 
