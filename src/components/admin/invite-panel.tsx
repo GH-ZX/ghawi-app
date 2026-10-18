@@ -102,13 +102,14 @@ function suggestSlug(name: string): string {
 
 /*
  * A new guest's link is the readable part plus a random tail —
- * invite.ghawi.app/haifa-k7m2qx — so nobody can reach a guest's invitation
- * (or the photos meant for their party) by guessing a name. Six characters
- * from 32 unambiguous ones (no 0/o, 1/l): about a billion links per name,
- * and 256 divides evenly by 32, so every character is equally likely.
+ * invite.ghawi.app/haifa-k7m2qx9wbe — so nobody can reach a guest's invitation
+ * (or the photos meant for their party) by guessing a name. Ten characters
+ * from 32 unambiguous ones (no 0/o, 1/l): 50 bits, about 10^15 links per
+ * name — far beyond online guessing — and 256 divides evenly by 32, so
+ * every character is equally likely.
  */
 const SUFFIX_ALPHABET = "abcdefghijkmnpqrstuvwxyz23456789";
-const SUFFIX_LENGTH = 6;
+const SUFFIX_LENGTH = 10;
 const SLUG_BASE_MAX = 40 - SUFFIX_LENGTH - 1;
 
 function randomSuffix(): string {
@@ -294,7 +295,7 @@ function GuestsView({ config, guests, general, reload }: { config: InviteConfig;
       )}
 
       {shown.length === 0 ? (
-        <div className="empty">{query ? "لا نتائج لهذا البحث." : "لا دعوات بعد. أضف أول مدعو، مثلاً هيفاء، فيصبح رابطها مثل invite.ghawi.app/haifa-k7m2qx"}</div>
+        <div className="empty">{query ? "لا نتائج لهذا البحث." : "لا دعوات بعد. أضف أول مدعو، مثلاً هيفاء، فيصبح رابطها مثل invite.ghawi.app/haifa-k7m2qx9wbe"}</div>
       ) : (
         <ul className="messages">
           {shown.map((g) => {
