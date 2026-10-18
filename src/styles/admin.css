@@ -163,3 +163,7 @@
 .ivp__photo .input, .ivp__photo .select { min-height: 40px; font-size: 14px; border-radius: 12px; }
 .ivp__photo-actions { display: flex; gap: 6px; }
 .ivp__photo-actions .btn--danger-soft { margin-inline-start: auto; }
+.ivp__suffix { padding-inline-end: 14px; font-family: var(--font-mono); font-size: 15px; color: var(--accent-text); white-space: nowrap; }
+/* The readable part hugs its text so the random tail sits right after it. */
+.ivp__slug:has(.ivp__suffix) .input { field-sizing: content; flex: 0 1 auto; min-width: 5ch; padding-inline-end: 0; }
+.ivp__slug:has(.ivp__suffix) .ivp__suffix { flex: 1; }

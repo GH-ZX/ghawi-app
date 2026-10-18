@@ -55,7 +55,8 @@ type GuestRow = {
 
 type GeneralRow = { id: number; name: string; attending: number; men: number; women: number; message: string; created_at: string };
 
-type Draft = { id?: number; slug: string; name: string; honorific: string; parties: Parties; seats: number; theme: InviteTheme | ""; note: string };
+/** `suffix` is set for a new guest only: the random tail of their link. */
+type Draft = { id?: number; suffix?: string; slug: string; name: string; honorific: string; parties: Parties; seats: number; theme: InviteTheme | ""; note: string };
 
 const EMPTY_DRAFT: Draft = { slug: "", name: "", honorific: "", parties: "both", seats: 2, theme: "", note: "" };
 
@@ -96,7 +97,23 @@ function suggestSlug(name: string): string {
   const latin = Array.from(name.trim().toLowerCase())
     .map((ch) => (/[a-z0-9-]/.test(ch) ? ch : (LATIN[ch] ?? "")))
     .join("");
-  return latin.replace(/-+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
+  return latin.replace(/-+/g, "-").replace(/^-|-$/g, "").slice(0, SLUG_BASE_MAX);
+}
+
+/*
+ * A new guest's link is the readable part plus a random tail —
+ * invite.ghawi.app/haifa-k7m2qx — so nobody can reach a guest's invitation
+ * (or the photos meant for their party) by guessing a name. Six characters
+ * from 32 unambiguous ones (no 0/o, 1/l): about a billion links per name,
+ * and 256 divides evenly by 32, so every character is equally likely.
+ */
+const SUFFIX_ALPHABET = "abcdefghijkmnpqrstuvwxyz23456789";
+const SUFFIX_LENGTH = 6;
+const SLUG_BASE_MAX = 40 - SUFFIX_LENGTH - 1;
+
+function randomSuffix(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(SUFFIX_LENGTH));
+  return Array.from(bytes, (b) => SUFFIX_ALPHABET[b % SUFFIX_ALPHABET.length]).join("");
 }
 
 function shareText(template: string, to: string, link: string) {
@@ -266,7 +283,7 @@ function GuestsView({ config, guests, general, reload }: { config: InviteConfig;
         <GuestEditor draft={draft} config={config} onClose={() => setDraft(null)} onSaved={() => (setDraft(null), reload())} />
       ) : (
         <div className="toolbar">
-          <button type="button" className="btn btn--sm press" onClick={() => setDraft({ ...EMPTY_DRAFT })}>
+          <button type="button" className="btn btn--sm press" onClick={() => setDraft({ ...EMPTY_DRAFT, suffix: randomSuffix() })}>
             + دعوة جديدة باسم شخص
           </button>
           <label className="search">
@@ -277,7 +294,7 @@ function GuestsView({ config, guests, general, reload }: { config: InviteConfig;
       )}
 
       {shown.length === 0 ? (
-        <div className="empty">{query ? "لا نتائج لهذا البحث." : "لا دعوات بعد. أضف أول مدعو، مثلاً هيفاء، فيصبح رابطها invite.ghawi.app/haifa"}</div>
+        <div className="empty">{query ? "لا نتائج لهذا البحث." : "لا دعوات بعد. أضف أول مدعو، مثلاً هيفاء، فيصبح رابطها مثل invite.ghawi.app/haifa-k7m2qx"}</div>
       ) : (
         <ul className="messages">
           {shown.map((g) => {
@@ -412,6 +429,8 @@ function GuestEditor({ draft, config, onClose, onSaved }: { draft: Draft; config
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const set = <K extends keyof Draft>(key: K, value: Draft[K]) => setD((current) => ({ ...current, [key]: value }));
+  const base = d.slug.replace(/-+$/, "");
+  const fullSlug = d.suffix ? `${base}-${d.suffix}` : d.slug;
 
   async function save(event: FormEvent) {
     event.preventDefault();
@@ -421,7 +440,7 @@ function GuestEditor({ draft, config, onClose, onSaved }: { draft: Draft; config
       const response = await fetch("/api/admin/invite/guests", {
         method: d.id ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...d, theme: d.theme || null }),
+        body: JSON.stringify({ ...d, slug: fullSlug, suffix: undefined, theme: d.theme || null }),
       });
       const body = (await response.json().catch(() => ({}))) as { error?: string };
       if (!response.ok) throw new Error(body.error ?? "failed");
@@ -476,11 +495,17 @@ function GuestEditor({ draft, config, onClose, onSaved }: { draft: Draft; config
               }}
               placeholder="haifa"
               required
-              maxLength={40}
+              maxLength={d.suffix ? SLUG_BASE_MAX : 40}
               spellCheck={false}
               autoCapitalize="off"
             />
+            {d.suffix ? <span className="ivp__suffix">-{d.suffix}</span> : null}
           </span>
+          {d.suffix ? (
+            <span className="hint">
+              الجزء الأخير «{d.suffix}» عشوائي حتى لا يستطيع أحد تخمين الرابط. الرابط النهائي: <bdi dir="ltr">{INVITE_HOST}/{fullSlug}</bdi>
+            </span>
+          ) : null}
         </label>
         <div className="field ivp__wide">
           <span className="field__label">الحفلة التي تظهر في الدعوة</span>
