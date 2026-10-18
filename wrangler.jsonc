@@ -24,6 +24,12 @@
     {
       "binding": "NEXT_INC_CACHE_R2_BUCKET",
       "bucket_name": "ghawi-app-cache"
+    },
+    // Wedding photos for invite.ghawi.app (Admin → Invitation → Photos):
+    //   wrangler r2 bucket create ghawi-invite-photos
+    {
+      "binding": "INVITE_PHOTOS",
+      "bucket_name": "ghawi-invite-photos"
     }
   ],
 
@@ -61,7 +67,9 @@
   },
 "routes": [
   { "pattern": "ghawi.app", "custom_domain": true },
-  { "pattern": "www.ghawi.app", "custom_domain": true }
+  { "pattern": "www.ghawi.app", "custom_domain": true },
+  // The wedding invitation (next.config.ts rewrites it onto /invite).
+  { "pattern": "invite.ghawi.app", "custom_domain": true }
 ],
 
   "observability": {

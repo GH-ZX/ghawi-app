@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { fontVariables } from "@/lib/fonts";
+import { inviteFontVariables } from "@/lib/invite-fonts";
 import { chromeColors, prePaintScript, presetCss, storeTheme } from "@/lib/theme";
 import "@/styles/base.css";
 import "@/styles/admin.css";
@@ -24,7 +25,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       data-preset={storeTheme.preset}
       data-site={storeTheme.preset}
       data-default={storeTheme.mode}
-      className={fontVariables}
+      className={`${fontVariables} ${inviteFontVariables}`}
       suppressHydrationWarning
     >
       <head>

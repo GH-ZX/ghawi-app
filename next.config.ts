@@ -66,6 +66,20 @@ export default async function config(): Promise<NextConfig> {
     images: {
       formats: ["image/avif", "image/webp"],
     },
+    async rewrites() {
+      // invite.ghawi.app is the wedding invitation, served from /invite:
+      // "/" is the general link, "/haifa" a guest's own. invite.localhost
+      // works the same way under `next dev`.
+      const invite = [{ type: "host" as const, value: String.raw`invite\.(?:ghawi\.app|localhost)` }];
+      return {
+        beforeFiles: [
+          { source: "/", has: invite, destination: "/invite/general" },
+          { source: "/:slug((?!api$|invite$)[a-z0-9][a-z0-9-]*)", has: invite, destination: "/invite/:slug" },
+        ],
+        afterFiles: [],
+        fallback: [],
+      };
+    },
     async redirects() {
       return [
         // Earlier experiments, folded into the one design. Kept so old links land.

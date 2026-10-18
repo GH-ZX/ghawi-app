@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ExternalIcon, MoonIcon, SunIcon } from "@/components/icons";
 import { Logo } from "@/components/logo";
+import { InvitePanel } from "./invite-panel";
 import { ThemePanel } from "./theme-panel";
 import { getEffectiveMode, setMode } from "@/lib/theme-client";
 
@@ -51,7 +52,7 @@ export function AdminConsole() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [view, setView] = useState<View>("inbox");
   const [query, setQuery] = useState("");
-  const [section, setSection] = useState<"inbox" | "theme">("inbox");
+  const [section, setSection] = useState<"inbox" | "theme" | "invite">("inbox");
 
   // Bumped after every change; the effect below refetches when it moves.
   const [version, setVersion] = useState(0);
@@ -155,10 +156,15 @@ export function AdminConsole() {
           <button type="button" className="press" aria-pressed={section === "theme"} onClick={() => setSection("theme")}>
             Theme
           </button>
+          <button type="button" className="press" aria-pressed={section === "invite"} onClick={() => setSection("invite")}>
+            Invitation
+          </button>
         </div>
 
         {section === "theme" ? (
           <ThemePanel />
+        ) : section === "invite" ? (
+          <InvitePanel />
         ) : (
           <>
         <dl className="kpis">

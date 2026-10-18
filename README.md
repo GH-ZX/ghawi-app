@@ -147,6 +147,51 @@ printed line with `pnpm exec wrangler secret put ADMIN_PASSWORD_HASH`.
 Workers' Web Crypto rejects PBKDF2 above 100,000 iterations; the stored hash records
 its own count, so raising it later won't invalidate existing credentials.
 
+## Wedding invitation · invite.ghawi.app
+
+An Arabic, right-to-left wedding invitation on its own subdomain, served by the
+same Worker. `next.config.ts` rewrites the host onto `/invite`: `invite.ghawi.app/`
+is the general link (`/invite/general`), `invite.ghawi.app/haifa` a guest's own.
+Under `next dev`, `http://invite.localhost:3000/haifa` behaves the same.
+
+- **The page** (`src/components/invite/`): a sealed envelope that opens on a tap,
+  swipe, scroll or key — the seal gives, the flap lifts, the card rises with
+  «أحمد ♥ كريمته» — then the page: the couple in a square frame, the invitation as one sentence,
+  the date (with the Hijri date) and a left-to-right countdown, the two halls (both
+  parties start at the same time), gentle requests (no children, no hookahs), a
+  reply card with numbers, and a farewell. One motion throughout: a soft fade-up.
+  Light by default; the guest can switch to dark. Four themes (navy, blush, ivory,
+  terracotta) and six font pairings, both picked in the admin.
+- **After the wedding**: on "auto" the invitation ends by itself once the wedding
+  day is over (midnight, venue time) and every link shows a «تمّ الزواج» thank-you
+  page in the same theme; the admin can also keep it live or end it now. Replies
+  stay open until then (no deadline). Preview it with `?preview=1&ended=1`.
+- **Wedding photos** (Admin → Invitation → Photos) appear under the thank-you page.
+  The admin's browser resizes each photo (2000 px and a 640 px thumbnail) before
+  upload; files go to R2 (`INVITE_PHOTOS`, bucket `ghawi-invite-photos`), rows to
+  `invite_photos`. Every photo has an audience — everyone, or one party's guests
+  only — checked on each request to `/api/invite/photo/<id>`: the general link
+  sees "everyone" photos, a guest also their own party's. Ids are random UUIDs.
+- **Reduced motion** keeps the fades and the tap-to-open envelope and drops travel
+  and loops. Cutting animations to zero would leave their delays, so things pop in
+  one by one — many Windows machines have "animation effects" off.
+- **The monogram** (`src/lib/invite-monogram.ts`): أ and إ from Amiri (OFL) as SVG
+  paths — the hamza above Ahmed's alef and below his bride's. An uploaded logo
+  replaces it everywhere. `/invite/og.png` is the link preview, `/invite/monogram.svg`
+  the mark on its own.
+- **Admin → Invitation**: guests (personal link, honorific, which party they see,
+  how many people, an optional theme and personal line), copy / WhatsApp / preview,
+  who opened their link and when, every reply and the totals per party; and the
+  settings — names (with a "deceased" option per father), every line of wording,
+  the date and time (shared by both parties), each hall and its map link, the
+  fathers' titles, theme, font, rules, logo, and the page's status.
+- **Data**: `invite_settings` (the config JSON and the logo), `invite_guests`,
+  `invite_rsvps` — migration `0004_invite.sql`. Nothing is hard-coded on the page;
+  `DEFAULT_CONFIG` in `src/lib/invite.ts` only fills gaps.
+- Opens are counted by a beacon the page sends (once per browser session), so
+  WhatsApp's link-preview fetch and `?preview=1` visits from the admin don't count.
+- The general link takes replies with a name, capped at 8 per IP per hour.
+
 ## Database
 
 D1 database `ghawi-app-contacts`, migrations in `migrations/` (append-only; apply with
@@ -156,6 +201,8 @@ D1 database `ghawi-app-contacts`, migrations in `migrations/` (append-only; appl
 - `admin_login_attempts` — the sign-in throttle.
 - `site_settings` — `site_theme` (the landing theme, read by `worker.ts`). Older keys
   from the previous settings page are unused.
+- `invite_settings`, `invite_guests`, `invite_rsvps`, `invite_photos` — the wedding
+  invitation (photo files themselves live in R2).
 
 Timestamps are stored as `strftime('%Y-%m-%dT%H:%M:%fZ')`. Compare them against
 `new Date().toISOString()` (see `minutesAgo` in `src/lib/request.ts`), never a
@@ -166,7 +213,7 @@ space-separated date, or the string comparison stops being a time comparison.
 `wrangler.jsonc` is the source of truth for the Worker `ghawi-app`. Its `main` is
 `worker.ts`, which wraps the generated `.open-next/worker.js`. Also: `nodejs_compat`,
 static assets, the R2 incremental cache, D1 (`CONTACT_DB`), email (`EMAIL`), the image
-binding, the `ghawi.app` and `www.ghawi.app` custom domains, and the non-secret vars.
+binding, the `ghawi.app`, `www.ghawi.app` and `invite.ghawi.app` custom domains, and the non-secret vars.
 `public/_headers` sets long-lived caching for hashed assets and a week for `/media`.
 
 `node-linker: hoisted` in `pnpm-workspace.yaml` is required: OpenNext copies
