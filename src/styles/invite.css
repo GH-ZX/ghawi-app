@@ -192,7 +192,9 @@
 .iv {
   --display: var(--f-ruqaa), "Aref Ruqaa", serif;
   --text: var(--f-amiri), "Amiri", serif;
-  --ui: var(--f-plex), "IBM Plex Sans Arabic", system-ui, sans-serif;
+  /* Labels, buttons and small print use the text face, so nothing on the
+     page falls back to a generic sans. */
+  --ui: var(--f-amiri), "Amiri", serif;
   --display-scale: 1;
 }
 .iv[data-font="naskh"] {
@@ -954,26 +956,6 @@ button {
   flex-direction: column;
   align-items: center;
 }
-.iv-date {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(14px, 4vw, 24px);
-  font-family: var(--text);
-}
-.iv-date__side {
-  font-size: clamp(18px, 5vw, 22px);
-  padding: 4px 0;
-  min-width: 5.5em;
-}
-.iv-date__day {
-  font-size: clamp(64px, 18vw, 88px);
-  font-weight: 700;
-  line-height: 1;
-  color: var(--accent);
-  padding: 6px clamp(14px, 4vw, 24px) 0;
-  border-inline: 1px solid color-mix(in srgb, var(--gold) 55%, transparent);
-}
 .iv-time {
   margin-top: 14px;
   font-family: var(--text);
@@ -1646,4 +1628,480 @@ button {
   font-family: var(--text);
   font-size: 15px;
   min-width: 4em;
+}
+
+/* ------------------------------------------------------------------ *
+ *  Welcome screen
+ * ------------------------------------------------------------------ */
+
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 24px 20px;
+  text-align: center;
+  cursor: pointer;
+  background:
+    radial-gradient(55% 40% at 50% 45%, color-mix(in srgb, var(--gold-2) 24%, transparent), transparent 75%),
+    var(--bg);
+  transition:
+    opacity 0.65s ease,
+    transform 0.65s var(--ease);
+}
+.splash[data-leaving] {
+  opacity: 0;
+  transform: scale(1.03);
+  pointer-events: none;
+}
+.splash > * {
+  opacity: 0;
+  animation: fade-up 0.9s var(--ease) forwards;
+}
+.splash__mono {
+  width: 74px;
+  height: auto;
+  margin-bottom: 10px;
+  animation-delay: 0.1s;
+}
+.splash__title {
+  font-family: var(--text);
+  font-size: clamp(20px, 5.6vw, 24px);
+  color: var(--gold);
+  animation-delay: 0.35s;
+}
+.splash__name {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: calc(clamp(44px, 13vw, 68px) * var(--display-scale));
+  line-height: 1.35;
+  color: var(--accent);
+  animation-delay: 0.6s;
+}
+.splash__rule {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 4px 0;
+  animation-delay: 0.9s;
+}
+.splash__rule > span {
+  width: 56px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold));
+}
+.splash__rule > span:last-child {
+  transform: scaleX(-1);
+}
+.splash__rule .heart {
+  width: 18px;
+}
+.splash__text {
+  font-family: var(--text);
+  font-size: clamp(19px, 5.2vw, 23px);
+  line-height: 1.8;
+  max-width: 18em;
+  animation-delay: 1.1s;
+}
+.splash__couple {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation-delay: 1.35s;
+}
+.splash__couple > span {
+  font-size: 13.5px;
+  color: var(--muted);
+}
+.splash__couple .couple {
+  font-size: calc(clamp(28px, 8vw, 38px) * var(--display-scale));
+}
+.splash__skip {
+  position: absolute;
+  bottom: max(26px, env(safe-area-inset-bottom));
+  font-size: 13px;
+  color: var(--muted);
+  animation: fade-in 1s ease forwards 1.9s;
+}
+
+/* Hero hint: the page moves on with a tap. */
+.iv-tap {
+  font-size: 13px;
+  color: var(--muted);
+  opacity: 0;
+}
+.iv[data-opened] .iv-tap {
+  animation: fade-in 1s ease forwards 1.9s;
+}
+
+/* ------------------------------------------------------------------ *
+ *  Calendar: the wedding month, the day on a heart
+ * ------------------------------------------------------------------ */
+
+.cal {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 22px 14px;
+  background: var(--paper);
+  border-radius: 6px;
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--gold) 45%, transparent),
+    inset 0 0 0 5px var(--paper),
+    inset 0 0 0 6px color-mix(in srgb, var(--gold) 22%, transparent),
+    var(--shadow);
+}
+.cal__month {
+  font-family: var(--text);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--gold);
+}
+.cal__row {
+  display: flex;
+  align-items: center;
+  gap: clamp(10px, 4vw, 20px);
+}
+.cal__day {
+  display: grid;
+  place-items: center;
+  min-width: 30px;
+  height: 56px;
+  font-family: var(--text);
+  font-size: 19px;
+  color: color-mix(in srgb, var(--ink) 60%, transparent);
+}
+.cal__day[data-far] {
+  color: color-mix(in srgb, var(--ink) 32%, transparent);
+  font-size: 16px;
+}
+.cal__day--wedding {
+  position: relative;
+  z-index: 1;
+  min-width: 64px;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--accent-ink);
+}
+.cal__heart {
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  top: 50%;
+  width: 64px;
+  translate: -50% -46%;
+  fill: var(--accent);
+  filter: drop-shadow(0 6px 10px color-mix(in srgb, var(--accent) 35%, transparent));
+}
+.cal__day--wedding > span {
+  translate: 0 -0.08em;
+}
+.is-in .cal__heart {
+  animation: beat 3.2s ease-in-out infinite 1s;
+}
+.cal__weekday {
+  font-family: var(--text);
+  font-size: 14px;
+  color: var(--muted);
+}
+.iv-dayline {
+  margin-top: 22px;
+  font-family: var(--text);
+  font-size: 19px;
+  font-weight: 700;
+}
+
+/* ------------------------------------------------------------------ *
+ *  Islamic marks: the verse cartouche and the rings rosette
+ * ------------------------------------------------------------------ */
+
+.verse {
+  width: 100%;
+  margin: 0 0 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.verse__frame {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 26px 1fr 26px;
+}
+.verse__cap {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+/* The path's point faces left; the start cap (on the right) is mirrored. */
+.verse__cap--start {
+  transform: scaleX(-1);
+}
+.verse__cap-fill {
+  fill: color-mix(in srgb, var(--gold-2) 12%, var(--paper));
+}
+.verse__cap-line {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+.verse__cap-line--thin {
+  stroke-width: 0.7;
+}
+.verse__text {
+  position: relative;
+  margin: 0;
+  padding: 18px 4px;
+  background: color-mix(in srgb, var(--gold-2) 12%, var(--paper));
+  border-block: 1.2px solid var(--gold);
+  font-family: var(--f-amiri), "Amiri", serif;
+  font-size: clamp(18px, 4.9vw, 22px);
+  line-height: 2.1;
+  color: var(--accent);
+}
+.verse__text::before {
+  content: "";
+  position: absolute;
+  inset: 5.8% 0;
+  border-block: 0.7px solid var(--gold);
+  pointer-events: none;
+}
+.verse__text > span {
+  color: var(--gold);
+  margin-inline: 0.15em;
+}
+.verse__cite {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.rosette {
+  margin: 0 0 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.rosette__mark {
+  width: min(56vw, 210px);
+  height: auto;
+  overflow: visible;
+}
+.rosette__star {
+  fill: color-mix(in srgb, var(--gold-2) 12%, transparent);
+  stroke: var(--gold);
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+}
+.rosette__star--inner {
+  fill: none;
+  stroke-width: 0.7;
+}
+.rosette__circle {
+  fill: var(--paper);
+  stroke: var(--gold);
+  stroke-width: 0.8;
+}
+.rosette__circle--dots {
+  fill: none;
+  stroke-width: 1.6;
+  stroke-dasharray: 0.1 5;
+  stroke-linecap: round;
+}
+.rosette__tip {
+  fill: var(--gold);
+}
+.rosette__rings circle,
+.rosette__rings path {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 3.4;
+}
+.rosette__rings .rosette__over-gap {
+  stroke: var(--paper);
+  stroke-width: 7;
+}
+.rosette__gem {
+  fill: var(--paper);
+  stroke: var(--gold);
+  stroke-width: 1.1;
+}
+.rosette__text {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: calc(clamp(24px, 6.6vw, 30px) * var(--display-scale));
+  line-height: 1.6;
+  color: var(--accent);
+  max-width: 15em;
+}
+
+/* General link: "لحضور حفل زفاف" over the couple on the welcome screen. */
+.splash__line {
+  font-family: var(--text);
+  font-size: clamp(18px, 5vw, 22px);
+  color: var(--muted);
+  animation-delay: 0.5s;
+}
+.splash__name--couple {
+  font-size: calc(clamp(40px, 12vw, 60px) * var(--display-scale));
+}
+
+/* ------------------------------------------------------------------ *
+ *  The marriage contract and the newlyweds
+ * ------------------------------------------------------------------ */
+
+.contract {
+  margin: 10px 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.contract__mark {
+  width: min(46vw, 170px);
+  height: auto;
+  overflow: visible;
+}
+.contract__sheet {
+  fill: color-mix(in srgb, var(--gold-2) 10%, var(--paper));
+  stroke: var(--gold);
+  stroke-width: 1;
+}
+.contract__title {
+  stroke: var(--accent);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.contract__lines {
+  stroke: color-mix(in srgb, var(--ink) 35%, transparent);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-dasharray: 12 4 20 4;
+}
+.contract__roll {
+  fill: color-mix(in srgb, var(--gold-2) 45%, var(--paper));
+  stroke: var(--gold);
+  stroke-width: 1;
+}
+.contract__knob {
+  fill: var(--gold);
+}
+.contract__ribbon {
+  fill: var(--seal-2);
+}
+.contract__seal {
+  fill: var(--seal);
+  stroke: color-mix(in srgb, var(--seal) 70%, black);
+  stroke-width: 1;
+}
+.contract__seal-ring {
+  fill: none;
+  stroke: var(--seal-ink);
+  stroke-width: 0.7;
+  opacity: 0.7;
+}
+.contract__seal-heart {
+  fill: var(--seal-ink);
+}
+.contract__quill {
+  fill: color-mix(in srgb, var(--gold-2) 55%, var(--paper));
+  stroke: var(--gold);
+  stroke-width: 0.9;
+}
+.contract__quill-spine {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 0.8;
+}
+.contract__nib {
+  fill: var(--ink);
+}
+.contract__caption {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: calc(clamp(22px, 6vw, 28px) * var(--display-scale));
+  line-height: 1.5;
+  color: var(--accent);
+}
+
+/* The newlyweds: black in light mode, the page's ink in dark. */
+.pair {
+  --silhouette: #17171b;
+  margin: 0 0 26px;
+  display: flex;
+  justify-content: center;
+}
+:root[data-mode="dark"] .pair {
+  --silhouette: var(--ink);
+}
+.pair__mark {
+  width: min(52vw, 200px);
+  height: auto;
+}
+.pair__ink {
+  fill: var(--silhouette);
+}
+.pair__ground {
+  fill: color-mix(in srgb, var(--gold) 22%, transparent);
+}
+.pair__shirt {
+  fill: var(--paper);
+}
+.pair__tie {
+  fill: var(--silhouette);
+}
+.pair__heart {
+  fill: var(--accent);
+}
+:root[data-mode="dark"] .pair__shirt {
+  fill: var(--bg);
+}
+
+/* ------------------------------------------------------------------ *
+ *  Contact
+ * ------------------------------------------------------------------ */
+
+.iv-contact__text {
+  font-family: var(--text);
+  font-size: 17px;
+  color: var(--muted);
+  margin: -4px auto 20px;
+  max-width: 22em;
+}
+.iv-contact__list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px 28px;
+}
+.iv-contact__person {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.iv-contact__name {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: calc(26px * var(--display-scale));
+  line-height: 1.4;
+  color: var(--accent);
+}
+.iv-contact__wa {
+  height: 42px;
+  padding: 0 20px;
+  font-size: 15px;
+}
+.iv-contact__phone {
+  font-size: 14px;
+  color: var(--muted);
+  text-decoration: none;
+  unicode-bidi: isolate;
 }

@@ -167,3 +167,6 @@
 /* The readable part hugs its text so the random tail sits right after it. */
 .ivp__slug:has(.ivp__suffix) .input { field-sizing: content; flex: 0 1 auto; min-width: 5ch; padding-inline-end: 0; }
 .ivp__slug:has(.ivp__suffix) .ivp__suffix { flex: 1; }
+.ivp__contacts { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.ivp__contact { width: 100%; display: grid; gap: 8px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 640px) { .ivp__contact { grid-template-columns: 1fr 1fr auto; align-items: center; } }

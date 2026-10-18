@@ -160,13 +160,29 @@ Under `next dev`, `http://invite.localhost:3000/haifa` behaves the same.
   the date (with the Hijri date) and a left-to-right countdown, the two halls (both
   parties start at the same time), gentle requests (no children, no hookahs), a
   reply card with numbers, and a farewell. One motion throughout: a soft fade-up.
-  Light by default; the guest can switch to dark. Four themes (navy, blush, ivory,
-  terracotta) and six font pairings, both picked in the admin.
+  Light by default; the guest can switch to dark. Four themes (navy, blush, ivory —
+  burgundy on ivory, the default — and terracotta) and six font pairings, both picked in the admin.
 - **After the wedding**: on "auto" the invitation ends by itself once the wedding
   day is over (midnight, venue time) and every link shows a «تمّ الزواج» thank-you
   page in the same theme; the admin can also keep it live or end it now. Replies
   stay open until then (no deadline). Preview it with `?preview=1&ended=1`.
-- **Wedding photos** (Admin → Invitation → Photos) appear under the thank-you page.
+- **Opening**: a welcome screen first («تمّت دعوتك», the guest's title and name, a
+  warm line; on the general link «دعوة خاصة · لحضور حفل زفاف · أحمد ♥ كريمته»;
+  ~3.6 s, a tap skips it), then the envelope. Once open, a tap anywhere
+  that isn't a control brings the next section to the top — no scrolling needed.
+- **The date** is a slip of a calendar: five days in a line, left to right, the
+  wedding day larger in the middle on a heart. Below the invitation text and before the farewell, two Islamic marks
+  (`components/invite/islamic.tsx`): the verse of affection and mercy in an ogee
+  cartouche, and an eight-pointed star holding two interlocked rings over the
+  Prophet's blessing for the couple. Both texts are editable, each can be hidden.
+  `components/invite/art.tsx` draws the marriage contract (a sealed scroll and a
+  quill, «على سُنّة الله ورسوله») and the newlyweds as a plain black silhouette.
+- **Contact**: people guests can reach, each with a WhatsApp button (`wa.me`) and
+  their number; edited in the admin. Every text on the page uses the chosen
+  font pairing — no generic sans for labels and buttons.
+- **Wedding photos** (Admin → Invitation → Photos) appear on the invitation, on the
+  thank-you page, or both — chosen per photo (`placement`, migration 0006). The
+  invitation's photo section only exists once it has photos.
   The admin's browser resizes each photo (2000 px and a 640 px thumbnail) before
   upload; files go to R2 (`INVITE_PHOTOS`, bucket `ghawi-invite-photos`), rows to
   `invite_photos`. Every photo has an audience — everyone, or one party's guests

@@ -117,14 +117,18 @@ export const photoKey = (id: string, size: "full" | "thumb") => `photos/${id}/${
 
 type PhotoRow = { id: string; width: number; height: number; caption: string; audience: string };
 
-/** The photos a link may see, in the admin's order. */
-export async function loadPhotos(db: D1Database | null, audiences: PhotoAudience[]): Promise<InvitePhoto[]> {
+/** The photos a link may see on one page ("invite" or "ended"), in the admin's order. */
+export async function loadPhotos(db: D1Database | null, audiences: PhotoAudience[], page: "invite" | "ended"): Promise<InvitePhoto[]> {
   if (!db || audiences.length === 0) return [];
   try {
-    const marks = audiences.map((_, i) => `?${i + 1}`).join(", ");
+    const marks = audiences.map((_, i) => `?${i + 2}`).join(", ");
     const rows = await db
-      .prepare(`SELECT id, width, height, caption, audience FROM invite_photos WHERE audience IN (${marks}) ORDER BY sort, created_at`)
-      .bind(...audiences)
+      .prepare(
+        `SELECT id, width, height, caption, audience FROM invite_photos
+         WHERE placement IN (?1, 'both') AND audience IN (${marks})
+         ORDER BY sort, created_at`,
+      )
+      .bind(page, ...audiences)
       .all<PhotoRow>();
     return (rows.results ?? []).map((row) => ({ ...row, audience: isPhotoAudience(row.audience) ? row.audience : "all" }));
   } catch {

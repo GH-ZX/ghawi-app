@@ -20,7 +20,7 @@ export type InviteTheme = (typeof INVITE_THEMES)[number];
 export const THEME_LABELS: Record<InviteTheme, string> = {
   navy: "كحلي احتفالي",
   blush: "بودرة ووردي",
-  ivory: "عاجي وذهبي كلاسيكي",
+  ivory: "عنابي وعاجي",
   terracotta: "ترابي دافئ",
 };
 
@@ -103,7 +103,33 @@ export type InviteConfig = {
   /** Wedding photos on the thank-you page. */
   galleryEnabled: boolean;
   galleryTitle: string;
+  /** Photos on the invitation itself (hidden while there are none). */
+  inviteGalleryTitle: string;
+  /** The welcome screen before the envelope. */
+  splashTitle: string;
+  splashText: string;
+  /** Islamic touches: the verse in a cartouche, the blessing under a star. */
+  verseEnabled: boolean;
+  verseText: string;
+  verseRef: string;
+  blessingEnabled: boolean;
+  blessingText: string;
+  /** The general link's welcome: "دعوة خاصة · لحضور حفل زفاف · أحمد ♥ كريمته". */
+  generalTitle: string;
+  generalLine: string;
+  /** The marriage-contract mark under the invitation text. */
+  contractEnabled: boolean;
+  contractCaption: string;
+  /** The newlywed silhouette by the farewell. */
+  coupleArtEnabled: boolean;
+  /** "للتواصل": people guests can reach on WhatsApp. */
+  contactEnabled: boolean;
+  contactTitle: string;
+  contactText: string;
+  contacts: InviteContact[];
 };
+
+export type InviteContact = { name: string; phone: string };
 
 /** Who may see a wedding photo: everyone, or one party's guests only. */
 export type PhotoAudience = "all" | PartyKey;
@@ -116,6 +142,14 @@ export function isPhotoAudience(value: unknown): value is PhotoAudience {
 /** What a link may see: the general link only "all"; a guest also their own parties'. */
 export function audiencesFor(parties: PartyKey[] | null): PhotoAudience[] {
   return parties ? ["all", ...parties] : ["all"];
+}
+
+/** Where a photo appears: on the invitation, on the thank-you page, or both. */
+export type PhotoPlacement = "invite" | "ended" | "both";
+export const PHOTO_PLACEMENTS: PhotoPlacement[] = ["both", "invite", "ended"];
+
+export function isPhotoPlacement(value: unknown): value is PhotoPlacement {
+  return value === "invite" || value === "ended" || value === "both";
 }
 
 export type InvitePhoto = {
@@ -186,13 +220,30 @@ export const DEFAULT_CONFIG: InviteConfig = {
   startsAt: "2026-10-25T20:00",
   utcOffset: "+03:00",
   rsvpOpen: true,
-  theme: "navy",
+  theme: "ivory",
   font: "classic",
   status: "auto",
   endedTitle: "تمّ الزواج",
   endedText: "شكراً لكل من شاركنا الفرح بحضوره ودعائه ومحبته",
   galleryEnabled: true,
   galleryTitle: "من ليلة الفرح",
+  inviteGalleryTitle: "من أجمل لحظاتنا",
+  splashTitle: "تمّت دعوتك",
+  splashText: "بكل الحب، يسعدنا أن تشاركنا فرحتنا",
+  verseEnabled: true,
+  verseText: "وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً",
+  verseRef: "سورة الروم · ٢١",
+  blessingEnabled: true,
+  blessingText: "بارك الله لهما وبارك عليهما وجمع بينهما في خير",
+  generalTitle: "دعوة خاصة",
+  generalLine: "لحضور حفل زفاف",
+  contractEnabled: true,
+  contractCaption: "على سُنّة الله ورسوله",
+  coupleArtEnabled: true,
+  contactEnabled: true,
+  contactTitle: "للتواصل",
+  contactText: "لأي سؤال أو مساعدة في الوصول، يسعدنا تواصلكم",
+  contacts: [{ name: "أحمد غاوي", phone: "+963992350038" }],
 };
 
 /* ------------------------------------------------------------------ *
@@ -205,6 +256,17 @@ const flag = (value: unknown, fallback: boolean): boolean => (typeof value === "
 
 const LOCAL_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
 const OFFSET = /^[+-](?:0\d|1[0-4]):[0-5]\d$/;
+
+/** "+963 992 350 038" → "+963992350038"; anything that isn't 7–15 digits → "". */
+export function cleanPhone(value: unknown): string {
+  if (typeof value !== "string") return "";
+  const digits = value.replace(/[^\d]/g, "");
+  if (digits.length < 7 || digits.length > 15) return "";
+  return `+${digits}`;
+}
+
+/** A WhatsApp chat link for a stored number. */
+export const whatsappUrl = (phone: string) => `https://wa.me/${phone.replace(/[^\d]/g, "")}`;
 
 export function isInviteTheme(value: unknown): value is InviteTheme {
   return typeof value === "string" && (INVITE_THEMES as readonly string[]).includes(value);
@@ -288,6 +350,31 @@ export function sanitizeConfig(input: unknown): InviteConfig {
     endedText: text(v.endedText, d.endedText),
     galleryEnabled: flag(v.galleryEnabled, d.galleryEnabled),
     galleryTitle: text(v.galleryTitle, d.galleryTitle, 60),
+    inviteGalleryTitle: text(v.inviteGalleryTitle, d.inviteGalleryTitle, 60),
+    splashTitle: text(v.splashTitle, d.splashTitle, 60),
+    splashText: text(v.splashText, d.splashText, 200),
+    verseEnabled: flag(v.verseEnabled, d.verseEnabled),
+    verseText: text(v.verseText, d.verseText, 400),
+    verseRef: text(v.verseRef, d.verseRef, 60),
+    blessingEnabled: flag(v.blessingEnabled, d.blessingEnabled),
+    blessingText: text(v.blessingText, d.blessingText, 200),
+    generalTitle: text(v.generalTitle, d.generalTitle, 60),
+    generalLine: text(v.generalLine, d.generalLine, 80),
+    contractEnabled: flag(v.contractEnabled, d.contractEnabled),
+    contractCaption: text(v.contractCaption, d.contractCaption, 80),
+    coupleArtEnabled: flag(v.coupleArtEnabled, d.coupleArtEnabled),
+    contactEnabled: flag(v.contactEnabled, d.contactEnabled),
+    contactTitle: text(v.contactTitle, d.contactTitle, 40),
+    contactText: text(v.contactText, d.contactText, 200),
+    contacts: Array.isArray(v.contacts)
+      ? v.contacts
+          .slice(0, 4)
+          .map((c) => {
+            const r = (c && typeof c === "object" ? c : {}) as { name?: unknown; phone?: unknown };
+            return { name: text(r.name, "", 40), phone: cleanPhone(r.phone) };
+          })
+          .filter((c) => c.phone)
+      : d.contacts,
   };
 }
 

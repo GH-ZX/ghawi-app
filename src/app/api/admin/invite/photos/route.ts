@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { isPhotoAudience } from "@/lib/invite";
+import { isPhotoAudience, isPhotoPlacement } from "@/lib/invite";
 import { photoKey, photosBucket, requireAdminDb } from "@/lib/invite-server";
 
 /*
@@ -30,7 +30,7 @@ export async function GET() {
   if ("error" in auth) return fail(auth.error, auth.status);
   try {
     const rows = await auth.db
-      .prepare(`SELECT id, width, height, caption, audience, sort, created_at FROM invite_photos ORDER BY sort, created_at`)
+      .prepare(`SELECT id, width, height, caption, audience, placement, sort, created_at FROM invite_photos ORDER BY sort, created_at`)
       .all();
     return NextResponse.json({ photos: rows.results ?? [] }, { headers: noStore });
   } catch {
@@ -53,6 +53,7 @@ export async function POST(request: Request) {
   const width = Number(form.get("width"));
   const height = Number(form.get("height"));
   const audience = form.get("audience");
+  const placement = form.get("placement") ?? "both";
   const caption = String(form.get("caption") ?? "").trim().slice(0, 200);
 
   if (!(full instanceof File) || !(thumb instanceof File)) return fail("missing_file");
@@ -60,6 +61,7 @@ export async function POST(request: Request) {
   if (full.size > MAX_FULL || thumb.size > MAX_THUMB) return fail("too_large", 413);
   if (!Number.isInteger(width) || !Number.isInteger(height) || width < 1 || height < 1 || width > 10000 || height > 10000) return fail("bad_size");
   if (!isPhotoAudience(audience)) return fail("bad_audience");
+  if (!isPhotoPlacement(placement)) return fail("bad_placement");
 
   const id = crypto.randomUUID();
   try {
@@ -69,10 +71,10 @@ export async function POST(request: Request) {
     ]);
     await auth.db
       .prepare(
-        `INSERT INTO invite_photos (id, width, height, full_type, thumb_type, caption, audience, sort)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, (SELECT COALESCE(MAX(sort), 0) + 1 FROM invite_photos))`,
+        `INSERT INTO invite_photos (id, width, height, full_type, thumb_type, caption, audience, placement, sort)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, (SELECT COALESCE(MAX(sort), 0) + 1 FROM invite_photos))`,
       )
-      .bind(id, width, height, full.type, thumb.type, caption, audience)
+      .bind(id, width, height, full.type, thumb.type, caption, audience, placement)
       .run();
     return NextResponse.json({ ok: true, id }, { headers: noStore });
   } catch {
@@ -82,11 +84,11 @@ export async function POST(request: Request) {
   }
 }
 
-/** Edit one photo ({ id, caption?, audience? }) or set the order ({ order: [id, …] }). */
+/** Edit one photo ({ id, caption?, audience?, placement? }) or set the order ({ order: [id, …] }). */
 export async function PATCH(request: Request) {
   const auth = await guard();
   if ("error" in auth) return fail(auth.error, auth.status);
-  let body: { id?: unknown; caption?: unknown; audience?: unknown; order?: unknown };
+  let body: { id?: unknown; caption?: unknown; audience?: unknown; placement?: unknown; order?: unknown };
   try {
     body = (await request.json()) as typeof body;
   } catch {
@@ -101,9 +103,13 @@ export async function PATCH(request: Request) {
     }
     if (typeof body.id !== "string" || !ID.test(body.id)) return fail("bad_id");
     if (body.audience !== undefined && !isPhotoAudience(body.audience)) return fail("bad_audience");
+    if (body.placement !== undefined && !isPhotoPlacement(body.placement)) return fail("bad_placement");
     await auth.db
-      .prepare(`UPDATE invite_photos SET caption = COALESCE(?1, caption), audience = COALESCE(?2, audience) WHERE id = ?3`)
-      .bind(typeof body.caption === "string" ? body.caption.trim().slice(0, 200) : null, body.audience ?? null, body.id)
+      .prepare(
+        `UPDATE invite_photos SET caption = COALESCE(?1, caption), audience = COALESCE(?2, audience),
+           placement = COALESCE(?3, placement) WHERE id = ?4`,
+      )
+      .bind(typeof body.caption === "string" ? body.caption.trim().slice(0, 200) : null, body.audience ?? null, body.placement ?? null, body.id)
       .run();
     return NextResponse.json({ ok: true }, { headers: noStore });
   } catch {

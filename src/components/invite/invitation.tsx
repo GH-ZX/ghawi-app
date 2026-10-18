@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import {
   addressee,
   describeDate,
@@ -10,17 +10,24 @@ import {
   type InviteConfig,
   type InviteFont,
   type InviteGuest,
+  type InvitePhoto,
   type InviteRsvp,
   type InviteTheme,
   type PartyKey,
 } from "@/lib/invite";
+import { ContractMark, CoupleSilhouette } from "./art";
+import { WeddingCalendar } from "./calendar";
+import { Contact } from "./contact";
 import { Countdown } from "./countdown";
 import { Couple, Heart } from "./couple";
 import { Envelope } from "./envelope";
+import { Gallery } from "./gallery";
 import { RuleIconSvg } from "./icons";
+import { BlessingRosette, VerseCartouche } from "./islamic";
 import { ModeToggle } from "./mode-toggle";
 import { Monogram } from "./monogram";
 import { RsvpForm } from "./rsvp-form";
+import { Splash } from "./splash";
 
 type Props = {
   config: InviteConfig;
@@ -32,14 +39,22 @@ type Props = {
   rsvpClosed: boolean;
   logoUrl: string | null;
   slug: string;
+  /** Photos placed on the invitation, already filtered to what this link may see. */
+  photos: InvitePhoto[];
 };
+
+/** Clicks on these do their own thing; anywhere else, a tap moves to the next section. */
+const INTERACTIVE = "a, button, input, textarea, select, label, form, .viewer";
 
 /** Stagger index for a reveal. */
 const at = (i: number) => ({ "--i": i }) as CSSProperties;
 
-export function Invitation({ config, guest, parties, theme, font, rsvp, rsvpClosed, logoUrl, slug }: Props) {
+export function Invitation({ config, guest, parties, theme, font, rsvp, rsvpClosed, logoUrl, slug, photos }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
+  // Welcome screen → envelope → the invitation.
+  const [splashDone, setSplashDone] = useState(false);
   const [opened, setOpened] = useState(false);
+  const onSplashDone = useCallback(() => setSplashDone(true), []);
   const onOpened = useCallback(() => setOpened(true), []);
   const to = addressee(guest);
 
@@ -93,6 +108,17 @@ export function Invitation({ config, guest, parties, theme, font, rsvp, rsvpClos
       </span>
     );
   };
+  /** A tap anywhere that isn't a control brings the next section to the top. */
+  function advance(event: MouseEvent<HTMLElement>) {
+    if ((event.target as Element).closest(INTERACTIVE)) return;
+    if (window.getSelection()?.toString()) return;
+    const sections = Array.from(event.currentTarget.children) as HTMLElement[];
+    const next = sections.find((el) => el.getBoundingClientRect().top > 12);
+    if (!next) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    next.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+  }
+
   const line = (template: string) =>
     splitTemplate(template).map((part, i) => <Fragment key={i}>{typeof part === "string" ? part : (nameOf(part.key) ?? "")}</Fragment>);
 
@@ -100,16 +126,32 @@ export function Invitation({ config, guest, parties, theme, font, rsvp, rsvpClos
     <div ref={rootRef} className="iv" data-theme={theme} data-font={font} data-opened={opened || undefined}>
       <ModeToggle />
 
-      <Envelope
-        to={to}
-        groom={config.groomShort}
-        bride={config.brideDisplay}
-        dateLine={date ? `${date.weekday} ${date.day} ${date.month}` : ""}
-        logoUrl={logoUrl}
-        onOpened={onOpened}
-      />
+      {splashDone ? (
+        <Envelope
+          to={to}
+          generalTitle={config.generalTitle}
+          generalLine={config.generalLine}
+          groom={config.groomShort}
+          bride={config.brideDisplay}
+          dateLine={date ? `${date.weekday} ${date.day} ${date.month}` : ""}
+          logoUrl={logoUrl}
+          onOpened={onOpened}
+        />
+      ) : (
+        <Splash
+          title={config.splashTitle}
+          to={to}
+          text={config.splashText}
+          generalTitle={config.generalTitle}
+          generalLine={config.generalLine}
+          groom={config.groomShort}
+          bride={config.brideDisplay}
+          logoUrl={logoUrl}
+          onDone={onSplashDone}
+        />
+      )}
 
-      <main className="iv-main">
+      <main className="iv-main" onClick={advance}>
         {/* أحمد ♥ كريمته, in a square frame */}
         <section className="iv-hero">
           <div className="frame">
@@ -123,11 +165,13 @@ export function Invitation({ config, guest, parties, theme, font, rsvp, rsvpClos
               </p>
             ) : null}
           </div>
+          <p className="iv-tap">انقر في أي مكان للمتابعة</p>
           <span className="iv-cue" aria-hidden="true" />
         </section>
 
         {/* The words */}
         <section className="iv-words">
+          {config.verseEnabled && config.verseText ? <VerseCartouche text={config.verseText} cite={config.verseRef} /> : null}
           <p className="iv-opening" data-reveal>
             {config.opening}
           </p>
@@ -135,6 +179,7 @@ export function Invitation({ config, guest, parties, theme, font, rsvp, rsvpClos
           <p className="iv-line" data-reveal>
             {line(config.invitationLine)}
           </p>
+          {config.contractEnabled ? <ContractMark caption={config.contractCaption} /> : null}
           {to ? (
             <div className="iv-for" data-reveal>
               <span>يسعدنا أن تكون الدعوة باسم</span>
@@ -152,13 +197,12 @@ export function Invitation({ config, guest, parties, theme, font, rsvp, rsvpClos
             <p className="iv-kicker" data-reveal>
               موعدنا
             </p>
-            <div className="iv-date" data-reveal>
-              <span className="iv-date__side">{date.weekday}</span>
-              <span className="iv-date__day">{date.day}</span>
-              <span className="iv-date__side">
-                {date.month} {date.year}
-              </span>
+            <div data-reveal>
+              <WeddingCalendar startsAt={config.startsAt} />
             </div>
+            <p className="iv-dayline" data-reveal>
+              {date.weekday} {date.day} {date.month} {date.year}
+            </p>
             <p className="iv-time" data-reveal>
               الساعة {date.time}
             </p>
@@ -214,6 +258,9 @@ export function Invitation({ config, guest, parties, theme, font, rsvp, rsvpClos
           </div>
         </section>
 
+        {/* Photos — the section only exists once the admin has added some */}
+        {photos.length ? <Gallery title={config.inviteGalleryTitle} photos={photos} slug={slug} /> : null}
+
         {/* Gentle requests */}
         {config.rules.length ? (
           <section className="iv-notes">
@@ -234,6 +281,7 @@ export function Invitation({ config, guest, parties, theme, font, rsvp, rsvpClos
 
         {/* RSVP */}
         <section className="iv-rsvp" id="rsvp">
+          {config.coupleArtEnabled ? <CoupleSilhouette /> : null}
           <div className="reply" data-reveal>
             <p className="iv-kicker">تأكيد الحضور</p>
             <h2 className="reply__title">هل ستشاركوننا الفرح؟</h2>
@@ -249,8 +297,12 @@ export function Invitation({ config, guest, parties, theme, font, rsvp, rsvpClos
           </div>
         </section>
 
+        {/* Contact */}
+        {config.contactEnabled ? <Contact title={config.contactTitle} text={config.contactText} contacts={config.contacts} /> : null}
+
         {/* Farewell */}
         <footer className="iv-end">
+          {config.blessingEnabled && config.blessingText ? <BlessingRosette text={config.blessingText} /> : null}
           <p className="iv-end__closing" data-reveal>
             {config.closing}
           </p>

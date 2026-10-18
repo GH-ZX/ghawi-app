@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type DragEvent } from "react";
-import { arabicDigits, PHOTO_AUDIENCES, type InviteConfig, type PhotoAudience } from "@/lib/invite";
+import { arabicDigits, PHOTO_AUDIENCES, PHOTO_PLACEMENTS, type InviteConfig, type PhotoAudience, type PhotoPlacement } from "@/lib/invite";
 
 /*
  * Admin → Invitation → Photos: the wedding photos shown on the thank-you
@@ -9,12 +9,18 @@ import { arabicDigits, PHOTO_AUDIENCES, type InviteConfig, type PhotoAudience } 
  * long side) and a thumbnail (640 px) — then sent; R2 keeps the files.
  */
 
-type Photo = { id: string; width: number; height: number; caption: string; audience: PhotoAudience; sort: number };
+type Photo = { id: string; width: number; height: number; caption: string; audience: PhotoAudience; placement: PhotoPlacement; sort: number };
 
 const AUDIENCE_LABEL: Record<PhotoAudience, string> = {
   all: "الجميع",
   men: "ضيوف حفل الرجال فقط",
   women: "ضيوف حفل النساء فقط",
+};
+
+const PLACEMENT_LABEL: Record<PhotoPlacement, string> = {
+  both: "الدعوة وبعد الزفاف",
+  invite: "صفحة الدعوة فقط",
+  ended: "بعد الزفاف فقط",
 };
 
 const ERRORS: Record<string, string> = {
@@ -63,6 +69,7 @@ const thumbUrl = (id: string) => `/api/invite/photo/${id}?s=thumb`;
 export function PhotosPanel({ config }: { config: InviteConfig }) {
   const [photos, setPhotos] = useState<Photo[] | null>(null);
   const [audience, setAudience] = useState<PhotoAudience>("all");
+  const [placement, setPlacement] = useState<PhotoPlacement>("both");
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
   const [errors, setErrors] = useState<string[]>([]);
   const [loadError, setLoadError] = useState("");
@@ -101,6 +108,7 @@ export function PhotosPanel({ config }: { config: InviteConfig }) {
         form.set("width", String(full.width));
         form.set("height", String(full.height));
         form.set("audience", audience);
+        form.set("placement", placement);
         const response = await fetch("/api/admin/invite/photos", { method: "POST", body: form });
         const body = (await response.json().catch(() => ({}))) as { error?: string };
         if (!response.ok) throw new Error(body.error ?? "failed");
@@ -150,10 +158,10 @@ export function PhotosPanel({ config }: { config: InviteConfig }) {
     <div className="ivp__photos">
       <div className="card card--pad ivp__upload" data-drag={dragging || undefined} onDragOver={(e) => (e.preventDefault(), setDragging(true))} onDragLeave={() => setDragging(false)} onDrop={onDrop}>
         <div>
-          <strong>صور الزفاف</strong>
+          <strong>الصور</strong>
           <p className="muted small">
-            تظهر في صفحة «{config.endedTitle}» بعد انتهاء الحفل{config.galleryEnabled ? "" : " — المعرض مُطفأ الآن من الإعدادات"}. اختر لمن تظهر الصور قبل
-            رفعها؛ صور حفل النساء مثلاً لا تراها إلا روابط المدعوّات إليه.
+            اختر أين تظهر كل صورة — في صفحة الدعوة، أو في صفحة «{config.endedTitle}» بعد الحفل{config.galleryEnabled ? "" : " (مُطفأة الآن من الإعدادات)"}، أو في
+            كلتيهما — ولمن تظهر؛ صور حفل النساء مثلاً لا تراها إلا روابط المدعوّات إليه. قسم الصور في الدعوة لا يظهر ما دام فارغاً.
           </p>
         </div>
         <div className="ivp__upload-row">
@@ -163,6 +171,16 @@ export function PhotosPanel({ config }: { config: InviteConfig }) {
               {PHOTO_AUDIENCES.map((a) => (
                 <option key={a} value={a}>
                   {AUDIENCE_LABEL[a]}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="field">
+            <span className="field__label">تظهر في</span>
+            <select className="select" value={placement} onChange={(e) => setPlacement(e.target.value as PhotoPlacement)} disabled={busy}>
+              {PHOTO_PLACEMENTS.map((p) => (
+                <option key={p} value={p}>
+                  {PLACEMENT_LABEL[p]}
                 </option>
               ))}
             </select>
@@ -196,7 +214,7 @@ export function PhotosPanel({ config }: { config: InviteConfig }) {
       ) : (
         <>
           <p className="muted small">
-            {photoCount(photos.length)} · <a href="/invite/general?preview=1&ended=1" target="_blank" rel="noopener noreferrer">معاينة المعرض</a> (الرابط العام يعرض صور «الجميع» فقط)
+            {photoCount(photos.length)} · <a href="/invite/general?preview=1&ended=1" target="_blank" rel="noopener noreferrer">معاينة المعرض</a> (الرابط العام يعرض صور «الجميع» فقط) · <a href="/invite/general?preview=1" target="_blank" rel="noopener noreferrer">معاينة الدعوة</a>
           </p>
           <ul className="ivp__photo-grid">
             {photos.map((photo, i) => (
@@ -224,6 +242,22 @@ export function PhotosPanel({ config }: { config: InviteConfig }) {
                   {PHOTO_AUDIENCES.map((a) => (
                     <option key={a} value={a}>
                       {AUDIENCE_LABEL[a]}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  className="select"
+                  value={photo.placement}
+                  onChange={(e) => {
+                    const value = e.target.value as PhotoPlacement;
+                    update(photo.id, { placement: value });
+                    void patch({ id: photo.id, placement: value });
+                  }}
+                  aria-label="تظهر في"
+                >
+                  {PHOTO_PLACEMENTS.map((p) => (
+                    <option key={p} value={p}>
+                      {PLACEMENT_LABEL[p]}
                     </option>
                   ))}
                 </select>

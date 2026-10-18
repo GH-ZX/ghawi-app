@@ -645,6 +645,81 @@ function SettingsView({
       </fieldset>
 
       <fieldset className="card card--pad ivp__set">
+        <legend>شاشة الترحيب</legend>
+        <div className="ivp__grid">
+          {text("splashTitle", "العنوان", "يظهر فوق اسم المدعو، مثل: تمّت دعوتك")}
+          {text("splashText", "الكلمة", undefined, true)}
+          {text("generalTitle", "عنوان الرابط العام", "بدل اسم المدعو، مثل: دعوة خاصة")}
+          {text("generalLine", "سطر الرابط العام", "فوق «أحمد ♥ كريمته»، مثل: لحضور حفل زفاف")}
+          <span className="hint ivp__wide">تظهر نحو ثلاث ثوانٍ عند فتح الرابط، ثم الظرف. النقر يتخطاها.</span>
+        </div>
+      </fieldset>
+
+      <fieldset className="card card--pad ivp__set">
+        <legend>لمسات إسلامية</legend>
+        <div className="ivp__grid">
+          <label className="ivp__check ivp__wide">
+            <input type="checkbox" checked={c.verseEnabled} onChange={(e) => set("verseEnabled", e.target.checked)} /> الآية في إطار مزخرف أعلى نص الدعوة
+          </label>
+          {text("verseText", "نص الآية", undefined, true)}
+          {text("verseRef", "المرجع")}
+          <label className="ivp__check ivp__wide">
+            <input type="checkbox" checked={c.blessingEnabled} onChange={(e) => set("blessingEnabled", e.target.checked)} /> النجمة الثمانية مع الخاتمين والدعاء قبل الختام
+          </label>
+          {text("blessingText", "الدعاء", undefined, true)}
+          <label className="ivp__check ivp__wide">
+            <input type="checkbox" checked={c.contractEnabled} onChange={(e) => set("contractEnabled", e.target.checked)} /> رمز عقد القران (لفافة بختم وريشة) تحت جملة الدعوة
+          </label>
+          {text("contractCaption", "العبارة تحت رمز عقد القران")}
+          <label className="ivp__check ivp__wide">
+            <input type="checkbox" checked={c.coupleArtEnabled} onChange={(e) => set("coupleArtEnabled", e.target.checked)} /> رسم العروسين (ظل أسود بسيط) فوق تأكيد الحضور
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset className="card card--pad ivp__set">
+        <legend>التواصل</legend>
+        <div className="ivp__grid">
+          <label className="ivp__check ivp__wide">
+            <input type="checkbox" checked={c.contactEnabled} onChange={(e) => set("contactEnabled", e.target.checked)} /> إظهار قسم التواصل
+          </label>
+          {text("contactTitle", "العنوان")}
+          {text("contactText", "الكلمة", undefined, true)}
+          <div className="ivp__wide ivp__contacts">
+            {c.contacts.map((person, i) => (
+              <div key={i} className="ivp__contact">
+                <input
+                  className="input"
+                  value={person.name}
+                  onChange={(e) => set("contacts", c.contacts.map((p, j) => (j === i ? { ...p, name: e.target.value } : p)))}
+                  placeholder="الاسم"
+                  aria-label="الاسم"
+                />
+                <input
+                  className="input"
+                  dir="ltr"
+                  type="tel"
+                  value={person.phone}
+                  onChange={(e) => set("contacts", c.contacts.map((p, j) => (j === i ? { ...p, phone: e.target.value } : p)))}
+                  placeholder="+963…"
+                  aria-label="رقم واتساب"
+                />
+                <button type="button" className="btn btn--xs btn--danger-soft press" onClick={() => set("contacts", c.contacts.filter((_, j) => j !== i))}>
+                  حذف
+                </button>
+              </div>
+            ))}
+            {c.contacts.length < 4 ? (
+              <button type="button" className="btn btn--xs btn--soft press" onClick={() => set("contacts", [...c.contacts, { name: "", phone: "" }])}>
+                + إضافة شخص
+              </button>
+            ) : null}
+            <span className="hint">الرقم مع رمز الدولة، مثل ‎+963992350038‎. يفتح زر «واتساب» محادثة مع الرقم مباشرة.</span>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset className="card card--pad ivp__set">
         <legend>الموعد</legend>
         <div className="ivp__grid">
           <label className="field">
@@ -730,7 +805,8 @@ function SettingsView({
           <label className="ivp__check">
             <input type="checkbox" checked={c.galleryEnabled} onChange={(e) => set("galleryEnabled", e.target.checked)} /> عرض صور الزفاف تحتها
           </label>
-          {text("galleryTitle", "عنوان معرض الصور")}
+          {text("galleryTitle", "عنوان معرض الصور بعد الزفاف")}
+          {text("inviteGalleryTitle", "عنوان قسم الصور في الدعوة", "لا يظهر القسم ما لم تُرفع صور مخصّصة للدعوة")}
           <a className="btn btn--xs btn--ghost press" href={`/invite/general?preview=1&ended=1&theme=${c.theme}&font=${c.font}`} target="_blank" rel="noopener noreferrer">
             معاينة صفحة ما بعد الزفاف
           </a>

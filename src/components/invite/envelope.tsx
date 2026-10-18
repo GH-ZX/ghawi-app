@@ -6,6 +6,9 @@ import { Monogram } from "./monogram";
 
 type Props = {
   to: string;
+  /** Above the envelope on the general link: "دعوة خاصة" / "لحضور حفل زفاف". */
+  generalTitle: string;
+  generalLine: string;
   groom: string;
   bride: string;
   dateLine: string;
@@ -25,7 +28,7 @@ const OPENING_MS = 2900;
  * rises — then it fades and the page underneath begins. The page can't
  * scroll until then.
  */
-export function Envelope({ to, groom, bride, dateLine, logoUrl, onOpened }: Props) {
+export function Envelope({ to, generalTitle, generalLine, groom, bride, dateLine, logoUrl, onOpened }: Props) {
   const [phase, setPhase] = useState<Phase>("sealed");
   const done = useRef(onOpened);
 
@@ -76,8 +79,8 @@ export function Envelope({ to, groom, bride, dateLine, logoUrl, onOpened }: Prop
   return (
     <div className="env-screen" data-phase={phase}>
       <div className="env-to">
-        <span className="env-to__label">دعوة خاصة</span>
-        <strong className="env-to__name">{to || "إلى أحبّتنا"}</strong>
+        <span className="env-to__label">{to ? "دعوة خاصة" : generalTitle}</span>
+        <strong className="env-to__name">{to || generalLine}</strong>
       </div>
 
       <button type="button" className="env" onClick={() => setPhase("opening")} aria-label="افتح الدعوة" disabled={phase !== "sealed"}>

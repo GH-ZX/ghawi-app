@@ -106,15 +106,19 @@ export default async function InvitePage({ params, searchParams }: PageProps) {
 
   // After the wedding day (or when the admin ends it): the thank-you page.
   if (previewEnded || isEnded(config)) {
-    const photos = config.galleryEnabled ? await loadPhotos(db, audiencesFor(guest ? partiesOf(guest.parties) : null)) : [];
+    const photos = config.galleryEnabled ? await loadPhotos(db, audiencesFor(guest ? partiesOf(guest.parties) : null), "ended") : [];
     return <Ended config={config} theme={theme} font={font} logoUrl={logoUrl} photos={photos} slug={slug} />;
   }
+
+  const parties = guest ? partiesOf(guest.parties) : PARTY_KEYS;
+  const photos = await loadPhotos(db, audiencesFor(guest ? parties : null), "invite");
 
   return (
     <Invitation
       config={config}
       guest={guest}
-      parties={guest ? partiesOf(guest.parties) : PARTY_KEYS}
+      parties={parties}
+      photos={photos}
       theme={theme}
       font={font}
       rsvp={rsvp}

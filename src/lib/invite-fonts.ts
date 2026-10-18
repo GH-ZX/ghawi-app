@@ -1,4 +1,4 @@
-import { Amiri, Aref_Ruqaa, Cairo, El_Messiri, IBM_Plex_Sans_Arabic, Marhey, Reem_Kufi, Tajawal } from "next/font/google";
+import { Amiri, Aref_Ruqaa, Cairo, El_Messiri, Marhey, Reem_Kufi, Tajawal } from "next/font/google";
 
 /*
  * Every face the invitation can wear. Admin → Invitation → Font picks a
@@ -9,12 +9,6 @@ import { Amiri, Aref_Ruqaa, Cairo, El_Messiri, IBM_Plex_Sans_Arabic, Marhey, Ree
 
 export const amiri = Amiri({ subsets: ["arabic", "latin"], weight: ["400", "700"], variable: "--f-amiri", display: "swap" });
 export const ruqaa = Aref_Ruqaa({ subsets: ["arabic", "latin"], weight: ["400", "700"], variable: "--f-ruqaa", display: "swap" });
-export const plex = IBM_Plex_Sans_Arabic({
-  subsets: ["arabic", "latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--f-plex",
-  display: "swap",
-});
 
 export const messiri = El_Messiri({ subsets: ["arabic", "latin"], variable: "--f-messiri", display: "swap", preload: false });
 export const reemKufi = Reem_Kufi({ subsets: ["arabic", "latin"], variable: "--f-kufi", display: "swap", preload: false });
@@ -28,4 +22,4 @@ export const tajawal = Tajawal({
   preload: false,
 });
 
-export const inviteFontVariables = [amiri, ruqaa, plex, messiri, reemKufi, marhey, cairo, tajawal].map((font) => font.variable).join(" ");
+export const inviteFontVariables = [amiri, ruqaa, messiri, reemKufi, marhey, cairo, tajawal].map((font) => font.variable).join(" ");
