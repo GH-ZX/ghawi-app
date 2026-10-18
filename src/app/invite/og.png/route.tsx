@@ -10,12 +10,12 @@ const MOTES = [
 ] as const;
 
 /**
- * The link preview WhatsApp and Telegram show: the أ إ monogram in ivory
- * and gold on navy, framed like the envelope. No words — the image renderer
- * can't join Arabic letters, and the monogram's are drawn as shapes.
+ * The link preview WhatsApp and Telegram show: the couple's logo in ivory on
+ * burgundy, framed like the envelope. No words — the image renderer can't
+ * join Arabic letters; the logo is drawn as shapes.
  */
 export function GET() {
-  const mark = monogramSvg({ ink: "#F7F4EE", gold: "#D9BD84", size: 420 });
+  const mark = monogramSvg({ ink: "#FAF6EC", gold: "#E8D8BC", size: 440 });
   return new ImageResponse(
     (
       <div
@@ -26,7 +26,7 @@ export function GET() {
           alignItems: "center",
           justifyContent: "center",
           position: "relative",
-          background: "radial-gradient(circle at 50% 45%, #2a3f6e 0%, #1c2b4b 45%, #121d36 100%)",
+          background: "radial-gradient(circle at 50% 45%, #9a2a3a 0%, #7a1f2b 45%, #561520 100%)",
         }}
       >
         <div
@@ -36,7 +36,7 @@ export function GET() {
             left: 28,
             right: 28,
             bottom: 28,
-            border: "1.5px solid rgba(217,189,132,0.55)",
+            border: "1.5px solid rgba(250,246,236,0.5)",
             display: "flex",
           }}
         />
@@ -47,18 +47,18 @@ export function GET() {
             left: 40,
             right: 40,
             bottom: 40,
-            border: "1px solid rgba(217,189,132,0.3)",
+            border: "1px solid rgba(250,246,236,0.28)",
             display: "flex",
           }}
         />
         {MOTES.map(([x, y, r], i) => (
           <div
             key={i}
-            style={{ position: "absolute", left: x, top: y, width: r * 2, height: r * 2, borderRadius: r, background: "rgba(217,189,132,0.75)" }}
+            style={{ position: "absolute", left: x, top: y, width: r * 2, height: r * 2, borderRadius: r, background: "rgba(250,246,236,0.6)" }}
           />
         ))}
         {/* eslint-disable-next-line @next/next/no-img-element -- rendered by next/og */}
-        <img src={`data:image/svg+xml;utf8,${encodeURIComponent(mark)}`} width={420} height={420} alt="" />
+        <img src={`data:image/svg+xml;utf8,${encodeURIComponent(mark)}`} width={440} height={440} alt="" />
       </div>
     ),
     { width: 1200, height: 630 },

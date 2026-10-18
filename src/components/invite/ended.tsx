@@ -1,4 +1,4 @@
-import { describeDate, type InviteConfig, type InviteFont, type InvitePhoto, type InviteTheme } from "@/lib/invite";
+import { describeDate, type InviteConfig, type InviteFont, type InviteMetal, type InvitePhoto, type InviteTheme } from "@/lib/invite";
 import { Couple } from "./couple";
 import { Gallery } from "./gallery";
 import { ModeToggle } from "./mode-toggle";
@@ -8,6 +8,7 @@ type Props = {
   config: InviteConfig;
   theme: InviteTheme;
   font: InviteFont;
+  metal: InviteMetal;
   logoUrl: string | null;
   /** Already filtered to what this link may see. */
   photos: InvitePhoto[];
@@ -20,16 +21,16 @@ type Props = {
  * and, below, the wedding photos. Shown once the wedding day is over, or
  * whenever the admin ends the page.
  */
-export function Ended({ config, theme, font, logoUrl, photos, slug }: Props) {
+export function Ended({ config, theme, font, metal, logoUrl, photos, slug }: Props) {
   const date = describeDate(config.startsAt);
   const gallery = config.galleryEnabled && photos.length > 0;
   return (
-    <div className="iv iv--ended" data-theme={theme} data-font={font} data-opened>
+    <div className="iv iv--ended" data-theme={theme} data-font={font} data-metal={metal} data-opened>
       <ModeToggle />
       <main className="ended">
         <section className="ended__intro">
           <div className="frame">
-            <Monogram logoUrl={logoUrl} className="frame__mono" />
+            <Monogram logoUrl={logoUrl} bare className="frame__mono" />
             <p className="frame__kicker ended__title">{config.endedTitle}</p>
             <Couple as="h1" groom={config.groomShort} bride={config.brideDisplay} className="couple--hero" />
             {date ? (

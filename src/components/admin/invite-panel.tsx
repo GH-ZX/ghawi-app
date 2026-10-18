@@ -16,6 +16,9 @@ import {
   RULE_ICONS,
   FONT_LABELS,
   INVITE_FONTS,
+  INVITE_METALS,
+  METAL_LABELS,
+  metalColor,
   INVITE_STATUSES,
   THEME_LABELS,
   THEME_SWATCHES,
@@ -842,6 +845,39 @@ function SettingsView({
       </fieldset>
 
       <fieldset className="card card--pad ivp__set">
+        <legend>لون الزخارف</legend>
+        <p className="muted small ivp__set-note">
+          الإطارات والخطوط والقلب والعناوين الصغيرة. «ذهبي» يبقي ذهب كل ثيم. الأبيض اللؤلؤي أبيض صافٍ في الوضع الداكن، ورمادي لؤلؤي فاتح في الوضع الفاتح حتى
+          يبقى ظاهراً.
+        </p>
+        <div className="theme-grid" role="radiogroup" aria-label="لون الزخارف">
+          {INVITE_METALS.map((m) => (
+            <div key={m} className="theme-option" data-on={c.metal === m || undefined}>
+              <button type="button" role="radio" aria-checked={c.metal === m} className="theme-option__pick press" onClick={() => set("metal", m)}>
+                <span className="theme-option__top">
+                  <span className="look__swatches" aria-hidden="true">
+                    <span style={{ background: THEME_SWATCHES[c.theme][0] }} />
+                    <span style={{ background: metalColor(m, c.theme) }} />
+                    {m === "pearl" ? <span style={{ background: "#ffffff" }} /> : null}
+                  </span>
+                  {config.metal === m ? <span className="badge badge--good">مفعّل</span> : null}
+                </span>
+                <strong>{METAL_LABELS[m]}</strong>
+              </button>
+              <a
+                className="theme-option__preview"
+                href={`/invite/general?preview=1&theme=${c.theme}&metal=${m}&font=${c.font}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                معاينة
+              </a>
+            </div>
+          ))}
+        </div>
+      </fieldset>
+
+      <fieldset className="card card--pad ivp__set">
         <legend>الثيم</legend>
         <div className="theme-grid" role="radiogroup" aria-label="ثيم الدعوة">
           {INVITE_THEMES.map((t) => (
@@ -849,8 +885,8 @@ function SettingsView({
               <button type="button" role="radio" aria-checked={c.theme === t} className="theme-option__pick press" onClick={() => set("theme", t)}>
                 <span className="theme-option__top">
                   <span className="look__swatches" aria-hidden="true">
-                    {THEME_SWATCHES[t].map((color) => (
-                      <span key={color} style={{ background: color }} />
+                      {[THEME_SWATCHES[t][0], THEME_SWATCHES[t][1], metalColor(c.metal, t)].map((color, i) => (
+                      <span key={i} style={{ background: color }} />
                     ))}
                   </span>
                   {config.theme === t ? <span className="badge badge--good">مفعّل</span> : null}
@@ -858,7 +894,7 @@ function SettingsView({
                 <strong>{THEME_LABELS[t]}</strong>
                 <span className="muted small">فاتح افتراضياً، ومعه وضع داكن</span>
               </button>
-              <a className="theme-option__preview" href={`/invite/general?preview=1&theme=${t}`} target="_blank" rel="noopener noreferrer">
+              <a className="theme-option__preview" href={`/invite/general?preview=1&theme=${t}&metal=${c.metal}&font=${c.font}`} target="_blank" rel="noopener noreferrer">
                 معاينة
               </a>
             </div>
@@ -959,7 +995,7 @@ function LogoField({ logo, setLogo }: { logo: string | null; setLogo: (l: string
   }
 
   async function reset() {
-    if (!window.confirm("حذف الشعار المرفوع والعودة إلى شعار «أ إ»؟")) return;
+    if (!window.confirm("حذف الشعار المرفوع والعودة إلى شعار الخطوبة؟")) return;
     setBusy(true);
     await fetch("/api/admin/invite/logo", { method: "DELETE" });
     setLogo(null);
@@ -975,7 +1011,7 @@ function LogoField({ logo, setLogo }: { logo: string | null; setLogo: (l: string
         </div>
         <div className="ivp__logo-actions">
           <p className="muted small">
-            {logo ? "شعار مرفوع يظهر في الظرف والختم والدعوة." : "الشعار الحالي: «أ إ» مرسوم، الهمزة فوق الألف لأحمد وتحتها لعروسه."} PNG أو SVG بخلفية شفافة، حتى ٦٠٠ كيلوبايت.
+            {logo ? "شعار مرفوع يظهر في الظرف والختم والدعوة." : "الشعار الحالي: شعار الخطوبة «أ إ»، ألفان متعانقان بهمزة فوق وهمزة تحت."} PNG أو SVG بخلفية شفافة، حتى ٦٠٠ كيلوبايت.
           </p>
           <div className="message__actions">
             <label className="btn btn--xs btn--soft press">
@@ -984,11 +1020,11 @@ function LogoField({ logo, setLogo }: { logo: string | null; setLogo: (l: string
             </label>
             {logo ? (
               <button type="button" className="btn btn--xs btn--danger-soft press" onClick={reset} disabled={busy}>
-                العودة إلى «أ إ»
+                العودة إلى شعار الخطوبة
               </button>
             ) : null}
             <a className="btn btn--xs btn--ghost press" href="/invite/monogram.svg" download="monogram.svg">
-              تنزيل «أ إ» SVG
+              تنزيل الشعار SVG
             </a>
             <a className="btn btn--xs btn--ghost press" href="/invite/og.png" download="invitation.png">
               تنزيل صورة الدعوة

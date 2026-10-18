@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import QRCode from "qrcode";
-import { describeDate, THEME_SWATCHES, type InviteConfig, type InviteTheme } from "@/lib/invite";
+import { describeDate, metalColor, THEME_SWATCHES, type InviteConfig, type InviteTheme } from "@/lib/invite";
 import { monogramSvg } from "@/lib/invite-mark";
 
 /*
@@ -48,7 +48,8 @@ function fitText(ctx: CanvasRenderingContext2D, text: string, font: (size: numbe
 }
 
 async function drawCard(canvas: HTMLCanvasElement, { link, to, theme, config }: CardProps) {
-  const [paper, ink, gold] = THEME_SWATCHES[theme];
+  const [paper, ink] = THEME_SWATCHES[theme];
+  const gold = metalColor(config.metal, theme);
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
   canvas.width = W;

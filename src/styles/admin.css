@@ -138,8 +138,8 @@
 .ivp .mono { width: 100%; height: 100%; }
 .ivp .mono__frame circle { fill: none; stroke: #b08a45; stroke-width: 1.3; }
 .ivp .mono__frame .mono__thin { stroke-width: .6; }
-.ivp .mono__gem, .ivp .mono__star { fill: #b08a45; }
-.ivp .mono__letters path { fill: #1c2b4b; }
+.ivp .mono__gem { fill: #b08a45; }
+.ivp .mono__logo { fill: #7a1f2b; }
 .ivp__font-sample { display: block; font-family: var(--f-ruqaa), serif; font-size: 30px; font-weight: 700; line-height: 1.5; color: var(--ink); text-align: center; padding: 4px 0; }
 .ivp__font-sample span { color: #b08a45; font-size: .55em; vertical-align: middle; }
 .ivp__font-sample[data-font="naskh"] { font-family: var(--f-amiri), serif; }
@@ -177,3 +177,4 @@
 .ivp__qr-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .ivp__qr-canvas { width: 100%; height: auto; aspect-ratio: 1080 / 1380; border-radius: 14px; background: var(--surface-2); opacity: .4; transition: opacity .3s ease; }
 .ivp__qr-canvas[data-ready] { opacity: 1; }
+.ivp__set-note { margin: -6px 0 12px; max-width: 70ch; }

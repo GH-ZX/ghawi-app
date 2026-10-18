@@ -1,7 +1,7 @@
 /*
  * invite.ghawi.app — the wedding invitation.
  *
- * Four themes (navy, blush, ivory, terracotta), each light by default with a
+ * Six themes (ivory, navy, blush, terracotta, white, sage), each light by default with a
  * dark half the guest can switch to. Tokens sit on :root, chosen by the
  * theme on .iv (via :has) and the mode on <html data-mode>.
  */
@@ -42,7 +42,8 @@
   --paper: #16213b;
   --ink: #f2ede3;
   --muted: #a8b0c6;
-  --accent: #d9bd84;
+  /* Ivory, not gold: the ornament colour is chosen on its own. */
+  --accent: #ece4d4;
   --accent-ink: #0e1628;
   --gold: #d4b373;
   --gold-2: #ead3a0;
@@ -128,7 +129,8 @@
   --paper: #25211a;
   --ink: #f2ebdc;
   --muted: #bbaf98;
-  --accent: #d9b672;
+  /* The theme's burgundy, lifted for a dark page. */
+  --accent: #dc8e9a;
   --accent-ink: #18150f;
   --gold: #d2b270;
   --gold-2: #e6d09f;
@@ -183,6 +185,122 @@
   --seal: #a9482a;
   --seal-2: #7a311b;
   --seal-ink: #f7e3cf;
+}
+
+:root:has(.iv[data-theme="white"]) {
+  --bg: #ffffff;
+  --bg-2: #f3f3f3;
+  --paper: #ffffff;
+  --ink: #141414;
+  --muted: #6b6b6b;
+  --accent: #141414;
+  --accent-ink: #ffffff;
+  --gold: #8c8c8c;
+  --gold-2: #d4d4d4;
+  --line: rgb(0 0 0 / 0.1);
+  --mono-ink: #141414;
+  --env: #f1f1f1;
+  --env-2: #e4e4e4;
+  --env-in: #fafafa;
+  --env-line: rgb(0 0 0 / 0.18);
+  --seal: #1a1a1a;
+  --seal-2: #000000;
+  --seal-ink: #f5f5f5;
+  --shadow: 0 30px 60px -30px rgb(0 0 0 / 0.22);
+}
+:root[data-mode="dark"]:has(.iv[data-theme="white"]) {
+  --bg: #0e0e0f;
+  --bg-2: #151517;
+  --paper: #18181a;
+  --ink: #f4f4f4;
+  --muted: #a3a3a3;
+  --accent: #f4f4f4;
+  --accent-ink: #0e0e0f;
+  --gold: #bdbdbd;
+  --gold-2: #e3e3e3;
+  --line: rgb(255 255 255 / 0.1);
+  --mono-ink: #f4f4f4;
+  --env: #232326;
+  --env-2: #1b1b1d;
+  --env-in: #111112;
+  --env-line: rgb(255 255 255 / 0.25);
+  --seal: #e8e8e8;
+  --seal-2: #bdbdbd;
+  --seal-ink: #111112;
+  --shadow: 0 30px 70px -30px rgb(0 0 0 / 0.7);
+}
+
+:root:has(.iv[data-theme="sage"]) {
+  --bg: #f3f4ee;
+  --bg-2: #e6e9dc;
+  --paper: #fcfdf8;
+  --ink: #26301f;
+  --muted: #66705c;
+  --accent: #4e6141;
+  --accent-ink: #f7f8f2;
+  --gold: #a08a4e;
+  --gold-2: #d6c795;
+  --line: rgb(38 48 31 / 0.13);
+  --mono-ink: #3e4f33;
+  --env: #8ea07c;
+  --env-2: #7a8d69;
+  --env-in: #f2f4ea;
+  --env-line: rgb(255 255 255 / 0.75);
+  --seal: #4e6141;
+  --seal-2: #36452c;
+  --seal-ink: #eef1e4;
+  --shadow: 0 30px 60px -28px rgb(40 55 30 / 0.3);
+}
+:root[data-mode="dark"]:has(.iv[data-theme="sage"]) {
+  --bg: #141812;
+  --bg-2: #1a1f17;
+  --paper: #1f251b;
+  --ink: #eceFe3;
+  --muted: #aeb7a2;
+  --accent: #b6c79e;
+  --accent-ink: #141812;
+  --gold: #cdb980;
+  --gold-2: #e3d6aa;
+  --line: rgb(236 239 227 / 0.12);
+  --mono-ink: #dde6cf;
+  --env: #34402c;
+  --env-2: #2a3424;
+  --env-in: #11150f;
+  --env-line: rgb(182 199 158 / 0.5);
+  --seal: #8fa476;
+  --seal-2: #66784f;
+  --seal-ink: #141812;
+}
+
+/* Ornament colour, chosen apart from the theme (Admin → Invitation). */
+.iv[data-metal="silver"] {
+  --gold: #8a9099;
+  --gold-2: #cdd2d8;
+}
+:root[data-mode="dark"] .iv[data-metal="silver"] {
+  --gold: #bac1c9;
+  --gold-2: #e2e6eb;
+}
+.iv[data-metal="rosegold"] {
+  --gold: #b27868;
+  --gold-2: #e3b9ac;
+}
+:root[data-mode="dark"] .iv[data-metal="rosegold"] {
+  --gold: #dda898;
+  --gold-2: #f1d0c4;
+}
+/* White on dark pages; a pale pearl grey on light ones, where white would vanish. */
+.iv[data-metal="pearl"] {
+  --gold: #a9a39a;
+  --gold-2: #e9e4db;
+}
+:root[data-mode="dark"] .iv[data-metal="pearl"] {
+  --gold: #f3f0ea;
+  --gold-2: #ffffff;
+}
+.iv[data-metal="theme"] {
+  --gold: var(--accent);
+  --gold-2: color-mix(in srgb, var(--accent) 35%, var(--paper));
 }
 
 /* ------------------------------------------------------------------ *
@@ -362,12 +480,15 @@ button {
 .mono__frame .mono__thin {
   stroke-width: 0.6;
 }
-.mono__gem,
-.mono__star {
+.mono__gem {
   fill: var(--gold);
 }
-.mono__letters path {
+.mono__logo {
   fill: var(--mono-ink);
+}
+/* The couple's logo wears the theme's main colour, like their names. */
+.iv {
+  --mono-ink: var(--accent);
 }
 
 .couple {
@@ -502,7 +623,7 @@ button {
   padding: 7% 6%;
 }
 .env__card-mono {
-  width: 22%;
+  width: 26%;
   height: auto;
 }
 .env__couple {
@@ -592,9 +713,6 @@ button {
   width: 76%;
   height: auto;
   --mono-ink: var(--seal-ink);
-}
-.env__seal-mono .mono__star {
-  fill: var(--seal-ink);
 }
 
 .env-hint {
@@ -745,7 +863,7 @@ button {
     linear-gradient(45deg, transparent 40%, var(--gold) 40% 60%, transparent 60%) 100% 100% / 8px 8px no-repeat;
 }
 .frame__mono {
-  width: 20cqi;
+  width: 30cqi;
   height: auto;
 }
 .frame__kicker {
@@ -1376,7 +1494,7 @@ button {
   color: var(--gold);
 }
 .iv-end__mono {
-  width: 84px;
+  width: 110px;
   height: auto;
   margin-top: 18px;
 }
@@ -1663,7 +1781,7 @@ button {
   animation: fade-up 0.9s var(--ease) forwards;
 }
 .splash__mono {
-  width: 74px;
+  width: 110px;
   height: auto;
   margin-bottom: 10px;
   animation-delay: 0.1s;

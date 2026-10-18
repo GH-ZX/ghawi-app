@@ -1,7 +1,7 @@
-import { ALEF_LEFT, ALEF_RIGHT, HAMZA_ABOVE, HAMZA_BELOW } from "@/lib/invite-monogram";
+import { LOGO_PATH, LOGO_VIEWBOX } from "@/lib/invite-logo";
 
 type Props = {
-  /** An uploaded logo replaces the drawn monogram everywhere. */
+  /** An uploaded logo replaces the couple's mark everywhere. */
   logoUrl?: string | null;
   /** Leave out the ring, e.g. on the wax seal. */
   bare?: boolean;
@@ -9,10 +9,18 @@ type Props = {
   label?: string;
 };
 
+/** The logo, centred in the 240×240 box at `height` units tall. */
+export function logoTransform(height: number): string {
+  const scale = height / LOGO_VIEWBOX.height;
+  const x = 120 - (LOGO_VIEWBOX.width * scale) / 2;
+  const y = 120 - height / 2;
+  return `translate(${x.toFixed(2)} ${y.toFixed(2)}) scale(${scale.toFixed(4)})`;
+}
+
 /**
- * أ إ — the two letters mirror each other: the hamza sits above Ahmed's
- * alef and below his bride's. A fine double ring holds them, with a small
- * four-pointed star where they meet. It appears whole, never piece by piece.
+ * The couple's mark: their engagement logo — أ and إ as two interlaced
+ * alefs — inside a fine double ring with four small gems. Bare, it is the
+ * logo alone (on the wax seal). It always appears whole.
  */
 export function Monogram({ logoUrl, bare = false, className = "", label = "أ إ" }: Props) {
   if (logoUrl) {
@@ -29,13 +37,7 @@ export function Monogram({ logoUrl, bare = false, className = "", label = "أ إ
           <path className="mono__gem" d="M120 2.5l4.5 7.5-4.5 7.5-4.5-7.5zM120 222.5l4.5 7.5-4.5 7.5-4.5-7.5zM2.5 120l7.5-4.5 7.5 4.5-7.5 4.5zM222.5 120l7.5-4.5 7.5 4.5-7.5 4.5z" />
         </g>
       )}
-      <g className="mono__letters">
-        <path d={ALEF_RIGHT} />
-        <path d={HAMZA_ABOVE} />
-        <path d={ALEF_LEFT} />
-        <path d={HAMZA_BELOW} />
-      </g>
-      <path className="mono__star" d="M120 109.5l2.4 8.1 8.1 2.4-8.1 2.4-2.4 8.1-2.4-8.1-8.1-2.4 8.1-2.4z" />
+      <path className="mono__logo" d={LOGO_PATH} transform={logoTransform(bare ? 224 : 176)} />
     </svg>
   );
 }

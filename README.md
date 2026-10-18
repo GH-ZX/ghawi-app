@@ -160,8 +160,10 @@ Under `next dev`, `http://invite.localhost:3000/haifa` behaves the same.
   the date (with the Hijri date) and a left-to-right countdown, the two halls (both
   parties start at the same time), gentle requests (no children, no hookahs), a
   reply card with numbers, and a farewell. One motion throughout: a soft fade-up.
-  Light by default; the guest can switch to dark. Four themes (navy, blush, ivory —
-  burgundy on ivory, the default — and terracotta) and six font pairings, both picked in the admin.
+  Light by default; the guest can switch to dark. Six themes (burgundy on ivory —
+  the default — navy, blush, terracotta, white & black, olive), and an ornament
+  colour chosen apart from the theme (gold, silver, rose gold, pearl white — pale
+  pearl grey on light pages — or the theme's own colour) and six font pairings, both picked in the admin.
 - **After the wedding**: on "auto" the invitation ends by itself once the wedding
   day is over (midnight, venue time) and every link shows a «تمّ الزواج» thank-you
   page in the same theme; the admin can also keep it live or end it now. Replies
@@ -191,10 +193,13 @@ Under `next dev`, `http://invite.localhost:3000/haifa` behaves the same.
 - **Reduced motion** keeps the fades and the tap-to-open envelope and drops travel
   and loops. Cutting animations to zero would leave their delays, so things pop in
   one by one — many Windows machines have "animation effects" off.
-- **The monogram** (`src/lib/invite-monogram.ts`): أ and إ from Amiri (OFL) as SVG
-  paths — the hamza above Ahmed's alef and below his bride's. An uploaded logo
-  replaces it everywhere. `/invite/og.png` is the link preview, `/invite/monogram.svg`
-  the mark on its own.
+- **The logo** is the couple's engagement mark — أ and إ as two interlaced alefs,
+  the hamza above the first and below the second. The original artwork is kept in
+  `src/assets/invite/logo-source.jpg`; `scripts/trace-logo.py` traces it (smoothing
+  the JPEG edges, dropping a stray overlap line) into `public/invite-logo.svg` and
+  `src/lib/invite-logo.ts`, which every surface draws from: the seal, the hero, the
+  welcome screen, QR cards, `/invite/og.png` and the tab icon. An uploaded logo
+  replaces it everywhere.
 - **Admin → Invitation**: guests (personal link, honorific, which party they see,
   how many people, an optional theme and personal line), copy / WhatsApp / preview,
   who opened their link and when, every reply and the totals per party; and the

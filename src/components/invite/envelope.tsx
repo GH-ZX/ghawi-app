@@ -86,7 +86,7 @@ export function Envelope({ to, generalTitle, generalLine, groom, bride, dateLine
       <button type="button" className="env" onClick={() => setPhase("opening")} aria-label="افتح الدعوة" disabled={phase !== "sealed"}>
         <span className="env__back" />
         <span className="env__card">
-          <Monogram logoUrl={logoUrl} className="env__card-mono" />
+          <Monogram logoUrl={logoUrl} bare className="env__card-mono" />
           <Couple groom={groom} bride={bride} className="env__couple" />
           {dateLine ? <span className="env__card-date">{dateLine}</span> : null}
         </span>

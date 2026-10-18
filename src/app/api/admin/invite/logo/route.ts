@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdminDb } from "@/lib/invite-server";
 
-/* Admin → Invitation → Logo: upload a logo to replace the drawn monogram, or remove it. */
+/* Admin → Invitation → Logo: upload a logo to replace the couple's mark, or remove it. */
 
 export const dynamic = "force-dynamic";
 

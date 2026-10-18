@@ -55,7 +55,7 @@ export function Splash({ title, to, text, generalTitle, generalLine, groom, brid
       role="dialog"
       aria-label={to ? `${title} ${to}` : `${generalTitle} ${generalLine}`}
     >
-      <Monogram logoUrl={logoUrl} className="splash__mono" />
+      <Monogram logoUrl={logoUrl} bare className="splash__mono" />
       {to ? (
         <>
           <p className="splash__title">{title}</p>

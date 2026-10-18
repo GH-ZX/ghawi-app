@@ -1,6 +1,17 @@
-import { ALEF_LEFT, ALEF_RIGHT, HAMZA_ABOVE, HAMZA_BELOW } from "@/lib/invite-monogram";
+import { LOGO_PATH, LOGO_VIEWBOX } from "@/lib/invite-logo";
 
-/** The أ إ monogram as a standalone SVG string, for images rendered off the page. */
+/** The logo, centred in the 240×240 box at `height` units tall. */
+function placed(height: number): string {
+  const scale = height / LOGO_VIEWBOX.height;
+  const x = 120 - (LOGO_VIEWBOX.width * scale) / 2;
+  return `translate(${x.toFixed(2)} ${(120 - height / 2).toFixed(2)}) scale(${scale.toFixed(4)})`;
+}
+
+/**
+ * The couple's mark as a standalone SVG string, for images rendered off the
+ * page (link preview, tab icon, QR cards): the engagement logo, in a fine
+ * double ring with four gems unless `ring` is false.
+ */
 export function monogramSvg({ ink, gold, size = 240, ring = true }: { ink: string; gold: string; size?: number; ring?: boolean }): string {
   const frame = ring
     ? `<circle cx="120" cy="120" r="110" fill="none" stroke="${gold}" stroke-width="1.6"/>` +
@@ -10,9 +21,7 @@ export function monogramSvg({ ink, gold, size = 240, ring = true }: { ink: strin
   return (
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="${size}" height="${size}">` +
     frame +
-    `<path fill="${ink}" d="${ALEF_RIGHT}"/><path fill="${ink}" d="${HAMZA_ABOVE}"/>` +
-    `<path fill="${ink}" d="${ALEF_LEFT}"/><path fill="${ink}" d="${HAMZA_BELOW}"/>` +
-    `<path fill="${gold}" d="M120 109.5l2.4 8.1 8.1 2.4-8.1 2.4-2.4 8.1-2.4-8.1-8.1-2.4 8.1-2.4z"/>` +
+    `<path fill="${ink}" transform="${placed(ring ? 176 : 228)}" d="${LOGO_PATH}"/>` +
     `</svg>`
   );
 }

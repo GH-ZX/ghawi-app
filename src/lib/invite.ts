@@ -14,7 +14,7 @@ export type PartyKey = "men" | "women";
 export type Parties = PartyKey | "both";
 export const PARTY_KEYS: PartyKey[] = ["men", "women"];
 
-export const INVITE_THEMES = ["navy", "blush", "ivory", "terracotta"] as const;
+export const INVITE_THEMES = ["ivory", "navy", "blush", "terracotta", "white", "sage"] as const;
 export type InviteTheme = (typeof INVITE_THEMES)[number];
 
 export const THEME_LABELS: Record<InviteTheme, string> = {
@@ -22,6 +22,8 @@ export const THEME_LABELS: Record<InviteTheme, string> = {
   blush: "بودرة ووردي",
   ivory: "عنابي وعاجي",
   terracotta: "ترابي دافئ",
+  white: "أبيض وأسود",
+  sage: "زيتوني",
 };
 
 /** Swatches for the admin: background, main colour, gold. */
@@ -30,7 +32,39 @@ export const THEME_SWATCHES: Record<InviteTheme, [string, string, string]> = {
   blush: ["#FBF3F1", "#B5677A", "#B88A5A"],
   ivory: ["#FAF6EC", "#7A1F2B", "#B08D45"],
   terracotta: ["#F7EFE6", "#B2532C", "#B98B4E"],
+  white: ["#FFFFFF", "#141414", "#8C8C8C"],
+  sage: ["#F3F4EE", "#4E6141", "#A08A4E"],
 };
+
+/*
+ * The ornament colour — frames, rules, the heart, small titles — chosen
+ * apart from the theme. "gold" keeps each theme's own; "theme" uses its
+ * main colour. Pearl is white on dark pages and a pale pearl grey on light
+ * ones, where pure white would vanish.
+ */
+export const INVITE_METALS = ["gold", "silver", "rosegold", "pearl", "theme"] as const;
+export type InviteMetal = (typeof INVITE_METALS)[number];
+
+export const METAL_LABELS: Record<InviteMetal, string> = {
+  gold: "ذهبي",
+  silver: "فضي",
+  rosegold: "ذهبي وردي",
+  pearl: "أبيض لؤلؤي",
+  theme: "بلون الثيم",
+};
+
+/** The ornament colour on a light page, for images drawn off the page (QR cards). */
+export function metalColor(metal: InviteMetal, theme: InviteTheme): string {
+  if (metal === "silver") return "#8A9099";
+  if (metal === "rosegold") return "#B27868";
+  if (metal === "pearl") return "#A9A39A";
+  if (metal === "theme") return THEME_SWATCHES[theme][1];
+  return THEME_SWATCHES[theme][2];
+}
+
+export function isInviteMetal(value: unknown): value is InviteMetal {
+  return typeof value === "string" && (INVITE_METALS as readonly string[]).includes(value);
+}
 
 /** Font pairings for the whole invitation: a display face for names and a text face. */
 export const INVITE_FONTS = ["classic", "naskh", "messiri", "kufi", "marhey", "cairo"] as const;
@@ -96,6 +130,7 @@ export type InviteConfig = {
   rsvpOpen: boolean;
   theme: InviteTheme;
   font: InviteFont;
+  metal: InviteMetal;
   status: InviteStatus;
   /** The thank-you page once the wedding is over. */
   endedTitle: string;
@@ -222,6 +257,7 @@ export const DEFAULT_CONFIG: InviteConfig = {
   rsvpOpen: true,
   theme: "ivory",
   font: "classic",
+  metal: "gold",
   status: "auto",
   endedTitle: "تمّ الزواج",
   endedText: "شكراً لكل من شاركنا الفرح بحضوره ودعائه ومحبته",
@@ -345,6 +381,7 @@ export function sanitizeConfig(input: unknown): InviteConfig {
     rsvpOpen: flag(v.rsvpOpen, d.rsvpOpen),
     theme: isInviteTheme(v.theme) ? v.theme : d.theme,
     font: isInviteFont(v.font) ? v.font : d.font,
+    metal: isInviteMetal(v.metal) ? v.metal : d.metal,
     status: (INVITE_STATUSES as readonly string[]).includes(String(v.status)) ? (v.status as InviteStatus) : d.status,
     endedTitle: text(v.endedTitle, d.endedTitle, 80),
     endedText: text(v.endedText, d.endedText),

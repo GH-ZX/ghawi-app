@@ -9,6 +9,7 @@ import {
   startInstant,
   type InviteConfig,
   type InviteFont,
+  type InviteMetal,
   type InviteGuest,
   type InvitePhoto,
   type InviteRsvp,
@@ -35,6 +36,7 @@ type Props = {
   parties: PartyKey[];
   theme: InviteTheme;
   font: InviteFont;
+  metal: InviteMetal;
   rsvp: InviteRsvp | null;
   rsvpClosed: boolean;
   logoUrl: string | null;
@@ -49,7 +51,7 @@ const INTERACTIVE = "a, button, input, textarea, select, label, form, .viewer";
 /** Stagger index for a reveal. */
 const at = (i: number) => ({ "--i": i }) as CSSProperties;
 
-export function Invitation({ config, guest, parties, theme, font, rsvp, rsvpClosed, logoUrl, slug, photos }: Props) {
+export function Invitation({ config, guest, parties, theme, font, metal, rsvp, rsvpClosed, logoUrl, slug, photos }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
   // Welcome screen → envelope → the invitation.
   const [splashDone, setSplashDone] = useState(false);
@@ -123,7 +125,7 @@ export function Invitation({ config, guest, parties, theme, font, rsvp, rsvpClos
     splitTemplate(template).map((part, i) => <Fragment key={i}>{typeof part === "string" ? part : (nameOf(part.key) ?? "")}</Fragment>);
 
   return (
-    <div ref={rootRef} className="iv" data-theme={theme} data-font={font} data-opened={opened || undefined}>
+    <div ref={rootRef} className="iv" data-theme={theme} data-font={font} data-metal={metal} data-opened={opened || undefined}>
       <ModeToggle />
 
       {splashDone ? (
@@ -155,7 +157,7 @@ export function Invitation({ config, guest, parties, theme, font, rsvp, rsvpClos
         {/* أحمد ♥ كريمته, in a square frame */}
         <section className="iv-hero">
           <div className="frame">
-            <Monogram logoUrl={logoUrl} className="frame__mono" />
+            <Monogram logoUrl={logoUrl} bare className="frame__mono" />
             <p className="frame__kicker">دعوة زفاف</p>
             <Couple as="h1" groom={config.groomShort} bride={config.brideDisplay} className="couple--hero" />
             {date ? (
@@ -313,7 +315,7 @@ export function Invitation({ config, guest, parties, theme, font, rsvp, rsvpClos
             {config.families}
           </p>
           <div className="iv-end__mark" data-reveal>
-            <Monogram logoUrl={logoUrl} className="iv-end__mono" />
+            <Monogram logoUrl={logoUrl} bare className="iv-end__mono" />
           </div>
           <p className="iv-end__site">invite.ghawi.app</p>
         </footer>
