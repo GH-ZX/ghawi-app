@@ -178,3 +178,4 @@
 .ivp__qr-canvas { width: 100%; height: auto; aspect-ratio: 1080 / 1380; border-radius: 14px; background: var(--surface-2); opacity: .4; transition: opacity .3s ease; }
 .ivp__qr-canvas[data-ready] { opacity: 1; }
 .ivp__set-note { margin: -6px 0 12px; max-width: 70ch; }
+.ivp__song { display: block; width: 100%; max-width: 420px; margin: 0 0 8px; }

@@ -936,6 +936,7 @@ function SettingsView({
       </fieldset>
 
       <LogoField logo={logo} setLogo={setLogo} />
+      <SongField />
 
       <div className="ivp__savebar" data-dirty={dirty || undefined}>
         <span className="small">
@@ -1024,6 +1025,86 @@ function LogoField({ logo, setLogo }: { logo: string | null; setLogo: (l: string
           {error ? <p className="error-text">{error}</p> : null}
         </div>
       </div>
+    </fieldset>
+  );
+}
+
+type Song = { version: string; type: string; name: string; size: number };
+
+const SONG_ERRORS: Record<string, string> = {
+  bad_type: "الصيغة غير مدعومة. ارفعوا فيديو MP4 أو MOV، أو ملف صوت MP3 أو M4A.",
+  too_large: "الملف أكبر من ٩٥ ميغابايت.",
+  no_storage: "التخزين غير متاح الآن.",
+};
+
+/** The couple's song: a video whose sound alone plays under the invitation. */
+function SongField() {
+  const [song, setSong] = useState<Song | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    void fetch("/api/admin/invite/song", { cache: "no-store" })
+      .then((r) => (r.ok ? (r.json() as Promise<{ song: Song | null }>) : { song: null }))
+      .then((b: { song: Song | null }) => setSong(b.song))
+      .catch(() => undefined);
+  }, []);
+
+  async function upload(file: File | undefined) {
+    if (!file) return;
+    setError("");
+    if (file.size > 95 * 1024 * 1024) return setError(SONG_ERRORS.too_large);
+    setBusy(true);
+    try {
+      const response = await fetch(`/api/admin/invite/song?name=${encodeURIComponent(file.name)}`, {
+        method: "PUT",
+        headers: { "Content-Type": file.type || "video/mp4" },
+        body: file,
+      });
+      const body = (await response.json().catch(() => ({}))) as { song?: Song; error?: string };
+      if (!response.ok) throw new Error(body.error ?? "failed");
+      setSong(body.song ?? null);
+    } catch (failure) {
+      setError(SONG_ERRORS[(failure as Error).message] ?? "تعذّر رفع الملف.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function remove() {
+    if (!window.confirm("حذف الأغنية من الدعوة؟")) return;
+    setBusy(true);
+    await fetch("/api/admin/invite/song", { method: "DELETE" });
+    setSong(null);
+    setBusy(false);
+  }
+
+  const src = song ? `/api/invite/song?v=${song.version}` : null;
+
+  return (
+    <fieldset className="card card--pad ivp__set">
+      <legend>الأغنية</legend>
+      <p className="muted small ivp__set-note">
+        ارفعوا فيديو الأغنية، فيُشغَّل صوته فقط في خلفية الدعوة من أول لمسة للضيف، مع زر صغير لإيقافه. الصورة لا تظهر. حتى ٩٥ ميغابايت.
+      </p>
+      {src ? <audio className="ivp__song" src={src} controls preload="none" /> : null}
+      {song ? (
+        <p className="muted small">
+          {song.name || "ملف مرفوع"} · {(song.size / 1024 / 1024).toFixed(1)} ميغابايت
+        </p>
+      ) : null}
+      <div className="message__actions">
+        <label className="btn btn--xs btn--soft press">
+          {busy ? "جارٍ الرفع…" : song ? "استبدال الفيديو" : "رفع فيديو"}
+          <input type="file" accept="video/mp4,video/quicktime,video/webm,audio/*" hidden disabled={busy} onChange={(e) => upload(e.target.files?.[0])} />
+        </label>
+        {song ? (
+          <button type="button" className="btn btn--xs btn--danger-soft press" onClick={remove} disabled={busy}>
+            حذف الأغنية
+          </button>
+        ) : null}
+      </div>
+      {error ? <p className="error-text">{error}</p> : null}
     </fieldset>
   );
 }

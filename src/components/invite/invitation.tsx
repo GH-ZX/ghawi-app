@@ -26,6 +26,7 @@ import { Gallery } from "./gallery";
 import { RuleIconSvg } from "./icons";
 import { BlessingRosette, VerseCartouche } from "./islamic";
 import { ModeToggle } from "./mode-toggle";
+import { Song } from "./song";
 import { Monogram } from "./monogram";
 import { RsvpForm } from "./rsvp-form";
 import { Splash } from "./splash";
@@ -40,6 +41,7 @@ type Props = {
   rsvp: InviteRsvp | null;
   rsvpClosed: boolean;
   logoUrl: string | null;
+  songUrl: string | null;
   slug: string;
   /** Photos placed on the invitation, already filtered to what this link may see. */
   photos: InvitePhoto[];
@@ -51,7 +53,7 @@ const INTERACTIVE = "a, button, input, textarea, select, label, form, .viewer";
 /** Stagger index for a reveal. */
 const at = (i: number) => ({ "--i": i }) as CSSProperties;
 
-export function Invitation({ config, guest, parties, theme, font, metal, rsvp, rsvpClosed, logoUrl, slug, photos }: Props) {
+export function Invitation({ config, guest, parties, theme, font, metal, rsvp, rsvpClosed, logoUrl, songUrl, slug, photos }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
   // Welcome screen → envelope → the invitation.
   const [splashDone, setSplashDone] = useState(false);
@@ -127,6 +129,7 @@ export function Invitation({ config, guest, parties, theme, font, metal, rsvp, r
   return (
     <div ref={rootRef} className="iv" data-theme={theme} data-font={font} data-metal={metal} data-opened={opened || undefined}>
       <ModeToggle />
+      {songUrl ? <Song src={songUrl} /> : null}
 
       {splashDone ? (
         <Envelope

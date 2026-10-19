@@ -21,7 +21,7 @@ import {
   type InviteConfig,
   type InviteGuest,
 } from "@/lib/invite";
-import { inviteDb, isAdminSession, loadConfig, loadGuest, loadPhotos, loadRsvp, logoVersion } from "@/lib/invite-server";
+import { inviteDb, isAdminSession, loadConfig, loadGuest, loadPhotos, loadRsvp, loadSong, logoVersion } from "@/lib/invite-server";
 
 /* Every visit reads D1: the admin's edits show on the next load. */
 export const dynamic = "force-dynamic";
@@ -103,7 +103,8 @@ export default async function InvitePage({ params, searchParams }: PageProps) {
 
   const { config, guest } = found;
   const db = await inviteDb();
-  const [rsvp, logo] = await Promise.all([guest ? loadRsvp(db, guest.id) : null, logoVersion(db)]);
+  const [rsvp, logo, song] = await Promise.all([guest ? loadRsvp(db, guest.id) : null, logoVersion(db), loadSong(db)]);
+  const songUrl = song ? `/api/invite/song?v=${song.version}` : null;
   const logoUrl = logo ? `/api/invite/logo?v=${encodeURIComponent(logo)}` : null;
   const theme = previewTheme ?? guest?.theme ?? config.theme;
   const font = previewFont ?? config.font;
@@ -130,6 +131,7 @@ export default async function InvitePage({ params, searchParams }: PageProps) {
       rsvp={rsvp}
       rsvpClosed={rsvpClosed(config)}
       logoUrl={logoUrl}
+      songUrl={songUrl}
       slug={slug}
     />
   );

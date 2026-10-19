@@ -142,3 +142,18 @@ export async function isAdminSession(): Promise<boolean> {
   const jar = await cookies();
   return isAuthenticated(jar.get(ADMIN_COOKIE)?.value, env);
 }
+
+export type InviteSong = { version: string; type: string; name: string; size: number };
+
+export const songKey = (version: string) => `song/${version}`;
+
+/** The uploaded song (a video whose sound plays under the invitation), or null. */
+export async function loadSong(db: D1Database | null): Promise<InviteSong | null> {
+  if (!db) return null;
+  try {
+    const row = await db.prepare(`SELECT value FROM invite_settings WHERE key = 'song'`).first<{ value: string }>();
+    return row ? (JSON.parse(row.value) as InviteSong) : null;
+  } catch {
+    return null;
+  }
+}

@@ -2223,3 +2223,21 @@ button {
   text-decoration: none;
   unicode-bidi: isolate;
 }
+
+/* The song toggle sits just below the light/dark one. */
+.iv-song {
+  top: calc(max(14px, env(safe-area-inset-top)) + 50px);
+}
+.iv-song[data-playing] svg {
+  animation: iv-song-beat 1.6s ease-in-out infinite;
+}
+@keyframes iv-song-beat {
+  50% {
+    transform: scale(1.12);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .iv-song[data-playing] svg {
+    animation: none;
+  }
+}
