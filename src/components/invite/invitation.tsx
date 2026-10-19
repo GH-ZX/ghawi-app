@@ -290,9 +290,6 @@ export function Invitation({ config, guest, parties, theme, font, metal, rsvp, r
             <RsvpForm
               slug={slug}
               guestName={guest ? to : null}
-              parties={parties}
-              partyTitles={{ men: config.events.men.title, women: config.events.women.title }}
-              seats={guest?.seats ?? 10}
               existing={rsvp}
               closed={rsvpClosed}
             />

@@ -5,8 +5,6 @@ import { clientIp, minutesAgo } from "@/lib/request";
 
 export const dynamic = "force-dynamic";
 
-/** Most people one reply on the general link may bring. */
-const GENERAL_SEATS = 10;
 /** General-link replies per IP per hour. */
 const GENERAL_LIMIT = 8;
 
@@ -14,17 +12,10 @@ type Body = {
   slug?: unknown;
   name?: unknown;
   attending?: unknown;
-  men?: unknown;
-  women?: unknown;
   message?: unknown;
 };
 
 const fail = (error: string, status = 400) => NextResponse.json({ error }, { status, headers: { "Cache-Control": "no-store" } });
-
-const count = (value: unknown) => {
-  const n = Number(value);
-  return Number.isInteger(n) && n >= 0 && n <= 30 ? n : -1;
-};
 
 /**
  * A reply to the invitation. Named guests have one reply, which they can
@@ -52,18 +43,14 @@ export async function POST(request: Request) {
 
   const attending = body.attending === true;
   const allowed = guest ? partiesOf(guest.parties) : (["men", "women"] as const);
-  let men = count(body.men);
-  let women = count(body.women);
-  if (men < 0 || women < 0) return fail("bad_count");
-  if (!attending) men = women = 0;
-  if (!allowed.includes("men")) men = 0;
-  if (!allowed.includes("women")) women = 0;
-  if (attending && men + women < 1) return fail("need_count");
-  if (men + women > (guest ? guest.seats : GENERAL_SEATS)) return fail("too_many");
+  // Yes or no only: a yes marks each party the invitation covers.
+  const men = attending && allowed.includes("men") ? 1 : 0;
+  const women = attending && allowed.includes("women") ? 1 : 0;
 
   const name = guest ? [guest.honorific, guest.name].filter(Boolean).join(" ") : typeof body.name === "string" ? body.name.trim().slice(0, 80) : "";
   if (!name) return fail("need_name");
-  const message = typeof body.message === "string" ? body.message.trim().slice(0, 400) : "";
+  // The greeting is only offered to those who can't come.
+  const message = !attending && typeof body.message === "string" ? body.message.trim().slice(0, 400) : "";
   const ip = clientIp(request);
   const now = new Date().toISOString();
 

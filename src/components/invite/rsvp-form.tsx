@@ -1,16 +1,13 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { arabicDigits, people, type InviteRsvp, type PartyKey } from "@/lib/invite";
+import type { InviteRsvp } from "@/lib/invite";
 import { burst } from "./confetti";
 
 type Props = {
   slug: string;
   /** null on the general link: the guest writes their own name. */
   guestName: string | null;
-  parties: PartyKey[];
-  partyTitles: Record<PartyKey, string>;
-  seats: number;
   existing: InviteRsvp | null;
   closed: boolean;
 };
@@ -19,46 +16,25 @@ type Status = "idle" | "sending" | "sent" | "error";
 
 const ERRORS: Record<string, string> = {
   closed: "تأكيد الحضور مغلق الآن.",
-  too_many: "العدد أكبر من المقاعد المخصّصة لهذه الدعوة.",
   need_name: "اكتبوا الاسم من فضلكم.",
-  need_count: "اختاروا عدد الحاضرين.",
   rate_limited: "وصلنا عدد كبير من الردود من هذا الجهاز، حاولوا بعد قليل.",
 };
 
-/** "هل ستشاركوننا الفرح؟" — yes with how many, or a kind no, plus a word for the couple. */
-export function RsvpForm({ slug, guestName, parties, partyTitles, seats, existing, closed }: Props) {
+/** "هل ستشاركوننا الفرح؟" — yes or no; a no may leave a greeting for the couple, or skip it. */
+export function RsvpForm({ slug, guestName, existing, closed }: Props) {
   const isGeneral = guestName === null;
   const [attending, setAttending] = useState<boolean | null>(existing ? existing.attending : null);
-  const [counts, setCounts] = useState<Record<PartyKey, number>>(() => ({
-    men: existing?.men ?? (parties[0] === "men" ? 1 : 0),
-    women: existing?.women ?? (parties[0] === "women" ? 1 : 0),
-  }));
   const [name, setName] = useState(isGeneral ? "" : (guestName ?? ""));
   const [message, setMessage] = useState(existing?.message ?? "");
   const [status, setStatus] = useState<Status>(existing && !isGeneral ? "sent" : "idle");
   const [error, setError] = useState("");
   const [editing, setEditing] = useState(false);
 
-  const total = parties.reduce((sum, key) => sum + counts[key], 0);
-  const left = seats - total;
-
-  function step(key: PartyKey, delta: number) {
-    setCounts((c) => {
-      const next = Math.max(0, c[key] + delta);
-      const others = parties.filter((k) => k !== key).reduce((sum, k) => sum + c[k], 0);
-      return next + others > seats ? c : { ...c, [key]: next };
-    });
-  }
-
   async function submit(event: FormEvent) {
     event.preventDefault();
     if (attending === null) return;
     if (isGeneral && !name.trim()) {
       setError(ERRORS.need_name);
-      return;
-    }
-    if (attending && total < 1) {
-      setError(ERRORS.need_count);
       return;
     }
     setStatus("sending");
@@ -71,9 +47,7 @@ export function RsvpForm({ slug, guestName, parties, partyTitles, seats, existin
           slug,
           name: name.trim(),
           attending,
-          men: attending && parties.includes("men") ? counts.men : 0,
-          women: attending && parties.includes("women") ? counts.women : 0,
-          message: message.trim(),
+          message: attending ? "" : message.trim(),
         }),
       });
       const body = (await response.json().catch(() => ({}))) as { error?: string };
@@ -96,7 +70,7 @@ export function RsvpForm({ slug, guestName, parties, partyTitles, seats, existin
         <h3>{attending ? "وصلنا تأكيدكم، شكراً من القلب" : "وصلنا ردّكم، ونقدّر محبتكم"}</h3>
         <p>
           {attending
-            ? `ننتظركم بشوق${total > 1 ? ` — ${people(total)}` : ""}. سيكون حضوركم أجمل ما في الفرح.`
+            ? "ننتظركم بشوق، وسيكون حضوركم أجمل ما في الفرح."
             : "سنفتقدكم، ودعواتكم تصلنا وتكفينا."}
         </p>
         {!isGeneral && !closed ? (
@@ -137,33 +111,9 @@ export function RsvpForm({ slug, guestName, parties, partyTitles, seats, existin
         </button>
       </div>
 
-      {attending ? (
-        <div className="rsvp__counts">
-          {parties.map((key) => (
-            <div key={key} className="stepper">
-              <span className="stepper__label">
-                عدد الحضور في {partyTitles[key]}
-              </span>
-              <div className="stepper__ctl">
-                <button type="button" onClick={() => step(key, 1)} disabled={left <= 0} aria-label="زيادة">
-                  +
-                </button>
-                <output aria-live="polite">{arabicDigits(counts[key])}</output>
-                <button type="button" onClick={() => step(key, -1)} disabled={counts[key] <= 0} aria-label="إنقاص">
-                  −
-                </button>
-              </div>
-            </div>
-          ))}
-          <p className="rsvp__seats">
-            {isGeneral ? `حتى ${people(seats)}` : `هذه الدعوة تتّسع لـ ${people(seats)}`}
-          </p>
-        </div>
-      ) : null}
-
-      {attending !== null ? (
+      {attending === false ? (
         <label className="field">
-          <span>كلمة للعروسين (اختياري)</span>
+          <span>تحية للعروسين (اختياري، يمكنكم تخطّيها)</span>
           <textarea value={message} onChange={(e) => setMessage(e.target.value)} maxLength={400} rows={3} placeholder="بالرفاه والبنين، ألف مبروك…" />
         </label>
       ) : null}

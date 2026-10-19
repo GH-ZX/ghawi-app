@@ -8,7 +8,6 @@ import { QrDialog } from "./qr-card";
 import {
   addressee,
   arabicDigits,
-  people,
   INVITE_HOST,
   INVITE_THEMES,
   INVITE_URL,
@@ -222,8 +221,8 @@ function GuestsView({ config, guests, general, reload }: { config: InviteConfig;
     return {
       invites: guests.length,
       opened: guests.filter((g) => g.open_count > 0).length,
-      men: replies.reduce((sum, r) => sum + (r.attending ? r.men : 0), 0),
-      women: replies.reduce((sum, r) => sum + (r.attending ? r.women : 0), 0),
+      men: replies.filter((r) => r.attending && r.men > 0).length,
+      women: replies.filter((r) => r.attending && r.women > 0).length,
       declined: replies.filter((r) => !r.attending).length,
       waiting: guests.filter((g) => !g.rsvp_id).length,
     };
@@ -259,11 +258,11 @@ function GuestsView({ config, guests, general, reload }: { config: InviteConfig;
           <dd className="num">{arabicDigits(stats.opened)}</dd>
         </div>
         <div className="kpi">
-          <dt>حضور مؤكد · رجال</dt>
+          <dt>ردود حضور · رجال</dt>
           <dd className="num">{arabicDigits(stats.men)}</dd>
         </div>
         <div className="kpi">
-          <dt>حضور مؤكد · نساء</dt>
+          <dt>ردود حضور · نساء</dt>
           <dd className="num">{arabicDigits(stats.women)}</dd>
         </div>
         <div className="kpi">
@@ -314,14 +313,11 @@ function GuestsView({ config, guests, general, reload }: { config: InviteConfig;
                 </div>
                 <div className="message__tags">
                   <span className="badge badge--soft">{PARTY_LABEL[g.parties]}</span>
-                  <span className="badge badge--soft">{people(g.seats)}</span>
                   {g.theme ? <span className="badge badge--soft">ثيم: {THEME_LABELS[g.theme]}</span> : null}
                   {g.rsvp_id ? (
                     g.attending ? (
                       <span className="badge badge--good">
                         سيحضر
-                        {g.men ? ` · ${arabicDigits(g.men)} رجال` : ""}
-                        {g.women ? ` · ${arabicDigits(g.women)} نساء` : ""}
                       </span>
                     ) : (
                       <span className="badge badge--warn">اعتذر</span>
@@ -373,8 +369,7 @@ function GuestsView({ config, guests, general, reload }: { config: InviteConfig;
               <div className="message__tags">
                 {r.attending ? (
                   <span className="badge badge--good">
-                    سيحضر{r.men ? ` · ${arabicDigits(r.men)} رجال` : ""}
-                    {r.women ? ` · ${arabicDigits(r.women)} نساء` : ""}
+                    سيحضر
                   </span>
                 ) : (
                   <span className="badge badge--warn">اعتذر</span>
@@ -529,10 +524,6 @@ function GuestEditor({ draft, config, onClose, onSaved }: { draft: Draft; config
             ))}
           </div>
         </div>
-        <label className="field">
-          <span className="field__label">عدد الأشخاص المدعوين</span>
-          <input className="input" type="number" min={1} max={30} value={d.seats} onChange={(e) => set("seats", Number(e.target.value) || 1)} />
-        </label>
         <label className="field">
           <span className="field__label">ثيم خاص بهذا المدعو</span>
           <select className="select" value={d.theme} onChange={(e) => set("theme", e.target.value as InviteTheme | "")}>
