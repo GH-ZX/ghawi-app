@@ -1033,7 +1033,7 @@ type Song = { version: string; type: string; name: string; size: number };
 
 const SONG_ERRORS: Record<string, string> = {
   bad_type: "الصيغة غير مدعومة. ارفعوا فيديو MP4 أو MOV، أو ملف صوت MP3 أو M4A.",
-  too_large: "الملف أكبر من ٩٥ ميغابايت.",
+  too_large: "الملف أكبر من ٦٠ ميغابايت.",
   no_storage: "التخزين غير متاح الآن.",
 };
 
@@ -1053,7 +1053,7 @@ function SongField() {
   async function upload(file: File | undefined) {
     if (!file) return;
     setError("");
-    if (file.size > 95 * 1024 * 1024) return setError(SONG_ERRORS.too_large);
+    if (file.size > 60 * 1024 * 1024) return setError(SONG_ERRORS.too_large);
     setBusy(true);
     try {
       const response = await fetch(`/api/admin/invite/song?name=${encodeURIComponent(file.name)}`, {
@@ -1065,7 +1065,7 @@ function SongField() {
       if (!response.ok) throw new Error(body.error ?? "failed");
       setSong(body.song ?? null);
     } catch (failure) {
-      setError(SONG_ERRORS[(failure as Error).message] ?? "تعذّر رفع الملف.");
+      setError(SONG_ERRORS[(failure as Error).message] ?? `تعذّر رفع الملف (${(failure as Error).message}).`);
     } finally {
       setBusy(false);
     }
@@ -1085,7 +1085,7 @@ function SongField() {
     <fieldset className="card card--pad ivp__set">
       <legend>الأغنية</legend>
       <p className="muted small ivp__set-note">
-        ارفعوا فيديو الأغنية، فيُشغَّل صوته فقط في خلفية الدعوة من أول لمسة للضيف، مع زر صغير لإيقافه. الصورة لا تظهر. حتى ٩٥ ميغابايت.
+        ارفعوا فيديو الأغنية، فيُشغَّل صوته فقط في خلفية الدعوة من أول لمسة للضيف، مع زر صغير لإيقافه. الصورة لا تظهر. حتى ٦٠ ميغابايت.
       </p>
       {src ? <audio className="ivp__song" src={src} controls preload="none" /> : null}
       {song ? (

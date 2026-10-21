@@ -10,8 +10,8 @@ export const dynamic = "force-dynamic";
 
 const noStore = { "Cache-Control": "no-store" };
 const TYPES = /^(?:video\/(?:mp4|quicktime|webm)|audio\/(?:mpeg|mp4|x-m4a|aac|ogg|wav|webm))$/;
-/** Under the Workers request-body limit. */
-const MAX_BYTES = 95 * 1024 * 1024;
+/** Read into memory whole, so kept well under the Worker's 128 MB. */
+const MAX_BYTES = 60 * 1024 * 1024;
 
 const fail = (error: string, status: number) => NextResponse.json({ error }, { status, headers: noStore });
 
@@ -30,16 +30,24 @@ export async function PUT(request: Request) {
 
   const type = (request.headers.get("Content-Type") ?? "").split(";")[0].trim().toLowerCase();
   if (!TYPES.test(type)) return fail("bad_type", 400);
-  const size = Number(request.headers.get("Content-Length"));
-  if (!Number.isFinite(size) || size <= 0) return fail("no_length", 411);
+  const declared = Number(request.headers.get("Content-Length"));
+  if (Number.isFinite(declared) && declared > MAX_BYTES) return fail("too_large", 413);
+  // Read whole: the body's length isn't always known to the Worker, and R2 needs it.
+  let bytes: ArrayBuffer;
+  try {
+    bytes = await request.arrayBuffer();
+  } catch {
+    return fail("read_failed", 400);
+  }
+  const size = bytes.byteLength;
+  if (size === 0) return fail("empty", 400);
   if (size > MAX_BYTES) return fail("too_large", 413);
-  if (!request.body) return fail("empty", 400);
 
   const previous = await loadSong(auth.db);
   const version = new Date().toISOString().replace(/[^0-9]/g, "");
   const name = (new URL(request.url).searchParams.get("name") ?? "").slice(0, 120);
   try {
-    await bucket.put(songKey(version), request.body, { httpMetadata: { contentType: type } });
+    await bucket.put(songKey(version), bytes, { httpMetadata: { contentType: type } });
     const song: InviteSong = { version, type, name, size };
     await auth.db
       .prepare(
