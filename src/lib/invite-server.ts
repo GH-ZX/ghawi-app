@@ -172,12 +172,25 @@ export async function loadSong(db: D1Database | null): Promise<InviteSong | null
  * Coordinates for a map link: read straight from it, or from where a short
  * link (maps.app.goo.gl) redirects to.
  */
+const MAPS_HOSTS = new Set(["maps.app.goo.gl", "goo.gl", "maps.google.com", "www.google.com", "google.com"]);
+
+/** Only Google Maps hosts over https are ever fetched, at every hop. */
+function isMapsHost(url: string): boolean {
+  try {
+    const u = new URL(url);
+    return u.protocol === "https:" && MAPS_HOSTS.has(u.hostname);
+  } catch {
+    return false;
+  }
+}
+
 export async function resolveMapCoords(url: string): Promise<string> {
   if (!url) return "";
   const direct = coordsFromMapUrl(url);
   if (direct) return direct;
   let next = url;
   for (let hop = 0; hop < 4; hop++) {
+    if (!isMapsHost(next)) return "";
     try {
       const response = await fetch(next, { redirect: "manual", signal: AbortSignal.timeout(4000) });
       const location = response.headers.get("Location");

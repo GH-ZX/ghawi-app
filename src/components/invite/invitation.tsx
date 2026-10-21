@@ -250,7 +250,7 @@ export function Invitation({ config, guest, parties, theme, font, metal, rsvp, r
                         title={`خريطة ${event.venue}`}
                         src={mapEmbedUrl(event.mapCoords)}
                         loading="lazy"
-                        referrerPolicy="no-referrer-when-downgrade"
+                        referrerPolicy="strict-origin-when-cross-origin"
                         allowFullScreen
                       />
                     </div>
