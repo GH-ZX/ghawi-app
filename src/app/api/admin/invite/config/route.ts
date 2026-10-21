@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { sanitizeConfig } from "@/lib/invite";
-import { loadConfig, logoVersion, requireAdminDb } from "@/lib/invite-server";
+import { loadConfig, logoVersion, requireAdminDb, withMapCoords } from "@/lib/invite-server";
 
 /* Admin → Invitation → Settings: the whole invitation as one JSON document in D1. */
 
@@ -27,7 +27,13 @@ export async function PUT(request: Request) {
   }
 
   // Whatever arrives is reshaped into a valid config; the page never sees junk.
-  const config = sanitizeConfig(input);
+  // A changed map link drops its old coordinates and is looked up again.
+  const before = await loadConfig(auth.db);
+  const draft = sanitizeConfig(input);
+  for (const key of Object.keys(draft.events) as (keyof typeof draft.events)[]) {
+    if (draft.events[key].mapUrl !== before.events[key].mapUrl) draft.events[key].mapCoords = "";
+  }
+  const config = await withMapCoords(draft);
   try {
     await auth.db
       .prepare(

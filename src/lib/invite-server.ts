@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { ADMIN_COOKIE, type AdminEnv, getEnv, isAuthenticated } from "@/lib/admin-server";
 import {
+  coordsFromMapUrl,
   DEFAULT_CONFIG,
   isInviteTheme,
   isParties,
@@ -27,7 +28,16 @@ export async function loadConfig(db: D1Database | null): Promise<InviteConfig> {
   if (!db) return DEFAULT_CONFIG;
   try {
     const row = await db.prepare(`SELECT value FROM invite_settings WHERE key = 'config'`).first<{ value: string }>();
-    return row ? sanitizeConfig(JSON.parse(row.value)) : DEFAULT_CONFIG;
+    if (!row) return DEFAULT_CONFIG;
+    const config = sanitizeConfig(JSON.parse(row.value));
+    // A map link saved before maps were drawn: look its point up once and keep it.
+    const missing = Object.values(config.events).some((e) => e.mapUrl && !e.mapCoords);
+    if (!missing) return config;
+    const filled = await withMapCoords(config);
+    if (Object.values(filled.events).some((e, i) => e.mapCoords !== Object.values(config.events)[i].mapCoords)) {
+      await db.prepare(`UPDATE invite_settings SET value = ?1 WHERE key = 'config'`).bind(JSON.stringify(filled)).run();
+    }
+    return filled;
   } catch {
     return DEFAULT_CONFIG;
   }
@@ -156,4 +166,42 @@ export async function loadSong(db: D1Database | null): Promise<InviteSong | null
   } catch {
     return null;
   }
+}
+
+/**
+ * Coordinates for a map link: read straight from it, or from where a short
+ * link (maps.app.goo.gl) redirects to.
+ */
+export async function resolveMapCoords(url: string): Promise<string> {
+  if (!url) return "";
+  const direct = coordsFromMapUrl(url);
+  if (direct) return direct;
+  let next = url;
+  for (let hop = 0; hop < 4; hop++) {
+    try {
+      const response = await fetch(next, { redirect: "manual", signal: AbortSignal.timeout(4000) });
+      const location = response.headers.get("Location");
+      if (!location) return "";
+      next = new URL(location, next).toString();
+      const found = coordsFromMapUrl(next);
+      if (found) return found;
+    } catch {
+      return "";
+    }
+  }
+  return "";
+}
+
+/** Fills mapCoords for any event whose link has none yet. */
+export async function withMapCoords(config: InviteConfig): Promise<InviteConfig> {
+  const keys = Object.keys(config.events) as (keyof InviteConfig["events"])[];
+  const events = { ...config.events };
+  await Promise.all(
+    keys.map(async (key) => {
+      const event = events[key];
+      if (event.mapUrl && !event.mapCoords) events[key] = { ...event, mapCoords: await resolveMapCoords(event.mapUrl) };
+      if (!event.mapUrl && event.mapCoords) events[key] = { ...event, mapCoords: "" };
+    }),
+  )
+  return { ...config, events };
 }

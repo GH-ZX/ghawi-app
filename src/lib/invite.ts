@@ -88,6 +88,8 @@ export type InviteEvent = {
   venue: string;
   address: string;
   mapUrl: string;
+  /** "lat,lng" read from mapUrl (short links are followed when saved); "" when unknown. */
+  mapCoords: string;
   note: string;
 };
 
@@ -242,6 +244,7 @@ export const DEFAULT_CONFIG: InviteConfig = {
       venue: "مزرعة محمد عمر غاوي",
       address: "الأتارب، طريق الابزمو",
       mapUrl: "",
+      mapCoords: "",
       note: "",
     },
     women: {
@@ -249,6 +252,7 @@ export const DEFAULT_CONFIG: InviteConfig = {
       venue: "صالة البركات",
       address: "الأتارب",
       mapUrl: "",
+      mapCoords: "",
       note: "",
     },
   },
@@ -327,6 +331,27 @@ export function safeUrl(value: unknown): string {
   }
 }
 
+const COORDS = /^-?\d{1,2}(?:\.\d+)?,-?\d{1,3}(?:\.\d+)?$/;
+
+/** "lat,lng" from a Google Maps link, or null when the link doesn't carry them. */
+export function coordsFromMapUrl(url: string): string | null {
+  let s = url;
+  try {
+    s = decodeURIComponent(url);
+  } catch {
+    /* use as is */
+  }
+  const patterns = [/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/, /\/place\/(-?\d+\.\d+),\s*(-?\d+\.\d+)/, /[?&](?:q|query|ll|destination)=(-?\d+\.\d+),\s*(-?\d+\.\d+)/, /@(-?\d+\.\d+),(-?\d+\.\d+)/];
+  for (const re of patterns) {
+    const m = re.exec(s);
+    if (m) return `${Number(m[1]).toFixed(6)},${Number(m[2]).toFixed(6)}`;
+  }
+  return null;
+}
+
+/** Google's keyless embed of one point, in Arabic. */
+export const mapEmbedUrl = (coords: string) => `https://maps.google.com/maps?q=${coords}&z=14&hl=ar&output=embed`;
+
 function sanitizeEvent(value: unknown, fallback: InviteEvent): InviteEvent {
   const v = (value && typeof value === "object" ? value : {}) as Partial<Record<keyof InviteEvent, unknown>>;
   return {
@@ -334,6 +359,7 @@ function sanitizeEvent(value: unknown, fallback: InviteEvent): InviteEvent {
     venue: text(v.venue, fallback.venue, 120),
     address: text(v.address, fallback.address, 200),
     mapUrl: v.mapUrl === undefined ? fallback.mapUrl : safeUrl(v.mapUrl),
+    mapCoords: typeof v.mapCoords === "string" && COORDS.test(v.mapCoords) ? v.mapCoords : "",
     note: text(v.note, fallback.note, 300),
   };
 }

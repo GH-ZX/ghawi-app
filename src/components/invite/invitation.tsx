@@ -5,6 +5,7 @@ import {
   addressee,
   describeDate,
   fatherParts,
+  mapEmbedUrl,
   splitTemplate,
   startInstant,
   type InviteConfig,
@@ -243,6 +244,17 @@ export function Invitation({ config, guest, parties, theme, font, metal, rsvp, r
                   <p className="iv-venue__name">{event.venue}</p>
                   <p className="iv-venue__address">{event.address}</p>
                   {event.note ? <p className="iv-venue__note">{event.note}</p> : null}
+                  {event.mapCoords ? (
+                    <div className="iv-map">
+                      <iframe
+                        title={`خريطة ${event.venue}`}
+                        src={mapEmbedUrl(event.mapCoords)}
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                        allowFullScreen
+                      />
+                    </div>
+                  ) : null}
                   <div className="iv-venue__links">
                     {event.mapUrl ? (
                       <a className="iv-pill iv-pill--solid" href={event.mapUrl} target="_blank" rel="noopener noreferrer">
