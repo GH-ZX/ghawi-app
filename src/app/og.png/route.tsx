@@ -57,7 +57,7 @@ export async function GET() {
           <div style={{ display: "flex", flexDirection: "column" }}>
             <div style={{ display: "flex", fontSize: 30, fontWeight: 500, color: c.accentText }}>Ahmed Ghawi</div>
             <div style={{ display: "flex", marginTop: 14, fontSize: 66, fontWeight: 800, lineHeight: 1.04, letterSpacing: -2 }}>
-              From a blank server to a store taking real money.
+              I build stores, bots and websites that take real money.
             </div>
             <div style={{ display: "flex", marginTop: 22, fontSize: 26, fontWeight: 500, color: c.muted }}>
               Software engineer · Aleppo, Syria

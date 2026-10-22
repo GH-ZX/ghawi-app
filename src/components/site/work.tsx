@@ -12,8 +12,10 @@ import {
   ShieldIcon,
   WindowIcon,
 } from "@/components/icons";
+import Image from "next/image";
 import { Logo } from "@/components/logo";
 import { links, profile, type Dictionary, type Locale, type Project } from "@/lib/content";
+import { BotVideo } from "./bot-video";
 import { Looks } from "./looks";
 import { StoreShots } from "./store-shots";
 
@@ -138,6 +140,8 @@ export function Work({ t, locale }: { t: Dictionary; locale: Locale }) {
         </ul>
 
         {/* ── the rest of the work ── */}
+        <BotShowcase bot={t.bot} locale={locale} />
+
         <div className="projects">
           {t.projects.map((project) => (
             <ProjectCard key={project.id} project={project} newTab={t.ui.newTab} />
@@ -182,7 +186,7 @@ function ProjectCard({ project, newTab }: { project: Project; newTab: string }) 
   return (
     <article className="project spot" aria-labelledby={`${project.id}-title`} data-reveal>
       <div className="project__visual" aria-hidden="true">
-        {project.id === "factory" ? <FactoryDiagram /> : <EchocoreWindow />}
+        <EchocoreWindow />
       </div>
       <div className="project__body">
         <span className={project.live ? "badge badge--good" : "badge badge--soft"}>
@@ -229,30 +233,6 @@ function ProjectCard({ project, newTab }: { project: Project; newTab: string }) 
   );
 }
 
-/** The Bot Factory, as its README draws it: clients → API → core → data. */
-function FactoryDiagram() {
-  return (
-    <div className="arch" dir="ltr">
-      <div className="arch__row">
-        <span className="arch__node">Bot runtime</span>
-        <span className="arch__node">Mini App</span>
-      </div>
-      <span className="arch__link" />
-      <span className="arch__node arch__node--core">FastAPI · Commerce core</span>
-      <span className="arch__link" />
-      <div className="arch__row">
-        <span className="arch__node">Payments</span>
-        <span className="arch__node">Providers</span>
-        <span className="arch__node">Fulfilment</span>
-      </div>
-      <span className="arch__link" />
-      <div className="arch__row">
-        <span className="arch__node arch__node--data">Ledger · PostgreSQL · Redis</span>
-      </div>
-    </div>
-  );
-}
-
 const ECHOCORE_TILES = ["PUBG", "Free Fire", "Genshin", "Steam", "iTunes", "Razer", "Yalla", "Jawaker"];
 
 function EchocoreWindow() {
@@ -276,5 +256,53 @@ function EchocoreWindow() {
         ))}
       </div>
     </div>
+  );
+}
+
+/**
+ * A store bot built for a client, shown without the client's name: the real
+ * order flow on video in the middle, two real screens either side.
+ */
+function BotShowcase({ bot, locale }: { bot: Dictionary["bot"]; locale: Locale }) {
+  const still = (n: number) => `/media/bot/${locale}-${n}.webp`;
+  return (
+    <article className="botcase spot" aria-labelledby="bot-title" data-reveal>
+      <div className="botcase__text">
+        <span className="badge">{bot.kicker}</span>
+        <h3 id="bot-title" className="project__title botcase__title">
+          {bot.title}
+        </h3>
+        <p className="project__text">{bot.body}</p>
+        <ul className="points">
+          {bot.points.map((point) => (
+            <li key={point}>
+              <CheckIcon size={16} />
+              {point}
+            </li>
+          ))}
+        </ul>
+        <ul className="chips botcase__stack">
+          {bot.stack.map((item) => (
+            <li key={item} className="chip">
+              {item}
+            </li>
+          ))}
+        </ul>
+        <p className="botcase__note">{bot.note}</p>
+      </div>
+
+      <div className="botcase__media" dir="ltr">
+        <span className="botcase__glow" aria-hidden="true" />
+        <figure className="botcase__phone botcase__phone--side botcase__phone--start">
+          <Image src={still(2)} alt={bot.stills[1]} width={600} height={1239} sizes="200px" />
+        </figure>
+        <figure className="botcase__phone botcase__phone--main">
+          <BotVideo src={`/media/bot/demo-${locale}.mp4`} poster={still(1)} label={bot.video} />
+        </figure>
+        <figure className="botcase__phone botcase__phone--side botcase__phone--end">
+          <Image src={still(3)} alt={bot.stills[2]} width={600} height={1239} sizes="200px" />
+        </figure>
+      </div>
+    </article>
   );
 }

@@ -25,7 +25,7 @@ export const profile = {
   location: { en: "Aleppo, Syria", ar: "حلب، سوريا" },
   /** Syria has kept UTC+3 all year since 2022. */
   timeZone: "Asia/Damascus",
-  email: "ahmedghawi3@gmail.com",
+  email: "ahmedghuwu3@gmail.com",
   telegram: "ahmedghx",
   telegramUrl: "https://t.me/ahmedghx",
   whatsapp: "+963 968 098 330",
@@ -46,7 +46,6 @@ export const links = {
   store: "https://gh-store.me",
   storeBot: "https://t.me/ghstore_robot",
   storeSource: "https://github.com/GH-ZX/ghstore",
-  factorySource: "https://github.com/GH-ZX/GH-Bot-Factory",
   echocore: "https://www.echocore412.com",
   echocoreSource: "https://github.com/GH-ZX/echocore-store",
 } as const;
@@ -60,7 +59,7 @@ export const stackStrip = [
 export type IconName = "store" | "bot" | "code" | "globe" | "cloud" | "chip";
 
 export interface Project {
-  id: "factory" | "echocore";
+  id: "echocore";
   kicker: string;
   name: string;
   title: string;
@@ -120,6 +119,17 @@ export interface Dictionary {
     source: string;
     looks: { title: string; body: string; live: string; group: string; reset: string };
     shots: { desktop: string; mobile: string };
+  };
+  /** A client's store bot, shown without the client's name. */
+  bot: {
+    kicker: string;
+    title: string;
+    body: string;
+    points: string[];
+    stack: string[];
+    note: string;
+    video: string;
+    stills: string[];
   };
   projects: Project[];
   more: {
@@ -183,7 +193,7 @@ const en: Dictionary = {
     title: "Ahmed Ghawi — Software Engineer & IT Systems Specialist",
     description:
       "I design, build and run commerce systems end to end. My flagship, GH Store, sells digital goods on the web, in a Telegram Mini App and through a bot — one core, in Arabic and English.",
-    ogAlt: "Ahmed Ghawi — software engineer. From a blank server to a store taking real money.",
+    ogAlt: "Ahmed Ghawi — software engineer. I build stores, bots and websites that take real money.",
   },
 
   ui: {
@@ -205,7 +215,7 @@ const en: Dictionary = {
   hero: {
     status: "Open to new projects",
     eyebrow: "Ahmed Ghawi · Software engineer & IT systems specialist",
-    title: "From a blank server to a store taking real money.",
+    title: "I build stores, bots and websites that take real money.",
     titleAccent: "real money",
     lead: "I design, build and run commerce systems end to end: the database, the payment ledger, the bot that talks to suppliers, the storefront customers see, and the machines it all runs on. The proof is GH Store, live on the web and inside Telegram.",
     primary: "See the work",
@@ -233,10 +243,10 @@ const en: Dictionary = {
       { name: "Bot", detail: "@ghstore_robot" },
     ],
     figures: [
-      { value: "1", label: "Cloudflare Worker serves the site, Mini App, bot, API and jobs" },
+      { value: "1,000+", label: "orders delivered" },
+      { value: "1,000+", label: "customers served" },
       { value: "5", label: "suppliers behind a single catalogue" },
       { value: "4", label: "payment methods, from Telegram Stars to USDT" },
-      { value: "2", label: "languages, Arabic first and right-to-left" },
     ],
     principlesTitle: "Built to be trusted with money",
     principles: [
@@ -274,24 +284,24 @@ const en: Dictionary = {
     },
   },
 
+  bot: {
+    kicker: "Telegram bot · Client project",
+    title: "A complete store inside one Telegram chat.",
+    body: "Customers browse, pick a pack, pay from their wallet and get their account or code in the same chat — in seconds, with a warranty. Behind it, an admin panel runs the catalogue, providers, payments and support. Built for a client, so shown here without their name.",
+    points: [
+      "Catalogue, packs and checkout in English and Arabic",
+      "Wallet top-ups by Binance Pay, USDT and ShamCash",
+      "Instant delivery from several providers, with automatic failover",
+      "Warranty, refunds, promo codes, referrals and cashback",
+      "Admin panel: pricing, stock, orders, tickets and broadcasts",
+    ],
+    stack: ["TypeScript", "grammY", "Hono", "Cloudflare Workers", "Supabase", "React"],
+    note: "Real screens from the bot. Prices and accounts are examples.",
+    video: "The bot taking an order: shop, pick a pack, pay from the wallet, receive it in the chat",
+    stills: ["The bot's main menu", "Checkout with the wallet", "The order delivered in the chat"],
+  },
+
   projects: [
-    {
-      id: "factory",
-      kicker: "Platform · Self-hosted",
-      name: "GH Bot Factory",
-      title: "A multi-tenant engine for Telegram commerce.",
-      body: "One installation runs many branded stores, each with its own bots, Mini App, catalogue and staff. Prices, payments, wallets and fulfilment stay on the server; Telegram and the browser only present them.",
-      points: [
-        "Tenant isolation with owner, admin, staff and customer roles",
-        "Telegram Stars checkout with exactly-once settlement",
-        "Supplier routing and a durable fulfilment worker",
-        "Supplier and payment keys kept in an encrypted vault",
-        "One-command Easy Start installer for self-hosting",
-      ],
-      stack: ["Python", "FastAPI", "Aiogram 3", "PostgreSQL", "Redis", "Docker"],
-      live: false,
-      links: [{ label: "Source on GitHub", href: links.factorySource }],
-    },
     {
       id: "echocore",
       kicker: "Earlier storefront · Live",
@@ -355,7 +365,7 @@ const en: Dictionary = {
     title: "Most engineers live in one layer. I work across all of them.",
     body: [
       "I started out diagnosing motherboards and rebuilding office networks. The habit stuck: I still think about the machine underneath the software.",
-      "Today that means I can take a project from a blank server to a store taking real money — the schema, the ledger, the bot that talks to suppliers, the edge in front of it and the deployment that keeps it up. One accountable person, from brief to production.",
+      "Today that means I can take a project from an idea to a store taking real money — the schema, the ledger, the bot that talks to suppliers, the edge in front of it and the deployment that keeps it up. One accountable person, from brief to production.",
     ],
     layersTitle: "The whole stack",
     layersNote: "Where I work, top to bottom",
@@ -374,20 +384,22 @@ const en: Dictionary = {
     title: "What you can hand me.",
     items: [
       {
+        icon: "bot",
+        title: "Telegram bots",
+        body: "Store bots that sell, take payments and deliver on their own — catalogues, wallets, Stars and crypto checkout, Mini Apps and an admin panel to run it all.",
+      },
+      {
+        icon: "code",
+        title: "Websites & web apps",
+        body: "Landing pages, storefronts and dashboards in Next.js and React — fast, in Arabic and English, and built to be maintained after launch.",
+      },
+      {
         icon: "store",
         title: "Commerce platforms",
         body: "Storefronts, wallets, ledgers and order pipelines that take real payments and survive retries.",
       },
-      {
-        icon: "bot",
-        title: "Telegram bots & Mini Apps",
-        body: "Bots and Mini Apps on Aiogram and the Bot API, with verified sign-in, Stars checkout and supplier integrations that recover from failure.",
-      },
-      {
-        icon: "code",
-        title: "Full-stack products",
-        body: "TypeScript, React, Next.js and Flutter — built to be maintained after launch, not abandoned at handover.",
-      },
+
+
       {
         icon: "globe",
         title: "Arabic-first interfaces",
@@ -470,7 +482,7 @@ const ar: Dictionary = {
     title: "أحمد غاوي — مهندس برمجيات وأخصائي أنظمة تقنية",
     description:
       "أصمّم أنظمة التجارة الرقمية وأبنيها وأشغّلها من أولها إلى آخرها. مشروعي الرئيسي GH Store يبيع المنتجات الرقمية عبر الموقع وتطبيق تيليجرام المصغّر والبوت — بنواة واحدة، بالعربية والإنجليزية.",
-    ogAlt: "أحمد غاوي — مهندس برمجيات. من خادم فارغ إلى متجر يستقبل أموالاً حقيقية.",
+    ogAlt: "أحمد غاوي — مهندس برمجيات. أبني متاجر وبوتات ومواقع تستقبل أموالاً حقيقية.",
   },
 
   ui: {
@@ -492,7 +504,7 @@ const ar: Dictionary = {
   hero: {
     status: "متاح لمشاريع جديدة",
     eyebrow: "أحمد غاوي · مهندس برمجيات وأخصائي أنظمة تقنية",
-    title: "من خادم فارغ إلى متجر يستقبل أموالاً حقيقية.",
+    title: "أبني متاجر وبوتات ومواقع تستقبل أموالاً حقيقية.",
     titleAccent: "أموالاً حقيقية",
     lead: "أصمّم أنظمة التجارة الرقمية وأبنيها وأشغّلها من أولها إلى آخرها: قاعدة البيانات، ودفتر المدفوعات، والبوت الذي يتحدّث مع المزوّدين، والمتجر الذي يراه العميل، والأجهزة التي يعمل عليها كل ذلك. والدليل GH Store، يعمل الآن على الويب وداخل تيليجرام.",
     primary: "شاهد الأعمال",
@@ -520,16 +532,16 @@ const ar: Dictionary = {
       { name: "البوت", detail: "@ghstore_robot" },
     ],
     figures: [
-      { value: "1", label: "Cloudflare Worker واحد يخدم الموقع والتطبيق المصغّر والبوت والواجهة البرمجية والمهام" },
+      { value: "+1,000", label: "طلب مُسلَّم" },
+      { value: "+1,000", label: "عميل خدمناه" },
       { value: "5", label: "مزوّدين خلف كتالوج واحد" },
       { value: "4", label: "طرق دفع، من نجوم تيليجرام إلى USDT" },
-      { value: "2", label: "لغتان، والعربية أولاً من اليمين إلى اليسار" },
     ],
     principlesTitle: "مبنيّ ليُؤتمَن على المال",
     principles: [
       {
         title: "المال يتحرّك داخل SQL فقط",
-        body: "الأرصدة أعداد صحيحة بالسنتات، ولا تتغيّر إلا داخل دوال قاعدة البيانات التي تكتب قيداً في الدفتر. الخادم نفسه لا يستطيع لمس أي محفظة.",
+        body: "الأرصدة أعداد صحيحة بالسنتات، ولا تتغيّر إلا داخل دوال قاعدة البيانات التي تكتب قيداً في الدفتر. والتطبيق نفسه لا يستطيع لمس أي محفظة.",
       },
       {
         title: "إشعار المزوّد مجرّد تنبيه",
@@ -561,24 +573,24 @@ const ar: Dictionary = {
     },
   },
 
+  bot: {
+    kicker: "بوت تيليجرام · مشروع لعميل",
+    title: "متجر كامل داخل محادثة تيليجرام واحدة.",
+    body: "يتصفّح العميل، يختار الباقة، يدفع من محفظته، ويستلم حسابه أو الكود في المحادثة نفسها — خلال ثوانٍ، ومع ضمان. وخلفه لوحة تحكّم تدير الكتالوج والمزوّدين والمدفوعات والدعم. بنيته لعميل، لذلك يظهر هنا دون اسمه.",
+    points: [
+      "كتالوج وباقات ودفع بالعربية والإنجليزية",
+      "شحن المحفظة عبر Binance Pay وUSDT وShamCash",
+      "تسليم فوري من عدّة مزوّدين، مع تحويل تلقائي عند العطل",
+      "ضمان واسترداد وأكواد خصم وإحالات واسترجاع نقدي",
+      "لوحة تحكّم: التسعير والمخزون والطلبات والتذاكر والرسائل الجماعية",
+    ],
+    stack: ["TypeScript", "grammY", "Hono", "Cloudflare Workers", "Supabase", "React"],
+    note: "شاشات حقيقية من البوت. الأسعار والحسابات أمثلة.",
+    video: "البوت يستقبل طلباً: المتجر، اختيار الباقة، الدفع من المحفظة، والاستلام في المحادثة",
+    stills: ["القائمة الرئيسية للبوت", "إتمام الشراء بالمحفظة", "تسليم الطلب في المحادثة"],
+  },
+
   projects: [
-    {
-      id: "factory",
-      kicker: "منصّة · استضافة ذاتية",
-      name: "GH Bot Factory",
-      title: "محرّك متعدّد المستأجرين لتجارة تيليجرام.",
-      body: "تثبيت واحد يشغّل متاجر كثيرة بهويّات مختلفة، لكلّ منها بوتاتها وتطبيقها المصغّر وكتالوجها وفريقها. الأسعار والمدفوعات والمحافظ والتسليم تبقى على الخادم، وتيليجرام والمتصفّح مجرّد واجهات عرض.",
-      points: [
-        "عزل كامل للمستأجرين بأدوار المالك والمدير والموظف والعميل",
-        "دفع بنجوم تيليجرام بتسوية تحدث مرّة واحدة بالضبط",
-        "توجيه الطلبات بين المزوّدين وعامل تسليم موثوق",
-        "مفاتيح المزوّدين والدفع محفوظة في خزنة مشفّرة",
-        "مثبّت Easy Start بأمر واحد للاستضافة الذاتية",
-      ],
-      stack: ["Python", "FastAPI", "Aiogram 3", "PostgreSQL", "Redis", "Docker"],
-      live: false,
-      links: [{ label: "الكود على GitHub", href: links.factorySource }],
-    },
     {
       id: "echocore",
       kicker: "متجر سابق · يعمل الآن",
@@ -642,7 +654,7 @@ const ar: Dictionary = {
     title: "معظم المهندسين يعملون في طبقة واحدة. أنا أعمل عبر الطبقات كلّها.",
     body: [
       "بدأت بتشخيص اللوحات الأم وإعادة بناء شبكات المكاتب، وبقيت تلك العادة: ما زلت أفكّر في الآلة التي تعمل تحت البرمجيات.",
-      "واليوم يعني ذلك أنني أستطيع أن أنقل مشروعاً من خادم فارغ إلى متجر يستقبل أموالاً حقيقية: قاعدة البيانات، والدفتر المالي، والبوت الذي يتحدّث مع المزوّدين، وطبقة الحافة أمامه، والنشر الذي يبقيه قائماً. شخص واحد مسؤول، من الفكرة حتى الإنتاج.",
+      "واليوم يعني ذلك أنني أستطيع أن أنقل مشروعاً من فكرة إلى متجر يستقبل أموالاً حقيقية: قاعدة البيانات، والدفتر المالي، والبوت الذي يتحدّث مع المزوّدين، وطبقة الحافة أمامه، والنشر الذي يبقيه قائماً. شخص واحد مسؤول، من الفكرة حتى الإنتاج.",
     ],
     layersTitle: "المنظومة كاملة",
     layersNote: "أين أعمل، من الأعلى إلى الأسفل",
@@ -661,20 +673,22 @@ const ar: Dictionary = {
     title: "ما يمكنك أن تسلّمه لي.",
     items: [
       {
+        icon: "bot",
+        title: "بوتات تيليجرام",
+        body: "بوتات متاجر تبيع وتستقبل المدفوعات وتسلّم وحدها — كتالوج ومحفظة ودفع بالنجوم والكريبتو وتطبيقات مصغّرة ولوحة تحكّم تدير كل شيء.",
+      },
+      {
+        icon: "code",
+        title: "مواقع وتطبيقات ويب",
+        body: "صفحات تعريفية ومتاجر ولوحات تحكّم بـ Next.js وReact — سريعة، بالعربية والإنجليزية، ومبنيّة لتُصان بعد الإطلاق.",
+      },
+      {
         icon: "store",
         title: "منصّات تجارة",
         body: "متاجر ومحافظ ودفاتر حسابات ومسارات طلبات تستقبل مدفوعات حقيقية وتصمد أمام إعادة المحاولة.",
       },
-      {
-        icon: "bot",
-        title: "بوتات وتطبيقات تيليجرام",
-        body: "بوتات وتطبيقات مصغّرة على Aiogram وBot API، بتسجيل دخول موثّق ودفع بالنجوم وربط مع المزوّدين يتعافى من الأعطال.",
-      },
-      {
-        icon: "code",
-        title: "منتجات متكاملة",
-        body: "TypeScript وReact وNext.js وFlutter — مبنيّة لتُصان بعد الإطلاق، لا لتُترك عند التسليم.",
-      },
+
+
       {
         icon: "globe",
         title: "واجهات عربية أولاً",
