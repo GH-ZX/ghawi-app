@@ -154,30 +154,6 @@ a.list-row { transition: background-color .2s ease; }
 }
 .contact-mark { flex: none; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; color: #fff; }
 
-/* the store's picture template: a cover in a hue of its own, with a monogram */
-.tile {
-  display: flex; align-items: center; justify-content: center; overflow: hidden;
-  background: var(--tile); color: var(--accent-text);
-  font-family: var(--font-heading); font-weight: 800;
-}
-.tile--art {
-  position: relative; isolation: isolate; color: #fff;
-  background:
-    radial-gradient(120% 95% at 88% 0%, oklch(0.8 0.12 calc(var(--h) + 35)) 0, transparent 58%),
-    linear-gradient(145deg, oklch(0.63 0.19 var(--h)), oklch(0.4 0.16 calc(var(--h) + 22)));
-}
-.tile--art::before {
-  content: ""; position: absolute; z-index: -1; width: 120%; aspect-ratio: 1; border-radius: 50%;
-  inset-inline-end: -62%; top: -58%; border: 1px solid rgb(255 255 255 / .2);
-  box-shadow: 0 0 0 14px rgb(255 255 255 / .06), 0 0 0 34px rgb(255 255 255 / .04);
-}
-.tile--art::after {
-  content: ""; position: absolute; inset: 0; z-index: -1;
-  background-image: radial-gradient(rgb(255 255 255 / .28) 1px, transparent 1.5px); background-size: 11px 11px;
-  -webkit-mask-image: linear-gradient(20deg, #000, transparent 55%); mask-image: linear-gradient(20deg, #000, transparent 55%);
-}
-.tile__mono { letter-spacing: -.02em; text-shadow: 0 2px 14px rgb(0 0 0 / .22); }
-
 /* ───────────────────────────── forms */
 .form-grid { display: grid; gap: 14px; }
 .field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }

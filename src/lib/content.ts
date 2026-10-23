@@ -46,8 +46,6 @@ export const links = {
   store: "https://gh-store.me",
   storeBot: "https://t.me/ghstore_robot",
   storeSource: "https://github.com/GH-ZX/ghstore",
-  echocore: "https://www.echocore412.com",
-  echocoreSource: "https://github.com/GH-ZX/echocore-store",
 } as const;
 
 /** The scrolling strip under the hero: tools in daily use. */
@@ -59,7 +57,7 @@ export const stackStrip = [
 export type IconName = "store" | "bot" | "code" | "globe" | "cloud" | "chip";
 
 export interface Project {
-  id: "echocore";
+  id: "storefront";
   kicker: string;
   name: string;
   title: string;
@@ -69,6 +67,8 @@ export interface Project {
   /** Shown with a live dot when the product is publicly reachable. */
   live: boolean;
   links: { label: string; href: string }[];
+  /** Alt text for the real screenshots in public/media/<id>. */
+  shots: { desktop: string; mobile: string; bar: string };
 }
 
 export interface Dictionary {
@@ -303,23 +303,25 @@ const en: Dictionary = {
 
   projects: [
     {
-      id: "echocore",
-      kicker: "Earlier storefront · Live",
-      name: "Echocore Store",
+      id: "storefront",
+      kicker: "Web store · Live",
+      name: "Game top-up storefront",
       title: "Where it started.",
-      body: "A bilingual game top-up and gift-card shop on React and Supabase, served from GitHub Pages. It syncs a supplier's catalogue, fulfils orders automatically and issues invoices.",
+      body: "A bilingual shop for game top-ups and gift cards: dozens of games, packs synced from a supplier and delivered automatically, wallet recharge and invoices. Shown here without its name.",
       points: [
         "Supplier catalogue sync with automatic fulfilment",
-        "ShamCash recharge and checkout",
+        "ShamCash wallet recharge and checkout",
         "Order and recharge invoices as PNG or PDF",
         "Arabic and English throughout",
       ],
-      stack: ["React", "Supabase", "Edge Functions", "GitHub Pages"],
+      stack: ["React", "Vite", "Tailwind CSS", "Supabase", "Edge Functions"],
       live: true,
-      links: [
-        { label: "Visit echocore412.com", href: links.echocore },
-        { label: "Source", href: links.echocoreSource },
-      ],
+      links: [],
+      shots: {
+        desktop: "The store's home page: a featured game and the full catalogue strip",
+        mobile: "A game's page on a phone: packs with prices and buy buttons",
+        bar: "Live store",
+      },
     },
   ],
 
@@ -592,23 +594,25 @@ const ar: Dictionary = {
 
   projects: [
     {
-      id: "echocore",
-      kicker: "متجر سابق · يعمل الآن",
-      name: "Echocore Store",
+      id: "storefront",
+      kicker: "متجر ويب · يعمل الآن",
+      name: "متجر شحن ألعاب",
       title: "من هنا بدأت.",
-      body: "متجر ثنائي اللغة لشحن الألعاب والبطاقات، مبنيّ بـ React وSupabase ومستضاف على GitHub Pages. يزامن كتالوج المزوّد، وينفّذ الطلبات تلقائياً، ويُصدر الفواتير.",
+      body: "متجر ثنائي اللغة لشحن الألعاب والبطاقات: عشرات الألعاب، وباقات تُزامَن من المزوّد وتُسلَّم تلقائياً، وشحن للمحفظة وفواتير. يظهر هنا دون اسمه.",
       points: [
         "مزامنة كتالوج المزوّد مع تنفيذ تلقائي للطلبات",
-        "شحن ودفع عبر ShamCash",
+        "شحن المحفظة والدفع عبر ShamCash",
         "فواتير الطلبات والشحن بصيغتي PNG وPDF",
         "بالعربية والإنجليزية في كل مكان",
       ],
-      stack: ["React", "Supabase", "Edge Functions", "GitHub Pages"],
+      stack: ["React", "Vite", "Tailwind CSS", "Supabase", "Edge Functions"],
       live: true,
-      links: [
-        { label: "زيارة echocore412.com", href: links.echocore },
-        { label: "الكود المصدري", href: links.echocoreSource },
-      ],
+      links: [],
+      shots: {
+        desktop: "الصفحة الرئيسية للمتجر: لعبة مميّزة وشريط الكتالوج كاملاً",
+        mobile: "صفحة لعبة على الهاتف: الباقات بأسعارها وأزرار الشراء",
+        bar: "متجر يعمل الآن",
+      },
     },
   ],
 

@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from "react";
+import type { ReactNode } from "react";
 import {
   BellIcon,
   CheckIcon,
@@ -144,7 +144,7 @@ export function Work({ t, locale }: { t: Dictionary; locale: Locale }) {
 
         <div className="projects">
           {t.projects.map((project) => (
-            <ProjectCard key={project.id} project={project} newTab={t.ui.newTab} />
+            <ProjectCard key={project.id} project={project} locale={locale} newTab={t.ui.newTab} />
           ))}
         </div>
 
@@ -182,11 +182,11 @@ export function Work({ t, locale }: { t: Dictionary; locale: Locale }) {
   );
 }
 
-function ProjectCard({ project, newTab }: { project: Project; newTab: string }) {
+function ProjectCard({ project, locale, newTab }: { project: Project; locale: Locale; newTab: string }) {
   return (
     <article className="project spot" aria-labelledby={`${project.id}-title`} data-reveal>
-      <div className="project__visual" aria-hidden="true">
-        <EchocoreWindow />
+      <div className="project__visual">
+        <StorefrontShots project={project} locale={locale} />
       </div>
       <div className="project__body">
         <span className={project.live ? "badge badge--good" : "badge badge--soft"}>
@@ -214,47 +214,48 @@ function ProjectCard({ project, newTab }: { project: Project; newTab: string }) 
               </li>
             ))}
           </ul>
-          <div className="project__links">
-            {project.links.map((link, index) => (
-              <Out
-                key={link.href}
-                href={link.href}
-                newTab={newTab}
-                className={index === 0 ? "btn btn--sm btn--soft press" : "btn btn--sm btn--ghost press"}
-              >
-                {link.label}
-                <ExternalIcon size={14} />
-              </Out>
-            ))}
-          </div>
+          {project.links.length > 0 && (
+            <div className="project__links">
+              {project.links.map((link, index) => (
+                <Out
+                  key={link.href}
+                  href={link.href}
+                  newTab={newTab}
+                  className={index === 0 ? "btn btn--sm btn--soft press" : "btn btn--sm btn--ghost press"}
+                >
+                  {link.label}
+                  <ExternalIcon size={14} />
+                </Out>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </article>
   );
 }
 
-const ECHOCORE_TILES = ["PUBG", "Free Fire", "Genshin", "Steam", "iTunes", "Razer", "Yalla", "Jawaker"];
-
-function EchocoreWindow() {
+/** Real screens of a live store, shown without its name or logo (public/media/<id>). */
+function StorefrontShots({ project, locale }: { project: Project; locale: Locale }) {
+  const src = (kind: string) => `/media/${project.id}/${kind}-${locale}.webp`;
   return (
-    <div className="browser" dir="ltr">
-      <div className="browser__bar">
-        <i />
-        <i />
-        <i />
-        <span className="browser__url">www.echocore412.com</span>
-      </div>
-      <div className="browser__grid">
-        {ECHOCORE_TILES.map((name, index) => (
-          <span
-            key={name}
-            className="tile tile--art"
-            style={{ "--h": [285, 25, 195, 250, 320, 155, 60, 355][index] } as CSSProperties}
-          >
-            <span className="tile__mono">{name.slice(0, 2).toUpperCase()}</span>
+    <div className="shots shots--card" dir="ltr">
+      <span className="shots__glow" aria-hidden="true" />
+      <figure className="browser-shot">
+        <div className="browser-shot__bar" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+          <span className="browser-shot__url">
+            <span className="live-dot" />
+            {project.shots.bar}
           </span>
-        ))}
-      </div>
+        </div>
+        <Image src={src("desktop")} alt={project.shots.desktop} width={2000} height={1250} sizes="(max-width: 900px) 92vw, 640px" />
+      </figure>
+      <figure className="phone-shot">
+        <Image src={src("mobile")} alt={project.shots.mobile} width={780} height={1688} sizes="(max-width: 640px) 30vw, 160px" />
+      </figure>
     </div>
   );
 }
