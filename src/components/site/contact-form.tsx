@@ -45,6 +45,7 @@ export function ContactForm({ t, locale, siteKey }: { t: FormCopy; locale: Local
   const [error, setError] = useState<string | null>(null);
   const [scriptWanted, setScriptWanted] = useState(false);
   const [scriptReady, setScriptReady] = useState(false);
+  const [topic, setTopic] = useState("");
 
   const formRef = useRef<HTMLFormElement>(null);
   const hostRef = useRef<HTMLDivElement>(null);
@@ -69,6 +70,23 @@ export function ContactForm({ t, locale, siteKey }: { t: FormCopy; locale: Local
     observer.observe(form);
     return () => observer.disconnect();
   }, [siteKey]);
+
+  // "Start this", "Get a quote" and the like pick their topic here: a click on
+  // anything with data-topic on this page, or ?topic= when arriving from another.
+  useEffect(() => {
+    const known = new Set(t.topics.map((item) => item.value));
+    const pick = (value: string | null | undefined) => {
+      if (!value || !known.has(value)) return;
+      setTopic(value);
+      setStatus((current) => (current === "sent" ? "idle" : current));
+    };
+    pick(new URLSearchParams(window.location.search).get("topic"));
+    const onClick = (event: MouseEvent) => {
+      pick((event.target as Element | null)?.closest<HTMLElement>("[data-topic]")?.dataset.topic);
+    };
+    document.addEventListener("click", onClick);
+    return () => document.removeEventListener("click", onClick);
+  }, [t.topics]);
 
   // Mount the widget once. "interaction-only" keeps it invisible unless
   // Cloudflare actually needs the visitor to do something.
@@ -146,6 +164,7 @@ export function ContactForm({ t, locale, siteKey }: { t: FormCopy; locale: Local
           name: data.get("name"),
           email: data.get("email"),
           topic: data.get("topic"),
+          budget: data.get("budget"),
           message: data.get("message"),
           company: data.get("company"),
           locale,
@@ -156,6 +175,7 @@ export function ContactForm({ t, locale, siteKey }: { t: FormCopy; locale: Local
 
       if (response.ok && body.ok) {
         form.reset();
+        setTopic("");
         setStatus("sent");
         return;
       }
@@ -230,12 +250,13 @@ export function ContactForm({ t, locale, siteKey }: { t: FormCopy; locale: Local
           />
         </label>
 
-        <label className="field span-2">
+        <label className="field">
           <span className="field__label">{t.topic}</span>
           <select
             className="select"
             name="topic"
-            defaultValue=""
+            value={topic}
+            onChange={(event) => setTopic(event.target.value)}
             aria-invalid={invalidField === "topic" || undefined}
             aria-describedby={invalidField === "topic" ? "form-error" : undefined}
           >
@@ -247,6 +268,20 @@ export function ContactForm({ t, locale, siteKey }: { t: FormCopy; locale: Local
             ))}
           </select>
         </label>
+
+        {t.budgets.length ? (
+          <label className="field">
+            <span className="field__label">{t.budget}</span>
+            <select className="select" name="budget" defaultValue="">
+              <option value="">{t.budgetPlaceholder}</option>
+              {t.budgets.map((budget) => (
+                <option key={budget.value} value={budget.value}>
+                  {budget.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
 
         <label className="field span-2">
           <span className="field__label">{t.message}</span>
@@ -275,7 +310,7 @@ export function ContactForm({ t, locale, siteKey }: { t: FormCopy; locale: Local
 
         {error ? (
           <p id="form-error" role="alert" className="form-alert span-2">
-            {t.errors[error] ?? t.errors.generic}
+            {t.errors[error as keyof FormCopy["errors"]] ?? t.errors.generic}
           </p>
         ) : null}
 

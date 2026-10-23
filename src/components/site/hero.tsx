@@ -1,15 +1,17 @@
 import type { CSSProperties } from "react";
 import Image from "next/image";
-import { ArrowDownIcon } from "@/components/icons";
-import { links, profile, type Dictionary, type Locale } from "@/lib/content";
-import { storeProducts } from "@/lib/theme";
+import { ArrowDownIcon, ArrowIcon, TelegramGlyph, WhatsAppGlyph } from "@/components/icons";
+import { PORTRAIT } from "@/lib/content";
+import { handleOf, withProducts, type PageContext } from "@/lib/site-content";
 
 /** Entrance order for the staggered rise (see .rise in site.css). */
 const stagger = (step: number) => ({ "--d": step }) as CSSProperties;
 
+const TONE = { open: "badge--good", limited: "badge--warn", booked: "badge--bad" } as const;
+
 /** The title with its accent phrase wrapped, wherever the phrase falls. */
 function Title({ title, accent }: { title: string; accent: string }) {
-  const at = title.indexOf(accent);
+  const at = accent ? title.indexOf(accent) : -1;
   if (at < 0) return <>{title}</>;
   return (
     <>
@@ -20,49 +22,90 @@ function Title({ title, accent }: { title: string; accent: string }) {
   );
 }
 
-export function Hero({ t, locale }: { t: Dictionary; locale: Locale }) {
+export function Hero({ ctx }: { ctx: PageContext }) {
+  const { t, locale, profile, links, settings, urls, products } = ctx;
   const { hero } = t;
   // The name in the page's own script first, the other one beneath it.
   const names = locale === "ar" ? [profile.nameAr, profile.name] : [profile.name, profile.nameAr];
   // Rounded down to the ten, so the claim stays true as the catalogue moves.
-  const products = storeProducts >= 10 ? Math.floor(storeProducts / 10) * 10 : 0;
+  const shown = products >= 10 ? Math.floor(products / 10) * 10 : 0;
+  const productsValue = withProducts(hero.productsCard.value, shown);
+
+  // The second button goes straight to a chat when it can: most clients would rather message than fill a form.
+  const channel = settings.heroChannel;
+  const second =
+    channel === "telegram"
+      ? { href: urls.telegram, icon: <TelegramGlyph />, external: true }
+      : channel === "whatsapp"
+        ? { href: urls.whatsapp, icon: <WhatsAppGlyph />, external: true }
+        : { href: "#contact", icon: null, external: false };
 
   return (
     <section className="hero" aria-labelledby="hero-title">
       <div className="shell hero__grid">
         <div className="hero__text">
-          <span className="badge badge--good rise" style={stagger(0)}>
+          <span className={`badge ${TONE[settings.availability]} rise`} style={stagger(0)}>
             <span className="live-dot" aria-hidden="true" />
             {hero.status}
           </span>
-          <p className="hero__eyebrow rise" style={stagger(1)}>
-            {hero.eyebrow}
-          </p>
-          <h1 id="hero-title" className="hero__title rise" style={stagger(2)}>
+          {hero.proof ? (
+            <p className="hero__eyebrow rise" style={stagger(1)}>
+              {hero.proof}
+            </p>
+          ) : null}
+          <h1 id="hero-title" className="hero__title rise rise--solid" style={stagger(1)}>
             <Title title={hero.title} accent={hero.titleAccent} />
           </h1>
-          <p className="hero__lead rise" style={stagger(3)}>
+          <p className="hero__lead rise" style={stagger(2)}>
             {hero.lead}
           </p>
-          <div className="hero__actions rise" style={stagger(4)}>
+          <div className="hero__actions rise" style={stagger(3)}>
             <a className="btn press" href="#work">
               {hero.primary}
               <ArrowDownIcon />
             </a>
-            <a className="btn btn--ghost press" href="#contact">
-              {hero.secondary}
+            <a
+              className={channel === "contact" ? "btn btn--ghost press" : `btn btn--ghost press hero__chat hero__chat--${channel}`}
+              href={second.href}
+              data-track={`hero-${channel}`}
+              {...(second.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+            >
+              {second.icon}
+              {hero.secondary[channel]}
             </a>
           </div>
-          <ul className="chips hero__facts rise" style={stagger(5)}>
-            {hero.facts.map((fact) => (
-              <li key={fact} className="chip">
-                {fact}
-              </li>
-            ))}
-          </ul>
+          {hero.bot ? (
+            <a
+              className="bot-link press rise"
+              style={stagger(4)}
+              href={links.storeBot}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-track="hero-bot"
+            >
+              <span className="bot-link__icon" aria-hidden="true">
+                <TelegramGlyph size={20} />
+              </span>
+              <span className="bot-link__text">
+                <strong>{hero.bot}</strong>
+                <span dir="ltr">{handleOf(links.storeBot)}</span>
+              </span>
+              <ArrowIcon size={16} />
+              <span className="sr-only"> {t.ui.newTab}</span>
+            </a>
+          ) : null}
+          {hero.facts.length ? (
+            <ul className="chips hero__facts rise" style={stagger(5)}>
+              {hero.facts.map((fact) => (
+                <li key={fact} className="chip">
+                  {fact}
+                </li>
+              ))}
+            </ul>
+          ) : null}
         </div>
 
-        <div className="hero__visual rise" style={stagger(3)}>
+        <div className="hero__visual rise rise--solid" style={stagger(2)}>
           <div className="blobs" aria-hidden="true">
             <span className="blob blob--a" />
             <span className="blob blob--b" />
@@ -70,14 +113,14 @@ export function Hero({ t, locale }: { t: Dictionary; locale: Locale }) {
           </div>
           <figure className="portrait">
             <Image
-              src={profile.portrait}
+              src={PORTRAIT}
               alt={hero.portraitAlt}
               width={1200}
               height={1500}
               priority
               sizes="(max-width: 960px) 92vw, 440px"
             />
-            <a className="glass-chip press" href={links.store} target="_blank" rel="noopener noreferrer">
+            <a className="glass-chip press" href={links.store} target="_blank" rel="noopener noreferrer" data-track="hero-store">
               <span className="live-dot" aria-hidden="true" />
               {hero.liveChip}
             </a>
@@ -86,13 +129,13 @@ export function Hero({ t, locale }: { t: Dictionary; locale: Locale }) {
                 <strong>{names[0]}</strong>
                 <span lang={locale === "ar" ? "en" : "ar"}>{names[1]}</span>
               </span>
-              <span className="portrait__place">{profile.location[locale]}</span>
+              <span className="portrait__place">{t.person.location}</span>
             </figcaption>
           </figure>
 
-          {products ? (
+          {productsValue ? (
             <div className="float-card float-card--a">
-              <strong className="num">{hero.productsCard.value.replace("{n}", String(products))}</strong>
+              <strong className="num">{productsValue}</strong>
               <span>{hero.productsCard.label}</span>
             </div>
           ) : null}

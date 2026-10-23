@@ -57,6 +57,12 @@
     "binding": "IMAGES"
   },
 
+  // Each deploy's id: worker.ts keys its edge cache of rendered pages on it,
+  // so a deploy never serves pages from the one before.
+  "version_metadata": {
+    "binding": "CF_VERSION_METADATA"
+  },
+
   "vars": {
     "CONTACT_TO_EMAIL": "ahmedghuwu3@gmail.com",
     "ADMIN_USERNAME": "ahmedgh",
@@ -69,7 +75,9 @@
   { "pattern": "ghawi.app", "custom_domain": true },
   { "pattern": "www.ghawi.app", "custom_domain": true },
   // The wedding invitation (next.config.ts rewrites it onto /invite).
-  { "pattern": "invite.ghawi.app", "custom_domain": true }
+  { "pattern": "invite.ghawi.app", "custom_domain": true },
+  // The CV and its builder (next.config.ts rewrites it onto /resume).
+  { "pattern": "cv.ghawi.app", "custom_domain": true }
 ],
 
   "observability": {

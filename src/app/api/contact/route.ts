@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
+import { countStatement } from "@/lib/events";
 import { clientIp, minutesAgo } from "@/lib/request";
+import { loadContent } from "@/lib/site-server";
 
 /* ------------------------------------------------------------------ *
  *  POST /api/contact
@@ -13,6 +15,7 @@ const LIMITS = {
   name: 100,
   email: 200,
   topic: 60,
+  budget: 30,
   message: 4000,
 } as const;
 
@@ -26,7 +29,8 @@ const EMAIL_RE = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
 // carriage return are kept so multi-line messages survive.
 const CONTROL_CHARS = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g;
 
-const ALLOWED_TOPICS = new Set(["product", "telegram", "infrastructure", "it", "other"]);
+// Topics and budgets are edited in the admin, so any short machine word is a valid one.
+const CHOICE_RE = /^[a-z0-9][a-z0-9-]{0,29}$/;
 
 /**
  * Bindings as declared in wrangler.jsonc. The generated `CloudflareEnv`
@@ -79,6 +83,8 @@ type Payload = {
   name: string;
   email: string;
   topic: string;
+  topicLabel: string;
+  budgetLabel: string;
   message: string;
   locale: string;
   ip: string;
@@ -87,14 +93,6 @@ type Payload = {
 type Result =
   | { ok: true; persisted: boolean; notified: boolean }
   | { ok: false; status: number; error: string };
-
-const TOPIC_LABELS: Record<string, string> = {
-  product: "Product engineering",
-  telegram: "Telegram commerce",
-  infrastructure: "Infrastructure & DevOps",
-  it: "IT support",
-  other: "Something else",
-};
 
 /** Escape untrusted text before it goes anywhere near HTML. */
 function escapeHtml(value: string): string {
@@ -146,14 +144,16 @@ export async function POST(request: Request) {
   const email = clean(payload.email, LIMITS.email);
   const message = clean(payload.message, LIMITS.message);
   const topic = clean(payload.topic, LIMITS.topic);
+  const budget = clean(payload.budget, LIMITS.budget);
   const locale = clean(payload.locale, 5);
 
   if (name.length < 2) return json({ ok: false, status: 400, error: "name_required" }, 400);
   if (!EMAIL_RE.test(email)) return json({ ok: false, status: 400, error: "email_invalid" }, 400);
   if (message.length < 10) return json({ ok: false, status: 400, error: "message_too_short" }, 400);
-  if (topic && !ALLOWED_TOPICS.has(topic)) {
+  if (topic && !CHOICE_RE.test(topic)) {
     return json({ ok: false, status: 400, error: "topic_invalid" }, 400);
   }
+  const budgetValue = CHOICE_RE.test(budget) ? budget : "";
 
   const ip = clientIp(request);
   const userAgent = clean(request.headers.get("user-agent"), 300);
@@ -196,14 +196,18 @@ export async function POST(request: Request) {
     try {
       const result = await db
         .prepare(
-          `INSERT INTO contact_messages (name, email, topic, message, locale, ip, user_agent)
-           VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)`,
+          `INSERT INTO contact_messages (name, email, topic, budget, message, locale, ip, user_agent)
+           VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)`,
         )
-        .bind(name, email, topic || null, message, locale || null, ip, userAgent || null)
+        .bind(name, email, topic || null, budgetValue || null, message, locale || null, ip, userAgent || null)
         .run();
 
       rowId = Number(result.meta?.last_row_id ?? 0);
       persisted = true;
+      // A message is the stat that matters most (Admin → Stats).
+      await countStatement(db, "lead", topic || "none", locale === "ar" ? "ar" : "en")
+        .run()
+        .catch((error) => console.error("[contact] lead count failed", error));
     } catch (error) {
       console.error("[contact] insert failed", error);
     }
@@ -222,13 +226,17 @@ export async function POST(request: Request) {
   const from = env.CONTACT_FROM_EMAIL;
 
   if (env.EMAIL && to && from) {
-    const detail = { id: rowId, name, email, topic, message, locale, ip };
+    // The labels the visitor saw, in English, from the admin-edited content.
+    const { content } = await loadContent(db ?? null);
+    const topicLabel = content.en.contact.form.topics.find((item) => item.value === topic)?.label ?? topic;
+    const budgetLabel = content.en.contact.form.budgets.find((item) => item.value === budgetValue)?.label ?? budgetValue;
+    const detail = { id: rowId, name, email, topic, topicLabel, budgetLabel, message, locale, ip };
     try {
       await env.EMAIL.send({
         to,
         from: { email: from, name: "ghawi.app" },
         replyTo: email,
-        subject: `[ghawi.app] ${name}${topic ? ` · ${TOPIC_LABELS[topic] ?? topic}` : ""}${rowId ? ` #${rowId}` : ""}`,
+        subject: `[ghawi.app] ${name}${topicLabel ? ` · ${topicLabel}` : ""}${budgetLabel ? ` · ${budgetLabel}` : ""}${rowId ? ` #${rowId}` : ""}`,
         html: renderHtml(detail),
         text: renderText(detail),
       });
@@ -271,7 +279,8 @@ function renderHtml(p: Payload): string {
       <table role="presentation" style="border-collapse:collapse;width:100%">
         ${row("From", p.name)}
         ${row("Email", p.email)}
-        ${row("Topic", p.topic ? (TOPIC_LABELS[p.topic] ?? p.topic) : "-")}
+        ${row("Topic", p.topicLabel || "-")}
+        ${row("Budget", p.budgetLabel || "-")}
         ${row("Language", p.locale || "-")}
         ${row("IP", p.ip)}
       </table>
@@ -288,7 +297,8 @@ function renderText(p: Payload): string {
     "",
     `From:    ${p.name}`,
     `Email:   ${p.email}`,
-    `Topic:   ${p.topic ? (TOPIC_LABELS[p.topic] ?? p.topic) : "-"}`,
+    `Topic:   ${p.topicLabel || "-"}`,
+    `Budget:  ${p.budgetLabel || "-"}`,
     `Locale:  ${p.locale || "-"}`,
     `IP:      ${p.ip}`,
     "",

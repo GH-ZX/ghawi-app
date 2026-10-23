@@ -4,23 +4,32 @@ import { type MouseEvent } from "react";
 import { GlobeIcon, MoonIcon, SunIcon } from "@/components/icons";
 import { Logo } from "@/components/logo";
 import { getEffectiveMode, setMode } from "@/lib/theme-client";
-import { dirOf, type Dictionary, type Locale } from "@/lib/content";
-import { SECTION_IDS, useActiveSection } from "./use-active-section";
+import { cvHref, dirOf, type Dictionary, type Locale } from "@/lib/content";
+import type { SectionKey } from "@/lib/sections";
+import { useActiveSection, type NavId } from "./use-active-section";
 
 type Props = {
   locale: Locale;
   name: string;
   nav: Dictionary["nav"];
   ui: Dictionary["ui"];
+  /** Nav entries for the visible sections, in page order. */
+  items: NavId[];
+  /** The visible sections, for highlighting the one on screen. */
+  sections: SectionKey[];
+  /** "" on the home page; "/en" or "/ar" on the CV and case pages. */
+  home: string;
+  /** The path after the language, kept when switching it ("/work/gh-store"). */
+  path?: string;
 };
 
 /** GH Store's floating glass header: the logo on the left in both languages. */
-export function Header({ locale, name, nav, ui }: Props) {
-  const active = useActiveSection();
+export function Header({ locale, name, nav, ui, items, sections, home, path = "" }: Props) {
+  const active = useActiveSection(home ? [] : sections);
 
   return (
     <header className="header" dir="ltr">
-      <a href="#top" className="header__brand">
+      <a href={home ? `${home}#top` : "#top"} className="header__brand">
         <Logo draw height={22} />
         <span className="header__sep" aria-hidden="true" />
         <span className="header__name" dir="auto">
@@ -29,17 +38,20 @@ export function Header({ locale, name, nav, ui }: Props) {
       </a>
 
       <nav className="header__nav" aria-label={ui.nav} dir={dirOf(locale)}>
-        {SECTION_IDS.map((id) => (
-          <a key={id} href={`#${id}`} aria-current={active === id ? "true" : undefined}>
+        {items.map((id) => (
+          <a key={id} href={`${home}#${id}`} aria-current={active === id ? "true" : undefined}>
             {nav[id]}
           </a>
         ))}
+        <a href={cvHref(locale)} data-track="nav-cv">
+          {nav.cv}
+        </a>
       </nav>
 
       <div className="header__actions">
-        <LanguageLink locale={locale} ui={ui} />
+        <LanguageLink locale={locale} ui={ui} path={path} />
         <ModeToggle toLight={ui.toLight} toDark={ui.toDark} />
-        <a className="btn btn--xs press header__cta" href="#contact">
+        <a className="btn btn--xs press header__cta" href={`${home}#contact`} data-track="header-cta">
           {nav.cta}
         </a>
       </div>
@@ -52,17 +64,17 @@ export function Header({ locale, name, nav, ui }: Props) {
  * dir), so a full load is the honest navigation. The choice is remembered for
  * the bare domain, and the current section carries over.
  */
-export function LanguageLink({ locale, ui }: { locale: Locale; ui: Dictionary["ui"] }) {
+export function LanguageLink({ locale, ui, path = "" }: { locale: Locale; ui: Dictionary["ui"]; path?: string }) {
   const other: Locale = locale === "en" ? "ar" : "en";
 
   function onClick(event: MouseEvent<HTMLAnchorElement>) {
     document.cookie = `lang=${other}; path=/; max-age=31536000; samesite=lax`;
-    event.currentTarget.href = `/${other}${window.location.hash}`;
+    event.currentTarget.href = `/${other}${path}${window.location.hash}`;
   }
 
   return (
     <a
-      href={`/${other}`}
+      href={`/${other}${path}`}
       hrefLang={other}
       lang={other}
       onClick={onClick}

@@ -12,7 +12,7 @@ const ERRORS: Record<string, string> = {
   invalid_credentials: "Incorrect username or password.",
 };
 
-export function LoginForm({ locked }: { locked: boolean }) {
+export function LoginForm({ locked, note = "The ghawi.app inbox. Sessions last 8 hours." }: { locked: boolean; note?: string }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -50,7 +50,7 @@ export function LoginForm({ locked }: { locked: boolean }) {
         <Logo draw height={26} />
         <div>
           <h1>Sign in</h1>
-          <p>The ghawi.app inbox. Sessions last 8 hours.</p>
+          <p>{note}</p>
         </div>
 
         {locked ? (

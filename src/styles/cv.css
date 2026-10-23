@@ -1,0 +1,130 @@
+/*
+ * cv.ghawi.app — the CV and its builder. Black on white, one column, plain
+ * type (Inter, IBM Plex Sans Arabic): the look of a document, not of the
+ * site. The page around the paper is a quiet grey; nothing here follows the
+ * site's themes, so the CV always prints the same.
+ */
+
+:root {
+  --bg: #eceef1; --surface: #ffffff; --surface-2: #f3f4f6; --line: #d8dce2;
+  --ink: #111418; --muted: #5c6370; --accent: #111418; --accent-ink: #ffffff; --accent-text: #111418;
+  --tile: #e6e9ed; --dot: #111418; --good: #15803d; --bad: #b91c1c; --warn: #b45309;
+  --font: var(--ff-inter), var(--ff-plex-ar), system-ui, sans-serif;
+  --font-heading: var(--ff-inter), var(--ff-plex-ar), system-ui, sans-serif;
+  --font-mono: var(--ff-mono), ui-monospace, monospace;
+  --light-only: inline-flex; --dark-only: none;
+  color-scheme: light;
+}
+[lang="ar"] { --font: var(--ff-plex-ar), var(--ff-inter), system-ui, sans-serif; --font-heading: var(--font); }
+
+/* ───────────────────────────── the page around the paper */
+.cv-page { min-height: 100dvh; padding: 84px 12px 48px; }
+@media (min-width: 900px) { .cv-page { padding-inline: 24px; } }
+@media (max-width: 560px) { .cv-page { padding-top: 120px; } }
+
+.cv-bar {
+  position: fixed; z-index: 30; top: 12px; inset-inline: 12px; max-width: 900px; margin: 0 auto; min-height: 56px;
+  border-radius: 16px; border: 1px solid var(--line); padding: 8px 10px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px;
+}
+.cv-bar__brand { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; color: var(--ink); text-decoration: none; padding-inline: 6px; }
+.cv-bar__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+
+/* ───────────────────────────── the paper */
+.cv-sheet {
+  --cv-ink: #111418; --cv-muted: #4b5260; --cv-rule: #111418; --cv-hair: #cfd3da;
+  max-width: 210mm; margin: 0 auto; background: #fff; color: var(--cv-ink);
+  border-radius: 4px; box-shadow: 0 1px 2px rgb(0 0 0 / .06), 0 18px 50px -20px rgb(0 0 0 / .25);
+  padding: 28px 22px; font-family: var(--font); font-size: 13.5px; line-height: 1.5;
+}
+@media (min-width: 720px) { .cv-sheet { padding: 16mm 17mm; } }
+.cv-sheet[lang="ar"] { font-family: var(--ff-plex-ar), var(--ff-inter), system-ui, sans-serif; line-height: 1.7; }
+.cv-sheet a { color: inherit; text-decoration: none; }
+.cv-sheet a:hover { text-decoration: underline; }
+.cv-sheet h1, .cv-sheet h2, .cv-sheet h3 { font-family: inherit; text-wrap: pretty; }
+
+.cv-head { display: flex; gap: 20px; align-items: flex-start; justify-content: space-between; padding-bottom: 12px; border-bottom: 1.5px solid var(--cv-rule); }
+.cv-head__text { min-width: 0; }
+.cv-head h1 { font-size: 27px; font-weight: 700; letter-spacing: -.015em; line-height: 1.15; }
+.cv-sheet[lang="ar"] .cv-head h1 { letter-spacing: 0; line-height: 1.35; }
+.cv-head__role { margin-top: 4px; font-size: 14px; font-weight: 500; color: var(--cv-ink); }
+.cv-contacts { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 1px 16px; font-size: 12px; color: var(--cv-muted); }
+.cv-contacts li { display: inline-flex; align-items: center; }
+.cv-contacts a { unicode-bidi: isolate; }
+.cv-head__photo { width: 84px; height: 104px; flex: none; border-radius: 3px; object-fit: cover; object-position: 50% 25%; }
+
+.cv-block { margin-top: 16px; }
+.cv-block h2 {
+  font-size: 11.5px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--cv-ink);
+  padding-bottom: 4px; margin-bottom: 8px; border-bottom: 1px solid var(--cv-hair);
+}
+.cv-sheet[lang="ar"] .cv-block h2 { font-size: 14px; letter-spacing: 0; }
+.cv-block > p { font-size: 13.5px; }
+
+.cv-item + .cv-item { margin-top: 10px; }
+.cv-item--short + .cv-item--short { margin-top: 4px; }
+.cv-item__top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0 14px; }
+.cv-item h3 { font-size: 13.5px; font-weight: 700; line-height: 1.4; }
+.cv-item__org { font-weight: 400; }
+.cv-item__when { font-size: 12.5px; color: var(--cv-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.cv-item__place { font-size: 12.5px; color: var(--cv-muted); font-style: italic; }
+.cv-sheet[lang="ar"] .cv-item__place { font-style: normal; }
+.cv-item__body { margin-top: 1px; font-size: 13px; }
+.cv-points { margin-top: 3px; padding-inline-start: 18px; list-style: disc; }
+.cv-points li { font-size: 13px; }
+.cv-points li + li { margin-top: 1px; }
+.cv-points li::marker { color: var(--cv-ink); }
+
+.cv-rows { margin: 0; display: flex; flex-direction: column; gap: 3px; }
+.cv-rows > div { display: grid; grid-template-columns: minmax(0, 130px) minmax(0, 1fr); gap: 12px; font-size: 13px; }
+.cv-rows dt { font-weight: 700; }
+.cv-rows dd { margin: 0; }
+@media (max-width: 560px) { .cv-rows > div { grid-template-columns: minmax(0, 1fr); gap: 0; } }
+.cv-inline { display: flex; flex-wrap: wrap; gap: 2px 20px; font-size: 13px; }
+
+/* ───────────────────────────── print: the paper alone, A4 */
+@media print {
+  @page { size: A4; margin: 13mm 14mm; }
+  html, body { background: #fff !important; }
+  .cv-bar, .cvb__editor, .cvb__bar, .cvb__note, nextjs-portal { display: none !important; }
+  .cv-page, .cvb, .cvb__preview { padding: 0 !important; margin: 0 !important; min-height: 0 !important; background: #fff !important; display: block !important; }
+  .cv-sheet { max-width: none; border-radius: 0; box-shadow: none; padding: 0; font-size: 12.5px; }
+  .cv-rows > div { grid-template-columns: 130px minmax(0, 1fr); gap: 12px; }
+  .cv-item, .cv-rows > div { break-inside: avoid; }
+  .cv-block h2 { break-after: avoid; }
+}
+
+/* ───────────────────────────── the CV builder (cv.ghawi.app/edit) */
+.cvb { min-height: 100dvh; }
+.cvb--loading { display: grid; place-items: center; padding: 24px; }
+.cvb__bar {
+  position: sticky; top: 0; z-index: 20; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 10px 16px;
+  background: color-mix(in srgb, var(--surface) 92%, transparent); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+.cvb__brand { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; font-size: 15px; }
+.cvb__actions { margin-inline-start: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.cvb__main { display: grid; gap: 20px; padding: 16px; align-items: start; }
+.cvb__editor { display: flex; flex-direction: column; gap: 14px; padding-bottom: 60px; min-width: 0; }
+.cvb__editor .input, .cvb__editor .select { min-height: 42px; font-size: 14.5px; border-radius: 12px; }
+.cvb__editor .textarea { min-height: 64px; font-size: 14.5px; border-radius: 12px; }
+.cvb__editor .sp__fields { gap: 12px; }
+.cvb__more > summary { cursor: pointer; font-weight: 800; font-size: 14px; padding: 2px 0; }
+.cvb__more[open] > summary { margin-bottom: 12px; }
+.cvb__more .field { margin-top: 12px; }
+.cvb__preview { min-width: 0; }
+@media (min-width: 1100px) {
+  .cvb__main { grid-template-columns: minmax(380px, 520px) minmax(0, 1fr); }
+  .cvb__views { display: none; }
+  .cvb__preview { position: sticky; top: 76px; max-height: calc(100dvh - 92px); overflow: auto; padding: 2px 2px 24px; }
+}
+@media (max-width: 1099px) {
+  .cvb[data-view="edit"] .cvb__preview { display: none; }
+  .cvb[data-view="preview"] .cvb__editor { display: none; }
+}
+@media print {
+  .cvb__main { display: block !important; padding: 0 !important; }
+  .cvb__preview { position: static !important; max-height: none !important; overflow: visible !important; }
+}

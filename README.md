@@ -4,7 +4,10 @@ The personal site of **Ahmed Ghawi** — software engineer and IT systems specia
 builder of [GH Store](https://gh-store.me).
 
 Next.js 16 (App Router) · React 19 · TypeScript · plain CSS on GH Store's design tokens ·
-Cloudflare Workers via OpenNext · D1 for the contact inbox.
+Cloudflare Workers via OpenNext · D1 for the inbox, the editable content and the stats.
+
+Every word, link, price and CV line is edited in the admin (**Admin → Site**, and the
+**CV builder** at `cv.ghawi.app/edit`) and live within 30 seconds, no deploy.
 
 ## Synced with GH Store
 
@@ -28,8 +31,8 @@ ghawi.app is built on **GH Store's own design system**, not a lookalike:
 - **Real screenshots.** `public/media/store/` holds retina captures of gh-store.me —
   desktop and phone, Arabic and English, light and dark. The page shows the store in
   its own language and mode. Retake them when the store changes visibly.
-- **Showing it off.** The GH Store section has a preset picker that re-themes the whole
-  page for the visit. `?preset=calm|energetic|minimal|warm` and `?mode=light|dark`
+- **Showing it off.** The footer has a preset picker that re-themes the whole
+  page for the visit (Admin → Site → Basics can hide it). `?preset=calm|energetic|minimal|warm` and `?mode=light|dark`
   preview a look from any URL. The favicon, home-screen icon and link-preview card are
   generated from the same tokens.
 
@@ -51,10 +54,10 @@ Inter with IBM Plex Sans Arabic for Arabic, and respect reduced motion.
 
 **Admin → Theme** picks the live theme: *Follow GH Store* (the default) or any of the
 six. The choice is stored in D1 (`site_settings.site_theme`) and applied **at the
-edge**: `worker.ts` wraps OpenNext's Worker and, for `/en` and `/ar`, rewrites the
-`<html>` theme attributes with `HTMLRewriter` as the prerendered page streams
-through. Pages stay static; a change is live within 30 seconds (per-isolate cache),
-with no deploy. Visitors still choose light or dark themselves.
+edge**: `worker.ts` wraps OpenNext's Worker and, for `/en`, `/ar` and the case
+studies, rewrites the `<html>` theme attributes with `HTMLRewriter` as the page
+streams through. A change is live within 30 seconds (per-isolate cache), with no
+deploy. Visitors still choose light or dark themselves.
 
 `next dev` runs without the wrapper, so locally the page shows GH Store's preset;
 use `?preset=nocturne` (or `pnpm run preview`) to see a pinned theme.
@@ -64,18 +67,48 @@ use `?preset=nocturne` (or `pnpm run preview`) to see a pinned theme.
 | Route | Rendering | Purpose |
 | --- | --- | --- |
 | `/` | Dynamic redirect | → `/ar` or `/en`: the visitor's earlier choice (`lang` cookie), else `Accept-Language`, else English |
-| `/en`, `/ar` | Static | The site. Correct `<html lang dir>` from the `[lang]` root layout; Arabic is fully right-to-left |
-| `/admin` | Dynamic | The contact inbox, `noindex` (own root layout) |
+| `/en`, `/ar` | Dynamic, edge-cached | The site, from the content in D1. Correct `<html lang dir>` from the `[lang]` root layout; Arabic is fully right-to-left |
+| `/en/work/<slug>`, `/ar/work/<slug>` | Dynamic, edge-cached | Case studies: `gh-store`, `store-bot`, `storefront` |
+| `cv.ghawi.app` (`/`, `/ar`) | Dynamic, edge-cached | The CV, black on white (`/resume/[lang]`, own root layout) |
+| `cv.ghawi.app/edit` | Dynamic | The CV builder: sign in, edit with a live preview, print to PDF (`/resume/edit`) |
+| `cv.ghawi.app/ahmed-ghawi-cv(-ar).pdf` | Dynamic | The CV as PDF: the one uploaded in the builder, else `public/media/cv` (`/cv/[file]`) |
+| `/admin` | Dynamic | Invitation, inbox, site content, stats and theme; `noindex` (own root layout) |
 | `/api/contact` | Dynamic | Contact form endpoint |
-| `/api/admin/*` | Dynamic | Inbox sign-in, sign-out, messages |
+| `/api/track` | Dynamic | The page's visit and click counter (no cookies) |
+| `/api/admin/*` | Dynamic | Sign-in, sign-out, messages, site content, files, stats, theme, invitation |
 | `/og.png`, `/favicon.svg`, `/apple-touch-icon.png` | Static | Generated at build from the synced tokens |
 | `/sitemap.xml`, `/robots.txt` | Static | |
 | `/film/*`, `/atlas/*` | 308 | Old experiments, redirected to `/en` / `/ar` |
 
 ## Editing content
 
-All words live in **`src/lib/content.ts`**, both languages side by side (`en`, `ar`).
-Components hold no copy. `profile` and `links` hold contact details and URLs.
+**Admin → Site** edits everything on the page, English and Arabic side by side:
+the hero, every section, prices, process steps, testimonials, case studies, menus,
+search titles, and under **Basics** the contact details, GH Store links, availability
+(the badge's colour), where the hero's chat button goes, and the order and visibility
+of the sections. **Admin → Stats** shows visits, clicks (Telegram, WhatsApp, the
+store bot, the CV…), messages, referrers and countries — counted by the site itself,
+no cookies, the admin's own visits left out.
+
+The edits are one JSON document in D1 (`site_settings.site_content`) laid over the
+defaults in **`src/lib/content.ts`** — both languages side by side, plus the shape of
+everything editable. `sanitizeContent` (`src/lib/site-content.ts`) reshapes every save
+to that shape, so a field the code adds later simply appears with its default, and the
+page never sees junk. Components hold no copy.
+
+Pages render per request from that document; `worker.ts` keeps the rendered HTML in
+the edge cache under the deploy's id (`CF_VERSION_METADATA`) and the content's save
+time, so visitors get a cached page and a save or a deploy starts fresh. A signed-in
+admin always sees a fresh render.
+
+### The CV
+
+`cv.ghawi.app` is the CV, `cv.ghawi.app/edit` its builder (the admin account; sign in
+once per subdomain). Saving there writes the same content document. **Print / PDF**
+prints the preview; upload that PDF in the builder and "Download PDF" serves it — the
+builder flags a PDF older than the last save. Without an upload, the PDFs in
+`public/media/cv/` are served. Under `next dev`, `http://cv.localhost:3000` and `/edit`
+work the same, and the site links to `/resume/en` instead.
 
 Arabic strings that contain `C#` carry a `‎` after it so the `#` stays beside its
 letter in right-to-left text.
@@ -218,10 +251,14 @@ Under `next dev`, `http://invite.localhost:3000/haifa` behaves the same.
 D1 database `ghawi-app-contacts`, migrations in `migrations/` (append-only; apply with
 `pnpm exec wrangler d1 migrations apply ghawi-app-contacts --remote`).
 
-- `contact_messages` — the inbox.
+- `contact_messages` — the inbox (with the visitor's `budget` range since 0007).
 - `admin_login_attempts` — the sign-in throttle.
-- `site_settings` — `site_theme` (the landing theme, read by `worker.ts`). Older keys
-  from the previous settings page are unused.
+- `site_settings` — `site_theme` (the landing theme) and `site_content` (every word
+  on the site and the CV, as JSON), both read by `worker.ts`. Older keys from the
+  previous settings page are unused.
+- `site_files` — the CV PDFs uploaded in the builder (`cv-en`, `cv-ar`).
+- `site_events` — Admin → Stats: per-day counts of views, clicks, messages, referrers
+  and countries. Nothing per person.
 - `invite_settings`, `invite_guests`, `invite_rsvps`, `invite_photos` — the wedding
   invitation (photo files themselves live in R2).
 
@@ -234,7 +271,9 @@ space-separated date, or the string comparison stops being a time comparison.
 `wrangler.jsonc` is the source of truth for the Worker `ghawi-app`. Its `main` is
 `worker.ts`, which wraps the generated `.open-next/worker.js`. Also: `nodejs_compat`,
 static assets, the R2 incremental cache, D1 (`CONTACT_DB`), email (`EMAIL`), the image
-binding, the `ghawi.app`, `www.ghawi.app` and `invite.ghawi.app` custom domains, and the non-secret vars.
+binding, `CF_VERSION_METADATA` (the deploy's id, for the edge cache), the
+`ghawi.app`, `www.ghawi.app`, `invite.ghawi.app` and `cv.ghawi.app` custom domains,
+and the non-secret vars.
 `public/_headers` sets long-lived caching for hashed assets and a week for `/media`.
 
 `node-linker: hoisted` in `pnpm-workspace.yaml` is required: OpenNext copies

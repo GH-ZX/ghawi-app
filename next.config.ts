@@ -71,10 +71,17 @@ export default async function config(): Promise<NextConfig> {
       // "/" is the general link, "/haifa" a guest's own. invite.localhost
       // works the same way under `next dev`.
       const invite = [{ type: "host" as const, value: String.raw`invite\.(?:ghawi\.app|localhost)` }];
+      // cv.ghawi.app is the CV, served from /resume: "/" in English, "/ar" in
+      // Arabic, "/edit" the CV builder. cv.localhost works the same under `next dev`.
+      const cv = [{ type: "host" as const, value: String.raw`cv\.(?:ghawi\.app|localhost)` }];
       return {
         beforeFiles: [
           { source: "/", has: invite, destination: "/invite/general" },
           { source: "/:slug((?!api$|invite$)[a-z0-9][a-z0-9-]*)", has: invite, destination: "/invite/:slug" },
+          { source: "/", has: cv, destination: "/resume/en" },
+          { source: "/:lang(en|ar)", has: cv, destination: "/resume/:lang" },
+          { source: "/edit", has: cv, destination: "/resume/edit" },
+          { source: String.raw`/:file(ahmed-ghawi-cv(?:-ar)?\.pdf)`, has: cv, destination: "/cv/:file" },
         ],
         afterFiles: [],
         fallback: [],

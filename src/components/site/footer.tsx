@@ -1,15 +1,20 @@
 import { Logo } from "@/components/logo";
-import { links, profile, type Dictionary, type Locale } from "@/lib/content";
+import { cvHref } from "@/lib/content";
+import type { PageContext } from "@/lib/site-content";
 import { LocalTime, ModeSeg, SyncedPreset } from "./footer-controls";
+import { Looks } from "./looks";
 
-export function Footer({ t, locale }: { t: Dictionary; locale: Locale }) {
+export function Footer({ ctx }: { ctx: PageContext }) {
+  const { t, locale, profile, links, settings, urls } = ctx;
   const year = new Date().getFullYear();
   const outbound = [
-    { label: "GH Store", href: links.store },
-    { label: "GitHub", href: profile.github },
-    { label: "Telegram", href: profile.telegramUrl },
-    { label: "LinkedIn", href: profile.linkedin },
-  ];
+    { label: "GH Store", href: links.store, track: "footer-store" },
+    { label: "@" + links.storeBot.replace(/\/+$/, "").split("/").pop(), href: links.storeBot, track: "footer-bot" },
+    { label: "Telegram", href: urls.telegram, track: "footer-telegram" },
+    { label: "Instagram", href: profile.instagram ? urls.instagram : "", track: "footer-instagram" },
+    { label: "GitHub", href: urls.github, track: "footer-github" },
+    { label: "LinkedIn", href: urls.linkedin, track: "footer-linkedin" },
+  ].filter((link) => link.href);
 
   return (
     <footer className="footer">
@@ -18,15 +23,18 @@ export function Footer({ t, locale }: { t: Dictionary; locale: Locale }) {
           <div className="footer__brand">
             <Logo height={24} />
             <p>
-              {locale === "ar" ? profile.nameAr : profile.name} — {profile.role[locale]}. {t.footer.built}
+              {locale === "ar" ? profile.nameAr : profile.name} — {t.person.role}. {t.footer.built}
             </p>
+            <a className="btn btn--xs btn--soft press" href={cvHref(locale)} data-track="footer-cv">
+              {t.nav.cv}
+            </a>
           </div>
 
           <ul className="footer__links">
             {outbound.map((link) => (
               <li key={link.href}>
-                <a href={link.href} target="_blank" rel="noopener noreferrer">
-                  {link.label}
+                <a href={link.href} target="_blank" rel="noopener noreferrer" data-track={link.track}>
+                  <bdi>{link.label}</bdi>
                   <span className="sr-only"> {t.ui.newTab}</span>
                 </a>
               </li>
@@ -36,6 +44,7 @@ export function Footer({ t, locale }: { t: Dictionary; locale: Locale }) {
           <div className="footer__controls">
             <span className="contact__label">{t.ui.appearance}</span>
             <ModeSeg ui={t.ui} />
+            {settings.looks ? <Looks looks={t.footer.looks} locale={locale} /> : null}
           </div>
         </div>
 

@@ -1,6 +1,9 @@
-import type { Dictionary } from "@/lib/content";
+import { DocIcon } from "@/components/icons";
+import { cvHref } from "@/lib/content";
+import type { PageContext } from "@/lib/site-content";
 
-export function About({ about }: { about: Dictionary["about"] }) {
+export function About({ ctx }: { ctx: PageContext }) {
+  const { about } = ctx.t;
   return (
     <section id="about" className="section" aria-labelledby="about-title">
       <div className="shell about">
@@ -15,7 +18,14 @@ export function About({ about }: { about: Dictionary["about"] }) {
             {about.body.map((paragraph) => (
               <p key={paragraph}>{paragraph}</p>
             ))}
+            {about.also ? <p className="about__also">{about.also}</p> : null}
           </div>
+          {about.cv ? (
+            <a className="btn btn--sm btn--soft press about__cv" href={cvHref(ctx.locale)} data-track="about-cv" data-reveal>
+              <DocIcon />
+              {about.cv}
+            </a>
+          ) : null}
         </div>
 
         <div className="layers" data-reveal>

@@ -60,6 +60,8 @@ body { overflow-x: clip; }
   font-size: 11px; font-weight: 600; color: var(--muted); text-decoration: none;
 }
 .tabbar a[aria-current="true"] { background: var(--tile); color: var(--accent-text); }
+.tabbar a.tabbar__cta { background: var(--accent); color: var(--accent-ink); }
+.tabbar a.tabbar__cta[aria-current="true"] { box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent); }
 @media (min-width: 900px) { .tabbar { display: none; } }
 @media (max-width: 899px) { body { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); } }
 
@@ -97,8 +99,11 @@ body { overflow-x: clip; }
 .hero__facts { margin-top: 28px; }
 .hero__facts .chip { background: transparent; color: var(--muted); font-weight: 600; }
 
-/* entrance, staggered by --d */
-.rise { animation: gh-in .7s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(var(--d, 0) * 80ms + 120ms); }
+/* entrance, staggered by --d. The title and the portrait only move: they are
+   the first things worth seeing, so they are never invisible while they arrive. */
+.rise { animation: gh-in .7s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(var(--d, 0) * 70ms + 60ms); }
+.rise--solid { animation-name: gh-up; }
+@keyframes gh-up { from { transform: translateY(12px); } to { transform: none; } }
 
 /* portrait card, with the store's drifting colours behind it */
 .hero__visual { position: relative; justify-self: center; width: min(100%, 440px); }
@@ -192,6 +197,12 @@ body { overflow-x: clip; }
 .principle__icon { width: 40px; height: 40px; border-radius: 14px; background: var(--tile); color: var(--accent-text); display: flex; align-items: center; justify-content: center; }
 .principle h4 { font-size: 16px; font-weight: 700; }
 .principle p { margin-top: 6px; font-size: 14.5px; line-height: 1.65; color: var(--muted); }
+.principle .principle__tech { margin-top: 10px; font-family: var(--font-mono); font-size: 12px; line-height: 1.6; color: color-mix(in srgb, var(--muted) 85%, transparent); }
+[lang="ar"] .principle .principle__tech { font-family: var(--font); }
+@media (max-width: 639px) {
+  .principle { padding: 16px; gap: 12px; }
+  .principle .principle__tech { display: none; }
+}
 
 /* ───────────────────────────── real screenshots of the store */
 .shots { position: relative; padding-bottom: 28px; padding-inline-end: 0; }
@@ -221,32 +232,7 @@ body { overflow-x: clip; }
 }
 .phone-shot .shot-swap img { border-radius: 24px; }
 @media (min-width: 640px) { .phone-shot { width: 22%; border-radius: 38px; padding: 8px; } .phone-shot .shot-swap img { border-radius: 30px; } }
-@media (max-width: 639px) { .shots { padding-bottom: 0; } .phone-shot { bottom: -18px; inset-inline-end: -6px; } .feature .looks { margin-top: 18px; } }
-
-/* A strip across the foot of the GH Store card. */
-.looks {
-  grid-column: 1 / -1; display: grid; gap: 16px; align-items: center;
-  border-top: 1px solid var(--line); padding-top: 26px;
-}
-@media (min-width: 900px) { .looks { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 32px; } }
-.looks__text { display: flex; flex-direction: column; gap: 6px; }
-.looks__title { font-size: 17px; font-weight: 800; }
-.looks__body { font-size: 14px; line-height: 1.6; color: var(--muted); max-width: 52ch; }
-.looks__reset { justify-self: start; grid-column: 1 / -1; }
-.looks__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-@media (min-width: 560px) { .looks__grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-.look {
-  border-radius: 16px; border: 1.5px solid var(--line); background: var(--surface); padding: 10px 12px;
-  display: flex; flex-direction: column; align-items: flex-start; gap: 8px; text-align: start; color: var(--ink);
-}
-.look[aria-pressed="true"] { border-color: var(--accent); background: var(--tile); }
-@media (hover: hover) { .look:hover { border-color: color-mix(in srgb, var(--accent) 60%, var(--line)); } }
-.look__swatches { display: flex; }
-.look__swatches span { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--surface); box-shadow: 0 0 0 1px color-mix(in srgb, var(--ink) 16%, transparent); }
-.look__swatches span + span { margin-inline-start: -5px; }
-.look__name { font-size: 13.5px; font-weight: 700; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.look__live { font-size: 10.5px; font-weight: 700; color: var(--good); display: inline-flex; align-items: center; gap: 4px; }
-.look__live .live-dot { width: 6px; height: 6px; }
+@media (max-width: 639px) { .shots { padding-bottom: 0; } .phone-shot { bottom: -18px; inset-inline-end: -6px; } }
 
 /* ───────────────────────────── other projects */
 .projects { margin-top: 16px; display: grid; gap: 16px; }
@@ -506,4 +492,207 @@ body { overflow-x: clip; }
 @media (max-width: 520px) {
   .botcase__media { min-height: 0; }
   .botcase__phone--side { width: 32%; }
+}
+
+/* ───────────────────────────── availability, the hero's chat button and the bot link */
+.badge--warn { background: color-mix(in srgb, var(--warn) 15%, transparent); color: var(--warn); }
+.badge--warn .live-dot { background: var(--warn); }
+.badge--bad { background: color-mix(in srgb, var(--bad) 12%, transparent); color: var(--bad); }
+.badge--bad .live-dot { background: var(--bad); }
+.badge--bad .live-dot::after { animation: none; }
+
+.hero__chat svg { flex: none; }
+.hero__chat--telegram svg { color: #229ED9; }
+.hero__chat--whatsapp svg { color: #25D366; }
+
+.bot-link {
+  margin-top: 14px; display: inline-flex; align-items: center; gap: 12px; padding-block: 8px; padding-inline: 8px 16px;
+  border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); text-decoration: none;
+  max-width: 100%;
+}
+.bot-link__icon { width: 36px; height: 36px; flex: none; border-radius: 50%; background: #229ED9; color: #fff; display: grid; place-items: center; }
+.bot-link__text { display: flex; flex-direction: column; line-height: 1.25; min-width: 0; }
+.bot-link__text strong { font-size: 14px; }
+.bot-link__text span { font-size: 12.5px; color: var(--muted); font-family: var(--font-mono); }
+.bot-link > svg { color: var(--muted); flex: none; transition: color .2s ease; }
+@media (hover: hover) {
+  .bot-link:hover { border-color: #229ED9; }
+  .bot-link:hover > svg { color: #229ED9; }
+}
+
+/* ───────────────────────────── work at a glance */
+.glance { display: grid; gap: 8px; margin-bottom: 16px; }
+@media (min-width: 760px) { .glance { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 20px; } }
+.glance__card {
+  height: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 18px;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink); text-decoration: none;
+}
+.glance__icon { width: 40px; height: 40px; flex: none; border-radius: 13px; background: var(--tile); color: var(--accent-text); display: grid; place-items: center; }
+.glance__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.glance__text strong { font-size: 15px; }
+.glance__text span { font-size: 13px; color: var(--muted); line-height: 1.4; }
+.glance__chev { flex: none; color: var(--muted); transform: rotate(90deg); }
+@media (hover: hover) {
+  .glance__card:hover { border-color: color-mix(in srgb, var(--accent) 50%, var(--line)); }
+  .glance__card:hover .glance__chev { color: var(--accent-text); }
+}
+
+/* "Read the case study" */
+.case-link { margin-top: 16px; display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; color: var(--accent-text); text-decoration: none; }
+@media (hover: hover) { .case-link:hover { text-decoration: underline; text-underline-offset: 4px; } }
+.feature__text .case-link { margin-top: 18px; }
+.botcase__actions { margin-top: 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; }
+.botcase__actions .case-link, .project__foot .case-link { margin-top: 0; }
+
+/* more on GitHub: the rest behind a tap */
+.more__rest { margin-top: 10px; }
+.more__rest > summary { list-style: none; cursor: pointer; width: max-content; }
+.more__rest > summary::-webkit-details-marker { display: none; }
+.more__rest[open] > summary { display: none; }
+
+/* ───────────────────────────── testimonials */
+.quotes { display: grid; gap: 12px; }
+@media (min-width: 760px) {
+  .quotes { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .quotes--one { grid-template-columns: minmax(0, 760px); }
+}
+.quote { border-radius: 24px; border: 1px solid var(--line); background: var(--surface); padding: 22px; display: flex; flex-direction: column; gap: 14px; }
+.quote > svg { color: var(--accent-text); opacity: .8; }
+[dir="rtl"] .quote > svg { transform: scaleX(-1); }
+.quote blockquote { margin: 0; }
+.quote blockquote p { font-size: 16.5px; line-height: 1.7; }
+.quote__who { margin-top: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 14px; }
+.quote__who span { color: var(--muted); }
+.quote__who a { color: var(--muted); display: inline-flex; }
+
+/* ───────────────────────────── services: where each one leads */
+.service__links { margin-top: auto; padding-top: 8px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+.service__cta { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; color: var(--accent-text); text-decoration: none; }
+.service__proof { font-size: 13.5px; font-weight: 600; color: var(--muted); text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 4px; }
+@media (hover: hover) {
+  .service__cta:hover { text-decoration: underline; text-underline-offset: 4px; }
+  .service__proof:hover { color: var(--ink); }
+}
+
+/* ───────────────────────────── pricing */
+.plans { display: grid; gap: 12px; }
+@media (min-width: 680px) { .plans { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1080px) { .plans { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; } }
+.plan { border-radius: 24px; border: 1px solid var(--line); background: var(--surface); padding: 22px; display: flex; flex-direction: column; gap: 12px; }
+.plan--featured {
+  border-color: var(--accent);
+  background: radial-gradient(90% 60% at 100% 0%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 70%), var(--surface);
+}
+.plan__top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.plan__top h3 { font-size: 18px; font-weight: 800; }
+.plan__price { display: flex; align-items: baseline; gap: 8px; min-height: 40px; }
+.plan__from { font-size: 13px; color: var(--muted); font-weight: 600; }
+.plan__price .num { font-size: 32px; font-weight: 700; letter-spacing: -.02em; color: var(--accent-text); }
+.plan__quote { font-size: 17px; font-weight: 800; color: var(--accent-text); }
+.plan__time { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.plan__body { font-size: 14.5px; line-height: 1.6; color: var(--muted); }
+.plan__list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 6px; }
+.plan__list li { display: flex; gap: 8px; font-size: 14px; line-height: 1.5; }
+.plan__list svg { flex: none; margin-top: 3px; color: var(--good); }
+.plan .btn { margin-top: auto; }
+.plans__note { margin-top: 16px; font-size: 13.5px; color: var(--muted); max-width: 70ch; }
+
+/* ───────────────────────────── process */
+.steps { display: grid; gap: 10px; }
+@media (min-width: 1000px) { .steps { grid-template-columns: repeat(var(--steps, 5), minmax(0, 1fr)); gap: 12px; } }
+.step {
+  position: relative; border-radius: 22px; border: 1px solid var(--line); background: var(--surface); padding: 18px;
+  display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px; align-items: start;
+}
+@media (min-width: 1000px) { .step { grid-template-columns: minmax(0, 1fr); } }
+.step__index { width: 40px; height: 40px; border-radius: 13px; background: var(--tile); color: var(--accent-text); display: grid; place-items: center; font-size: 13px; font-weight: 700; }
+.step__text { display: flex; flex-direction: column; gap: 4px; }
+.step h3 { font-size: 17px; font-weight: 800; }
+.step__time { font-size: 12.5px; font-weight: 700; color: var(--accent-text); }
+.step p { margin-top: 4px; font-size: 14px; line-height: 1.6; color: var(--muted); }
+
+/* ───────────────────────────── about and contact additions */
+.about__body .about__also { font-size: 15.5px; }
+.about__cv { margin-top: 24px; }
+.contact__reply { display: inline-flex; align-items: center; gap: 8px; font-size: 14.5px; font-weight: 600; color: var(--good); }
+.contact__reply svg { flex: none; }
+
+/* ───────────────────────────── footer: GH Store's looks, out of the way */
+.footer__brand .btn { align-self: flex-start; }
+.footer__controls .looks { margin-top: 8px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.looks__grid { display: grid; grid-template-columns: repeat(2, minmax(0, auto)); gap: 6px; }
+@media (min-width: 520px) { .looks__grid { grid-template-columns: repeat(4, minmax(0, auto)); } }
+.look {
+  border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); padding-block: 5px; padding-inline: 6px 10px;
+  display: inline-flex; align-items: center; gap: 6px; color: var(--ink);
+}
+.look[aria-pressed="true"] { border-color: var(--accent); background: var(--tile); }
+@media (hover: hover) { .look:hover { border-color: color-mix(in srgb, var(--accent) 60%, var(--line)); } }
+.look__swatches { display: flex; }
+.look__swatches span { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--surface); box-shadow: 0 0 0 1px color-mix(in srgb, var(--ink) 16%, transparent); }
+.look__swatches span + span { margin-inline-start: -5px; }
+.look__name { font-size: 12.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; }
+.look__name .live-dot { width: 6px; height: 6px; }
+.looks__reset { margin-top: 2px; }
+
+/* ───────────────────────────── case studies */
+.case__hero { padding-top: 112px; padding-bottom: 28px; }
+@media (min-width: 960px) { .case__hero { padding-top: 140px; padding-bottom: 36px; } }
+.case__hero .shell { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
+.case__back { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: var(--muted); text-decoration: none; }
+.case__back-arrow { display: inline-flex; transform: scaleX(-1); }
+@media (hover: hover) { .case__back:hover { color: var(--accent-text); } }
+.case__title { font-size: clamp(32px, 5vw, 54px); font-weight: 800; letter-spacing: -.025em; line-height: 1.08; max-width: 22ch; }
+[lang="ar"] .case__title { letter-spacing: 0; line-height: 1.3; }
+.case__lead { font-size: 17.5px; line-height: 1.7; color: var(--muted); max-width: 62ch; }
+.case__actions { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 8px; }
+.case__visual { margin-block: 20px 8px; }
+.case__visual .botcase__media { min-height: 0; }
+.case__body { display: grid; gap: 12px; padding-block: 24px 8px; }
+@media (min-width: 900px) { .case__body { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; } }
+.case__part { border-radius: 24px; border: 1px solid var(--line); background: var(--surface); padding: 22px; }
+.case__part h2 { font-size: 13px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--accent-text); margin-bottom: 12px; }
+[lang="ar"] .case__part h2 { font-size: 15px; letter-spacing: 0; }
+.case__part > p { font-size: 15.5px; line-height: 1.75; color: var(--muted); }
+.case__part .points { margin-top: 0; }
+.case__cta {
+  margin-block: 28px; border-radius: 28px; border: 1px solid var(--accent); padding: 26px;
+  background: radial-gradient(70% 90% at 100% 0%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 70%), var(--surface);
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px;
+}
+.case__cta h2 { font-size: clamp(22px, 3vw, 30px); font-weight: 800; }
+.case__cta p { margin-top: 6px; color: var(--muted); max-width: 56ch; }
+.case__more { padding-bottom: 64px; }
+.case__more h2 { font-size: 20px; font-weight: 800; margin-bottom: 14px; }
+@media (min-width: 760px) { .case__more .glance { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* ───────────────────────────── phones: keep the page short
+   Packages swipe sideways (a peek of the next one says so); the steps and
+   services sit tighter. Contact stays one tap away in the tab bar. */
+@media (max-width: 679px) {
+  .plans {
+    display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 10px;
+    margin-inline: -16px; padding-inline: 16px; padding-bottom: 6px; scrollbar-width: none;
+  }
+  .plans::-webkit-scrollbar { display: none; }
+  .plan { flex: 0 0 84%; scroll-snap-align: center; }
+  .service { padding: 18px; gap: 8px; }
+  .service__icon { width: 44px; height: 44px; border-radius: 15px; margin-bottom: 2px; }
+  .quotes { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; margin-inline: -16px; padding-inline: 16px; scrollbar-width: none; }
+  .quotes::-webkit-scrollbar { display: none; }
+  .quote { flex: 0 0 86%; scroll-snap-align: center; }
+}
+@media (max-width: 999px) {
+  .steps { gap: 0; border-radius: 22px; border: 1px solid var(--line); background: var(--surface); overflow: hidden; }
+  .step { border: 0; border-radius: 0; background: transparent; padding: 14px 16px; }
+  .step + .step { border-top: 1px solid var(--line); }
+}
+@media (max-width: 639px) {
+  /* The four promises read as headlines on a phone: two by two, details on larger screens. */
+  .principles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .principle { grid-template-columns: minmax(0, 1fr); padding: 14px; gap: 10px; }
+  .principle__icon { width: 34px; height: 34px; border-radius: 11px; }
+  .principle h4 { font-size: 14.5px; line-height: 1.35; }
+  .principle p { display: none; }
+  .botcase__phone--main { width: min(230px, 58%); }
 }

@@ -1,17 +1,13 @@
-import { ChannelMark, ChevronIcon, MailIcon } from "@/components/icons";
-import { profile, turnstileSiteKey, type Dictionary, type Locale } from "@/lib/content";
+import { ChannelMark, ChevronIcon, ClockIcon, isChannelMarkId, MailIcon } from "@/components/icons";
+import { turnstileSiteKey } from "@/lib/content";
+import { channelValue, type PageContext } from "@/lib/site-content";
 import { ContactForm } from "./contact-form";
 import { CopyButton } from "./copy-button";
 
-const CHANNEL_HREF = {
-  telegram: profile.telegramUrl,
-  whatsapp: profile.whatsappUrl,
-  github: profile.github,
-  linkedin: profile.linkedin,
-} as const;
-
-export function Contact({ t, locale }: { t: Dictionary; locale: Locale }) {
+export function Contact({ ctx }: { ctx: PageContext }) {
+  const { t, locale, profile, urls } = ctx;
   const { contact } = t;
+  const channels = contact.channels.filter((channel) => isChannelMarkId(channel.id) && channelValue(channel.id, profile));
 
   return (
     <section id="contact" className="section" aria-labelledby="contact-title">
@@ -23,36 +19,52 @@ export function Contact({ t, locale }: { t: Dictionary; locale: Locale }) {
               {contact.title}
             </h2>
             <p className="section__lead">{contact.body}</p>
+            {contact.reply ? (
+              <p className="contact__reply">
+                <ClockIcon size={16} />
+                {contact.reply}
+              </p>
+            ) : null}
           </header>
+
+          {channels.length ? (
+            <div className="contact__email" data-reveal>
+              <span className="contact__label">{contact.channelsTitle}</span>
+              <ul className="list">
+                {channels.map((channel) => (
+                  <li key={channel.id}>
+                    <a
+                      className="list-row"
+                      href={urls[channel.id as keyof typeof urls]}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      data-track={`contact-${channel.id}`}
+                    >
+                      {isChannelMarkId(channel.id) ? <ChannelMark id={channel.id} /> : null}
+                      <span className="list-row__main">
+                        <span className="list-row__title">{channel.label}</span>
+                        <span className="list-row__meta">
+                          <bdi>{channelValue(channel.id, profile)}</bdi>
+                        </span>
+                      </span>
+                      <ChevronIcon className="list-row__chev" />
+                      <span className="sr-only"> {t.ui.newTab}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
 
           <div className="contact__email" data-reveal>
             <span className="contact__label">{contact.emailLabel}</span>
             <div className="copy-box">
               <MailIcon size={18} />
-              <a href={`mailto:${profile.email}`}>{profile.email}</a>
+              <a href={urls.email} data-track="contact-email">
+                {profile.email}
+              </a>
               <CopyButton value={profile.email} copy={contact.copy} copied={contact.copied} />
             </div>
-          </div>
-
-          <div className="contact__email" data-reveal>
-            <span className="contact__label">{contact.channelsTitle}</span>
-            <ul className="list">
-              {contact.channels.map((channel) => (
-                <li key={channel.id}>
-                  <a className="list-row" href={CHANNEL_HREF[channel.id]} target="_blank" rel="noopener noreferrer">
-                    <ChannelMark id={channel.id} />
-                    <span className="list-row__main">
-                      <span className="list-row__title">{channel.label}</span>
-                      <span className="list-row__meta">
-                        <bdi>{channel.value}</bdi>
-                      </span>
-                    </span>
-                    <ChevronIcon className="list-row__chev" />
-                    <span className="sr-only"> {t.ui.newTab}</span>
-                  </a>
-                </li>
-              ))}
-            </ul>
           </div>
         </div>
 

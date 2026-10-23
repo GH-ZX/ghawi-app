@@ -2,14 +2,22 @@ import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { fontVariables } from "@/lib/fonts";
 import { chromeColors, prePaintScript, presetCss, storeTheme } from "@/lib/theme";
-import { defaultLocale, dictionaries, dirOf, isLocale, locales, profile, SITE_URL } from "@/lib/content";
+import { defaultLocale, dirOf, isLocale, locales, SITE_URL } from "@/lib/content";
+import { getSiteContent } from "@/lib/site-server";
 import "@/styles/base.css";
 import "@/styles/site.css";
 
 type Params = { params: Promise<{ lang: string }> };
 
-/** /en and /ar are the only pages; anything else under / is a 404. */
+/** /en and /ar (and the pages under them) are the only pages; anything else under / is a 404. */
 export const dynamicParams = false;
+
+/**
+ * Rendered per request from the content in D1 (Admin → Site), so an edit is
+ * live without a deploy. worker.ts keeps the rendered HTML at the edge until
+ * the content or the deploy changes, so visitors still get a cached page.
+ */
+export const dynamic = "force-dynamic";
 
 export function generateStaticParams() {
   return locales.map((lang) => ({ lang }));
@@ -18,7 +26,9 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { lang } = await params;
   const locale = isLocale(lang) ? lang : defaultLocale;
-  const t = dictionaries[locale];
+  const content = await getSiteContent();
+  const t = content[locale];
+  const profile = content.profile;
 
   return {
     metadataBase: new URL(SITE_URL),
@@ -39,8 +49,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       url: `/${locale}`,
       locale: locale === "ar" ? "ar_SY" : "en_US",
       alternateLocale: locale === "ar" ? ["en_US"] : ["ar_SY"],
-      firstName: "Ahmed",
-      lastName: "Ghawi",
+      firstName: profile.name.split(" ")[0],
+      lastName: profile.name.split(" ").slice(1).join(" "),
       images: [{ url: "/og.png", width: 1200, height: 630, alt: t.meta.ogAlt, type: "image/png" }],
     },
     twitter: {
@@ -74,6 +84,7 @@ export function generateViewport(): Viewport {
 export default async function SiteLayout({ children, params }: Params & { children: ReactNode }) {
   const { lang } = await params;
   const locale = isLocale(lang) ? lang : defaultLocale;
+  const { settings } = await getSiteContent();
 
   return (
     <html
@@ -90,6 +101,15 @@ export default async function SiteLayout({ children, params }: Params & { childr
         {/* GH Store's four presets, light and dark, keyed by data-preset. */}
         <style id="theme" dangerouslySetInnerHTML={{ __html: presetCss() }} />
         <script dangerouslySetInnerHTML={{ __html: prePaintScript }} />
+        {/* Cloudflare's own snippet, as its dashboard gives it: the beacon is
+            updated in place, so it can't be pinned with an integrity hash. */}
+        {settings.beacon ? (
+          <script
+            defer
+            src="https://static.cloudflareinsights.com/beacon.min.js"
+            data-cf-beacon={JSON.stringify({ token: settings.beacon })}
+          />
+        ) : null}
       </head>
       <body>{children}</body>
     </html>

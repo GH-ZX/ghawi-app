@@ -5,7 +5,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ExternalIcon, MoonIcon, SunIcon } from "@/components/icons";
 import { Logo } from "@/components/logo";
+import { DEFAULT_CONTENT } from "@/lib/content";
 import { InvitePanel } from "./invite-panel";
+import { SitePanel } from "./site-panel";
+import { StatsPanel } from "./stats-panel";
 import { ThemePanel } from "./theme-panel";
 import { getEffectiveMode, setMode } from "@/lib/theme-client";
 
@@ -15,6 +18,7 @@ type Message = {
   name: string;
   email: string;
   topic: string | null;
+  budget: string | null;
   message: string;
   locale: string | null;
   notified: number;
@@ -24,13 +28,13 @@ type Message = {
 type Stats = { total: number; unread: number; undelivered: number };
 type View = "inbox" | "archived" | "all";
 
-const TOPICS: Record<string, string> = {
-  product: "Product engineering",
-  telegram: "Telegram commerce",
-  infrastructure: "Infrastructure & DevOps",
-  it: "IT support",
-  other: "Something else",
-};
+/** Labels for what visitors pick on the form, as the site's English copy names them. */
+const TOPICS: Record<string, string> = Object.fromEntries(
+  DEFAULT_CONTENT.en.contact.form.topics.map((topic) => [topic.value, topic.label]),
+);
+const BUDGETS: Record<string, string> = Object.fromEntries(
+  DEFAULT_CONTENT.en.contact.form.budgets.map((budget) => [budget.value, budget.label]),
+);
 
 const VIEWS: { id: View; label: string }[] = [
   { id: "inbox", label: "Inbox" },
@@ -52,7 +56,7 @@ export function AdminConsole() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [view, setView] = useState<View>("inbox");
   const [query, setQuery] = useState("");
-  const [section, setSection] = useState<"inbox" | "theme" | "invite">("invite");
+  const [section, setSection] = useState<"inbox" | "site" | "stats" | "theme" | "invite">("invite");
 
   // Bumped after every change; the effect below refetches when it moves.
   const [version, setVersion] = useState(0);
@@ -156,12 +160,22 @@ export function AdminConsole() {
           <button type="button" className="press" aria-pressed={section === "inbox"} onClick={() => setSection("inbox")}>
             Inbox{stats.unread ? ` · ${stats.unread}` : ""}
           </button>
+          <button type="button" className="press" aria-pressed={section === "site"} onClick={() => setSection("site")}>
+            Site
+          </button>
+          <button type="button" className="press" aria-pressed={section === "stats"} onClick={() => setSection("stats")}>
+            Stats
+          </button>
           <button type="button" className="press" aria-pressed={section === "theme"} onClick={() => setSection("theme")}>
             Theme
           </button>
         </div>
 
-        {section === "theme" ? (
+        {section === "site" ? (
+          <SitePanel />
+        ) : section === "stats" ? (
+          <StatsPanel />
+        ) : section === "theme" ? (
           <ThemePanel />
         ) : section === "invite" ? (
           <InvitePanel />
@@ -236,6 +250,7 @@ export function AdminConsole() {
                 </div>
                 <div className="message__tags">
                   {m.topic ? <span className="badge">{TOPICS[m.topic] ?? m.topic}</span> : null}
+                  {m.budget ? <span className="badge badge--good">{BUDGETS[m.budget] ?? m.budget}</span> : null}
                   {m.locale ? <span className="badge badge--soft">{m.locale === "ar" ? "Arabic page" : "English page"}</span> : null}
                   {!m.notified ? <span className="badge badge--warn">Email not sent</span> : null}
                 </div>

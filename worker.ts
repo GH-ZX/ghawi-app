@@ -1,10 +1,16 @@
 /**
- * The Worker entry: OpenNext's generated handler, plus one job of our own.
+ * The Worker entry: OpenNext's generated handler, plus two jobs of our own for
+ * the site's pages (/en, /ar, their CV and case studies).
  *
- * The landing pages are prerendered in GH Store's current preset. When the
- * admin pins another theme (Admin → Theme, stored in D1 as `site_theme`), this
- * rewrites the <html> theme attributes as the page streams through — so a
- * change is live within seconds, with no rebuild and no request-time render.
+ * 1. Edge cache. The pages (and cv.ghawi.app) render per request from the
+ *    content in D1 (Admin → Site, the CV builder). The rendered HTML is kept in the edge cache under a key made of the
+ *    deploy and the content's save time, so a visitor gets a cached page and an
+ *    edit or a deploy simply starts a new key — nothing to purge.
+ * 2. Live theme. When the admin pins a theme (Admin → Theme, `site_theme`),
+ *    the <html> theme attributes are rewritten as the page streams through.
+ *
+ * Both read one D1 row pair, at most once per 30 seconds per isolate. The
+ * admin (signed-in cookie) always gets a fresh render.
  */
 import { CLASSIC_THEMES, isSiteThemeChoice, type ClassicTheme } from "./src/lib/classic-themes";
 
@@ -16,52 +22,84 @@ import handler from "./.open-next/worker.js";
 // @ts-ignore -- re-exported for bindings that may reference them.
 export { DOQueueHandler, DOShardedTagCache, BucketCachePurge } from "./.open-next/worker.js";
 
-type Env = { CONTACT_DB?: D1Database };
+type Env = { CONTACT_DB?: D1Database; CF_VERSION_METADATA?: { id?: string } };
 
-const LANDING = /^\/(en|ar)\/?$/;
+const PAGE = /^\/(en|ar)(\/work\/[a-z0-9-]+)?\/?$/;
+/** cv.ghawi.app's two pages ("/" and "/ar"; "/en" too). */
+const CV_PAGE = /^\/(en|ar)?\/?$/;
 const TTL_MS = 30_000;
+/** How long the edge keeps a rendered page; a new deploy or save never waits for it. */
+const EDGE_SECONDS = 60 * 60 * 24;
+
+type SiteState = { theme: string | null; content: string; at: number };
 
 /** Per-isolate memo, so a busy page costs one D1 read per 30 seconds. */
-let memo: { value: string | null; at: number } | null = null;
+let memo: SiteState | null = null;
 
-async function pinnedTheme(env: Env): Promise<string | null> {
-  if (memo && Date.now() - memo.at < TTL_MS) return memo.value;
-  let value: string | null = memo?.value ?? null;
+async function siteState(env: Env): Promise<SiteState> {
+  if (memo && Date.now() - memo.at < TTL_MS) return memo;
+  let theme = memo?.theme ?? null;
+  let content = memo?.content ?? "";
   try {
-    const row = await env.CONTACT_DB?.prepare(`SELECT value FROM site_settings WHERE key = 'site_theme'`).first<{
-      value: string | null;
-    }>();
-    value = row?.value ?? null;
+    const rows = await env.CONTACT_DB?.prepare(
+      `SELECT key, value, updated_at FROM site_settings WHERE key IN ('site_theme', 'site_content')`,
+    ).all<{ key: string; value: string | null; updated_at: string }>();
+    if (rows) {
+      theme = rows.results.find((row) => row.key === "site_theme")?.value ?? null;
+      content = rows.results.find((row) => row.key === "site_content")?.updated_at ?? "defaults";
+    }
   } catch {
-    // D1 unreachable: keep the last known value rather than flicker.
+    // D1 unreachable: keep the last known values rather than flicker.
   }
-  memo = { value, at: Date.now() };
-  return value;
+  memo = { theme, content, at: Date.now() };
+  return memo;
 }
+
+/** Workers' default edge cache (the DOM typings don't know it). */
+const edgeCache = () => (caches as unknown as { default: Cache }).default;
+
+const isHtml = (response: Response) => (response.headers.get("content-type") ?? "").includes("text/html");
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
-    const landing = request.method === "GET" && LANDING.test(url.pathname);
+    const page = url.hostname.startsWith("cv.") ? CV_PAGE.test(url.pathname) : PAGE.test(url.pathname);
+    if (request.method !== "GET" || !page) return handler.fetch(request, env, ctx);
 
-    // The theme can change while the page doesn't, so never answer a
-    // landing page with 304: drop the validators and always send the body.
-    let incoming = request;
-    if (landing) {
-      incoming = new Request(request);
-      incoming.headers.delete("if-none-match");
-      incoming.headers.delete("if-modified-since");
+    // The page can change while its URL doesn't, so never answer with 304:
+    // drop the validators and always send the body.
+    const incoming = new Request(request);
+    incoming.headers.delete("if-none-match");
+    incoming.headers.delete("if-modified-since");
+
+    const state = await siteState(env);
+    const admin = /(?:^|;\s*)ghawi_admin=/.test(request.headers.get("cookie") ?? "");
+    const rsc = request.headers.has("rsc") || url.searchParams.has("_rsc");
+    const deploy = env.CF_VERSION_METADATA?.id;
+    const key =
+      deploy && !admin && !rsc && state.content
+        ? new Request(`${url.origin}/__page${url.pathname.replace(/\/$/, "")}?d=${deploy}&c=${encodeURIComponent(state.content)}`)
+        : null;
+
+    let response = key ? await edgeCache().match(key) : undefined;
+    if (!response) {
+      response = (await handler.fetch(incoming, env, ctx)) as Response;
+      if (key && response.status === 200 && isHtml(response)) {
+        const headers = new Headers(response.headers);
+        headers.set("cache-control", `public, s-maxage=${EDGE_SECONDS}`);
+        headers.delete("set-cookie");
+        headers.delete("vary");
+        ctx.waitUntil(edgeCache().put(key, new Response(response.clone().body, { status: 200, headers })));
+      }
     }
-
-    const response: Response = await handler.fetch(incoming, env, ctx);
-    if (!landing || !(response.headers.get("content-type") ?? "").includes("text/html")) return response;
+    if (!isHtml(response)) return response;
 
     const headers = new Headers(response.headers);
     headers.delete("etag");
     headers.set("cache-control", "public, max-age=0, must-revalidate");
     const plain = new Response(response.body, { status: response.status, statusText: response.statusText, headers });
 
-    const theme = await pinnedTheme(env);
+    const theme = state.theme;
     if (!isSiteThemeChoice(theme) || theme === "ghstore") return plain;
 
     const classic = theme in CLASSIC_THEMES ? CLASSIC_THEMES[theme as ClassicTheme] : null;

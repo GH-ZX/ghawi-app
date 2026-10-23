@@ -42,7 +42,7 @@ export async function GET(request: Request) {
   try {
     const rows = await db
       .prepare(
-        `SELECT id, created_at, name, email, topic, message, locale, ip, user_agent, notified, archived
+        `SELECT id, created_at, name, email, topic, budget, message, locale, ip, user_agent, notified, archived
          FROM contact_messages
          WHERE (?1 = 1 OR archived = 0)
          ORDER BY id DESC
