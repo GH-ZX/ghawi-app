@@ -73,6 +73,9 @@ use `?preset=nocturne` (or `pnpm run preview`) to see a pinned theme.
 | `cv.ghawi.app/edit` | Dynamic | The CV builder: sign in, edit with a live preview, print to PDF (`/resume/edit`) |
 | `cv.ghawi.app/ahmed-ghawi-cv(-ar).pdf` | Dynamic | The CV as PDF: the one uploaded in the builder, else `public/media/cv` (`/cv/[file]`) |
 | `/admin` | Dynamic | Invitation, inbox, site content, stats and theme; `noindex` (own root layout) |
+| `boti.ghawi.app` (`/boti`) | Dynamic | boti, the Plus Store X client panel: sign in, then clients, ship, new client, API library; `noindex` (own root layout) |
+| `/api/boti/*` | Dynamic | boti's API (admin session): clients, ship, runs, wizard, adapters |
+| `/api/library` | Dynamic | The API library for client bots (`Authorization: Bearer <library key>`) |
 | `/api/contact` | Dynamic | Contact form endpoint |
 | `/api/track` | Dynamic | The page's visit and click counter (no cookies) |
 | `/api/admin/*` | Dynamic | Sign-in, sign-out, messages, site content, files, stats, theme, invitation |
@@ -121,6 +124,7 @@ pnpm build          # next build
 pnpm lint
 pnpm typecheck      # needs worker-configuration.d.ts: run `pnpm cf-typegen` once
 pnpm sync:design    # pull GH Store's tokens
+pnpm test           # vitest: boti's crypto, JSON paths, spec validator, wrangler.jsonc editor
 
 pnpm run preview    # build the Worker and run it in workerd (closest to production)
 pnpm run deploy     # build and deploy to Cloudflare
@@ -261,6 +265,9 @@ D1 database `ghawi-app-contacts`, migrations in `migrations/` (append-only; appl
   and countries. Nothing per person.
 - `invite_settings`, `invite_guests`, `invite_rsvps`, `invite_photos` — the wedding
   invitation (photo files themselves live in R2).
+- `boti_clients`, `boti_adapters`, `boti_events` — boti: what GitHub doesn't know about
+  each client (domain, bot, Supabase ref, the library key's SHA-256), the API library's
+  specs, and the activity log (since 0008).
 
 Timestamps are stored as `strftime('%Y-%m-%dT%H:%M:%fZ')`. Compare them against
 `new Date().toISOString()` (see `minutesAgo` in `src/lib/request.ts`), never a
@@ -272,7 +279,7 @@ space-separated date, or the string comparison stops being a time comparison.
 `worker.ts`, which wraps the generated `.open-next/worker.js`. Also: `nodejs_compat`,
 static assets, the R2 incremental cache, D1 (`CONTACT_DB`), email (`EMAIL`), the image
 binding, `CF_VERSION_METADATA` (the deploy's id, for the edge cache), the
-`ghawi.app`, `www.ghawi.app`, `invite.ghawi.app` and `cv.ghawi.app` custom domains,
+`ghawi.app`, `www.ghawi.app`, `invite.ghawi.app`, `cv.ghawi.app` and `boti.ghawi.app` custom domains,
 and the non-secret vars.
 `public/_headers` sets long-lived caching for hashed assets and a week for `/media`.
 
@@ -282,3 +289,116 @@ Windows.
 
 If a build ever serves unstyled pages, `rm -rf .next .open-next` and rebuild — a stale
 build directory is the usual culprit on Windows.
+
+## boti · boti.ghawi.app
+
+The coder's control panel for the **Plus Store X** client bots. The product repo
+(`BOTI_REPO`, `GH-ZX/plus-store-x`) has one branch per client, `client/<name>`, listed
+in `.github/clients.json`. Its *Sync client repo* Action mirrors a client branch to the
+client's own repo on every push, and the client's Cloudflare deploys it. boti drives that
+flow from a browser. Sign in with the ghawi.app admin account (each host keeps its own
+session cookie, like `cv.ghawi.app/edit`).
+
+| Tab | What it does |
+| --- | --- |
+| **Clients** | Every client in `clients.json` with the details boti keeps (domain, bot, Supabase ref, notes): site up or down (`https://<domain>/health`), updates behind `main` (compare API), the last sync run, links to the store, panel and bot. **Activity** lists the latest boti actions. |
+| **Ship** | Pick clients (or "the ones behind"), then merge `main` into each `client/<name>`. Every merge starts that client's sync; the page follows the runs live. A conflict links to the compare page: resolve it locally. |
+| **New client** | Name, client repo, Supabase URL/ref, Worker name, domain, bot. Steps, each retryable: **Deploy key** (Ed25519 pair made in the Worker; the private key goes straight into the repo secret `DEPLOY_KEY_<NAME>`, only the public key comes back), **Register** (adds the entry to `clients.json` on `main`), **Client branch** (`client/<name>` from `main`, with `"name"` and `vars.SUPABASE_URL` set in `wrangler.jsonc`, comments kept), **Keys** (`ENCRYPTION_KEY`, `TELEGRAM_WEBHOOK_SECRET`, a library key — shown once). Then a printable checklist for the owner, and **Run first sync** for when they have added the deploy key. |
+| **API library** | Provider and payment APIs as JSON specs (format below): edit with live validation, enable/disable; the version goes up on every save. **Try it** runs one endpoint from the server with a token typed in the form (never stored) and shows the request, the mapped result and the raw reply. |
+
+Setup, once:
+
+1. `pnpm exec wrangler d1 migrations apply ghawi-app-contacts --remote` (adds 0008).
+2. A fine-grained GitHub token for `GH-ZX/plus-store-x` only, with **Contents: read and
+   write**, **Actions: read and write**, **Secrets: read and write** and **Metadata: read**:
+   `pnpm exec wrangler secret put GITHUB_TOKEN`. `BOTI_REPO` is a var in `wrangler.jsonc`.
+3. Deploy (push to `main`). The `boti.ghawi.app` custom domain is in `wrangler.jsonc`'s routes.
+
+Locally, `boti.localhost:3000` (or `localhost:3000/boti`) works under `pnpm dev`, with
+`GITHUB_TOKEN` and `BOTI_REPO` in `.dev.vars`.
+
+Client bots read the library at `https://boti.ghawi.app/api/library` with
+`Authorization: Bearer <LIBRARY_KEY>` (their Cloudflare secret `LIBRARY_KEY`, var
+`LIBRARY_URL`). Only the key's SHA-256 is stored here; **Keys** issues a new one.
+
+### Adapter spec
+
+One JSON object per API. `src/lib/boti/spec.ts` holds the types and the validator, and
+`src/lib/boti/examples.ts` the two examples below. The bot implements the same format.
+
+**Common fields**
+
+- `kind`: `"provider"` or `"payment"`; `id`: a slug; `name`; `version`: a whole number
+  (boti bumps it on every save).
+- `base_url`: the default `https://` base; a client may override it in their panel.
+- `auth`: `{"type":"header","name":"Authorization","format":"Bearer {token}"}`,
+  `{"type":"query","name":"api_key"}` or `{"type":"none"}`.
+- **Templates:** `"{var}"` in `path`, `query` values, `body` strings and the auth
+  `format`. A body value that is exactly `"{var}"` keeps the variable's type (numbers stay numbers).
+- **JSON paths** (a subset): `$` is the whole body, then `.field` and `[index]` steps:
+  `$.data.items[0].code`. `list` is the path of the array to iterate; `map` values are
+  paths relative to each list item, or to the body when there is no `list`.
+- **Endpoint:** `{"method","path","query"?,"body"?,"list"?,"map"}`.
+
+**Provider**
+
+- `endpoints.balance` (map `amount`, `currency`?).
+- `endpoints.products` (needs `list`; map `id`, `name`, `price`, and optionally `stock`,
+  `description`, `image`, `min_qty`, `max_qty`).
+- `endpoints.order` (vars `product_id`, `quantity`, `reference`, plus each `requires`
+  field the customer typed, like `{email}`; map `order_id`, `status`, `items`? — an
+  array of strings or one string).
+- `endpoints.status` (var `order_id`; map `status`, `items`?).
+- `status_map`: `{"delivered":[…],"pending":[…],"failed":[…]}` — the API's status
+  values in each group.
+- Optional: `price_currency` (`"USD"`) and `requires`: `[{"key","label_en","label_ar"}]`.
+
+**Payment**
+
+- `create` (vars `amount`, `currency`, `reference`, `webhook_url`, `return_url`; map
+  `id`, and optionally `pay_url`, `address`, `pay_amount`, `pay_currency`, `expires_at`).
+- `status` (var `id`; map `status`, `paid_amount`?).
+- `status_map`: `{"paid","pending","expired","failed"}`.
+- `webhook`? — `{"signature":{"type":"hmac-sha256"|"hmac-sha512"|"none","header","encoding":"hex"|"base64"},"map":{"id","status"}}`.
+
+Example provider (a typical "products / order / order status" store API):
+
+```json
+{
+  "kind": "provider", "id": "example-store", "name": "Example Store API", "version": 1,
+  "base_url": "https://api.example-store.com/v1",
+  "auth": { "type": "header", "name": "Authorization", "format": "Bearer {token}" },
+  "endpoints": {
+    "balance":  { "method": "GET", "path": "/me/balance", "map": { "amount": "$.data.balance", "currency": "$.data.currency" } },
+    "products": { "method": "GET", "path": "/products", "query": { "page_size": "200" }, "list": "$.data",
+                  "map": { "id": "$.id", "name": "$.title", "price": "$.price", "stock": "$.stock",
+                           "description": "$.description", "image": "$.image_url", "min_qty": "$.min", "max_qty": "$.max" } },
+    "order":    { "method": "POST", "path": "/orders",
+                  "body": { "product_id": "{product_id}", "quantity": "{quantity}", "reference": "{reference}", "email": "{email}" },
+                  "map": { "order_id": "$.data.id", "status": "$.data.status", "items": "$.data.items" } },
+    "status":   { "method": "GET", "path": "/orders/{order_id}", "map": { "status": "$.data.status", "items": "$.data.items" } }
+  },
+  "status_map": { "delivered": ["completed", "delivered"], "pending": ["pending", "processing"], "failed": ["failed", "cancelled", "refunded"] },
+  "price_currency": "USD",
+  "requires": [{ "key": "email", "label_en": "Account email", "label_ar": "بريد الحساب" }]
+}
+```
+
+Example payment (crypto invoices):
+
+```json
+{
+  "kind": "payment", "id": "example-pay", "name": "Example Crypto Invoices", "version": 1,
+  "base_url": "https://api.example-pay.com",
+  "auth": { "type": "header", "name": "X-Api-Key", "format": "{token}" },
+  "create": { "method": "POST", "path": "/v1/invoices",
+              "body": { "amount": "{amount}", "currency": "{currency}", "order_id": "{reference}",
+                        "callback_url": "{webhook_url}", "success_url": "{return_url}" },
+              "map": { "id": "$.result.uuid", "pay_url": "$.result.url", "address": "$.result.address",
+                       "pay_amount": "$.result.payer_amount", "pay_currency": "$.result.payer_currency", "expires_at": "$.result.expired_at" } },
+  "status": { "method": "GET", "path": "/v1/invoices/{id}", "map": { "status": "$.result.status", "paid_amount": "$.result.paid_amount" } },
+  "status_map": { "paid": ["paid", "paid_over"], "pending": ["check", "process", "confirm_check"],
+                  "expired": ["cancel", "expired"], "failed": ["fail", "system_fail", "wrong_amount"] },
+  "webhook": { "signature": { "type": "hmac-sha256", "header": "X-Signature", "encoding": "hex" }, "map": { "id": "$.uuid", "status": "$.status" } }
+}
+```

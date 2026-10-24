@@ -2,3 +2,9 @@
 # `.dev.vars` is gitignored — never commit real secrets.
 
 NEXTJS_ENV=development
+
+# boti.ghawi.app (Plus Store X client panel). A fine-grained GitHub token for
+# GH-ZX/plus-store-x only: Contents RW, Actions RW, Secrets RW, Metadata R.
+# In production: `pnpm exec wrangler secret put GITHUB_TOKEN`; BOTI_REPO is a var in wrangler.jsonc.
+GITHUB_TOKEN=
+BOTI_REPO=GH-ZX/plus-store-x

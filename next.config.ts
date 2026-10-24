@@ -74,8 +74,12 @@ export default async function config(): Promise<NextConfig> {
       // cv.ghawi.app is the CV, served from /resume: "/" in English, "/ar" in
       // Arabic, "/edit" the CV builder. cv.localhost works the same under `next dev`.
       const cv = [{ type: "host" as const, value: String.raw`cv\.(?:ghawi\.app|localhost)` }];
+      // boti.ghawi.app is the Plus Store X client panel, served from /boti
+      // (its API, /api/boti/* and /api/library, is reached as is).
+      const boti = [{ type: "host" as const, value: String.raw`boti\.(?:ghawi\.app|localhost)` }];
       return {
         beforeFiles: [
+          { source: "/", has: boti, destination: "/boti" },
           { source: "/", has: invite, destination: "/invite/general" },
           { source: "/:slug((?!api$|invite$)[a-z0-9][a-z0-9-]*)", has: invite, destination: "/invite/:slug" },
           { source: "/", has: cv, destination: "/resume/en" },
@@ -109,6 +113,22 @@ export default async function config(): Promise<NextConfig> {
         {
           // Admin and API surfaces must never be indexed or cached.
           source: "/admin/:path*",
+          headers: [
+            { key: "X-Robots-Tag", value: "noindex, nofollow" },
+            { key: "Cache-Control", value: "no-store" },
+          ],
+        },
+        {
+          // The client panel, on its host or the /boti fallback path.
+          source: "/boti",
+          headers: [
+            { key: "X-Robots-Tag", value: "noindex, nofollow" },
+            { key: "Cache-Control", value: "no-store" },
+          ],
+        },
+        {
+          source: "/",
+          has: [{ type: "host", value: String.raw`boti\.(?:ghawi\.app|localhost)` }],
           headers: [
             { key: "X-Robots-Tag", value: "noindex, nofollow" },
             { key: "Cache-Control", value: "no-store" },

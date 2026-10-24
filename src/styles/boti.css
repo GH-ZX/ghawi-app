@@ -1,0 +1,56 @@
+/* boti.ghawi.app: the admin's look, plus a few parts of its own. */
+
+.boti__panel { display: flex; flex-direction: column; gap: 16px; }
+.boti__panel .theme-panel__head h2 { font-size: 22px; font-weight: 800; }
+.boti__panel h3 { font-size: 17px; font-weight: 800; }
+.boti .badge .spinner { width: 12px; height: 12px; border-width: 1.5px; }
+.boti .btn .spinner { width: 14px; height: 14px; }
+
+.boti__grid { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 640px) {
+  .boti__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .boti__wide { grid-column: 1 / -1; }
+}
+.boti .input, .boti .select { min-height: 44px; font-size: 15px; border-radius: 12px; }
+.boti .textarea.boti__short { min-height: 72px; font-size: 14px; border-radius: 12px; }
+.boti__edit { display: flex; flex-direction: column; gap: 12px; padding-top: 6px; border-top: 1px dashed var(--line); }
+
+.boti__copy { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.boti__keys { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+
+/* Ship */
+.boti__ship { display: flex; flex-direction: column; gap: 12px; }
+.boti__checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+.boti__checks li { border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; background: var(--surface); }
+
+/* New client */
+.boti__wizard { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.boti__wizard .message[data-status="done"] { border-color: color-mix(in srgb, var(--good) 45%, var(--line)); }
+.boti__wizard .message[data-status="error"] { border-color: color-mix(in srgb, var(--bad) 45%, var(--line)); }
+.boti__checklist { display: flex; flex-direction: column; gap: 14px; border-color: var(--accent); }
+.boti__steps-list { margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 14px; font-size: 14.5px; line-height: 1.65; }
+.boti__steps-list ul { margin: 6px 0 0; padding-inline-start: 18px; }
+.boti__steps-list .copy-box { margin-top: 8px; }
+.boti code { font-family: var(--font-mono); font-size: .92em; overflow-wrap: anywhere; }
+
+/* API library */
+.boti__editor { display: flex; flex-direction: column; gap: 12px; border-color: var(--accent); }
+.boti .textarea.boti__json {
+  min-height: 360px; font-family: var(--font-mono); font-size: 13px; line-height: 1.55; border-radius: 12px;
+  direction: ltr; tab-size: 2; white-space: pre;
+}
+.boti__errors { margin: 0; padding-inline-start: 18px; display: flex; flex-direction: column; gap: 2px; }
+.boti__try { display: flex; flex-direction: column; gap: 12px; }
+.boti__result { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.boti__pre {
+  margin: 0; max-height: 320px; overflow: auto; border-radius: 12px; background: var(--surface-2);
+  padding: 12px 14px; font-family: var(--font-mono); font-size: 12.5px; line-height: 1.5; direction: ltr; white-space: pre-wrap; overflow-wrap: anywhere;
+}
+
+/* The checklist prints on its own. */
+@media print {
+  .boti__no-print, .boti__panel > :not(.boti__checklist), .boti__wizard { display: none !important; }
+  .boti__panel { display: block; }
+  .boti__checklist { border: 0; box-shadow: none; padding: 0; }
+  .boti__checklist .btn { display: none; }
+}

@@ -69,7 +69,10 @@
     "CONTACT_FROM_EMAIL": "contact@ghawi.app",
     // Public by design — Turnstile site keys are meant to be client-visible.
     // The matching secret lives in Workers Secrets, never in this file.
-    "TURNSTILE_SITE_KEY": "0x4AAAAAAFWI655DLJFx_2zZ"
+    "TURNSTILE_SITE_KEY": "0x4AAAAAAFWI655DLJFx_2zZ",
+    // boti.ghawi.app manages this repo's client branches. Its token is the
+    // GITHUB_TOKEN secret (fine-grained, this repo only).
+    "BOTI_REPO": "GH-ZX/plus-store-x"
   },
 "routes": [
   { "pattern": "ghawi.app", "custom_domain": true },
@@ -77,7 +80,9 @@
   // The wedding invitation (next.config.ts rewrites it onto /invite).
   { "pattern": "invite.ghawi.app", "custom_domain": true },
   // The CV and its builder (next.config.ts rewrites it onto /resume).
-  { "pattern": "cv.ghawi.app", "custom_domain": true }
+  { "pattern": "cv.ghawi.app", "custom_domain": true },
+  // boti, the Plus Store X client panel (next.config.ts rewrites it onto /boti).
+  { "pattern": "boti.ghawi.app", "custom_domain": true }
 ],
 
   "observability": {
