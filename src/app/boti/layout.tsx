@@ -5,6 +5,7 @@ import { chromeColors, prePaintScript, presetCss, storeTheme } from "@/lib/theme
 import "@/styles/base.css";
 import "@/styles/admin.css";
 import "@/styles/boti.css";
+import "@/styles/boti-setup.css";
 
 export const metadata: Metadata = {
   title: "boti · ghawi.app",

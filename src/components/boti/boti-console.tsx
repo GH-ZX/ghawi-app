@@ -10,15 +10,17 @@ import { LibraryPanel } from "./library-panel";
 import { ShipPanel } from "./ship-panel";
 import { ago, api } from "./shared";
 import { WizardPanel } from "./wizard-panel";
+import { QuickSetup } from "./setup/quick-setup";
 
-type Section = "clients" | "ship" | "new" | "library";
+type Section = "setup" | "clients" | "ship" | "new" | "library";
 type BotiEvent = { id: number; at: string; kind: string; client: string | null; data: string | null };
 
 const SECTIONS: { id: Section; label: string }[] = [
+  { id: "setup", label: "Quick setup" },
   { id: "clients", label: "Clients" },
   { id: "ship", label: "Ship" },
-  { id: "new", label: "New client" },
   { id: "library", label: "API library" },
+  { id: "new", label: "Wizard (advanced)" },
 ];
 
 const EVENT_LABEL: Record<string, string> = {
@@ -29,15 +31,16 @@ const EVENT_LABEL: Record<string, string> = {
   "wizard.branch": "Client branch set up",
   "wizard.keys": "Keys generated",
   "wizard.sync": "First sync started",
+  "setup.finished": "Quick setup finished",
   "library.save": "Spec saved",
   "library.toggle": "Spec turned on/off",
   "library.delete": "Spec deleted",
 };
 
-/** boti.ghawi.app: the coder's control panel for the Plus Store X client bots. */
+/** boti.ghawi.app: the coder's control panel for the client store bots. */
 export function BotiConsole() {
   const router = useRouter();
-  const [section, setSection] = useState<Section>("clients");
+  const [section, setSection] = useState<Section | null>(null);
   const [clients, setClients] = useState<Client[]>([]);
   const [events, setEvents] = useState<BotiEvent[]>([]);
   const [repo, setRepo] = useState("");
@@ -58,11 +61,14 @@ export function BotiConsole() {
         const body = await api<{ repo: string; clients: Client[]; events: BotiEvent[] }>("/api/boti/clients", { signal: controller.signal });
         setClients(body.clients);
         setEvents(body.events ?? []);
+        // First visit: no clients yet → start on Quick setup.
+        setSection((s) => s ?? (body.clients.length ? "clients" : "setup"));
         setRepo(body.repo);
         setError(null);
       } catch (err) {
         if (controller.signal.aborted) return;
         setError((err as Error).message);
+        setSection((s) => s ?? "setup");
       } finally {
         if (!controller.signal.aborted) setLoading(false);
       }
@@ -83,7 +89,7 @@ export function BotiConsole() {
         <div className="admin__bar-inner">
           <span className="admin__brand">
             <Logo height={20} />
-            boti <span>/ Plus Store X clients</span>
+            boti <span>/ store clients</span>
           </span>
           <div className="admin__actions">
             <button
@@ -121,6 +127,7 @@ export function BotiConsole() {
           ))}
         </div>
 
+        {section === "setup" ? <QuickSetup onChanged={load} /> : null}
         {section === "clients" ? <ClientsPanel clients={clients} repo={repo} loading={loading} error={error} reload={load} /> : null}
         {section === "ship" ? <ShipPanel clients={clients} onShipped={load} /> : null}
         {section === "new" ? <WizardPanel onCreated={load} /> : null}
