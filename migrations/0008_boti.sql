@@ -7,12 +7,10 @@ CREATE TABLE IF NOT EXISTS boti_clients (
   supabase_ref      TEXT,
   telegram_bot      TEXT,
   notes             TEXT,
-  -- SHA-256 (hex) of the client's library key; the key itself is shown once.
-  library_key_hash  TEXT,
   created_at        TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );
 
--- Provider / payment API specs served to the client bots at /api/library.
+-- Provider / payment API specs: the coder's private catalog (copied into a client's panel by hand).
 CREATE TABLE IF NOT EXISTS boti_adapters (
   id          TEXT PRIMARY KEY,
   kind        TEXT NOT NULL CHECK (kind IN ('provider', 'payment')),

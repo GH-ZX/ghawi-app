@@ -255,7 +255,7 @@ export function LibraryPanel() {
   }
 
   async function remove(adapter: Adapter) {
-    if (!window.confirm(`Delete ${adapter.name}? Client bots using it lose it on their next library refresh.`)) return;
+    if (!window.confirm(`Delete ${adapter.name}? Client panels that already pasted it keep their copy.`)) return;
     await api(`/api/boti/adapters?id=${encodeURIComponent(adapter.id)}`, { method: "DELETE" });
     void load();
   }
@@ -266,7 +266,7 @@ export function LibraryPanel() {
         <div>
           <h2>API library</h2>
           <p className="muted">
-            New provider and payment APIs as data. Enabled specs are served to every client bot at <code>/api/library</code> with its library key.
+            Your private catalog of provider and payment APIs. Copy a spec&apos;s JSON and paste it into a client&apos;s panel (Providers → Custom API, or Settings → Payments → Custom payment methods). Client bots never contact boti.
           </p>
         </div>
         {editing === null ? (
@@ -323,6 +323,7 @@ export function LibraryPanel() {
                 <button type="button" className="btn btn--xs press" onClick={() => setEditing(adapter)}>
                   Edit / try
                 </button>
+                <CopyJson spec={adapter.spec} />
                 <button type="button" className="btn btn--xs btn--soft press" onClick={() => toggle(adapter)}>
                   {adapter.enabled ? "Turn off" : "Enable"}
                 </button>
@@ -335,5 +336,24 @@ export function LibraryPanel() {
         </ul>
       )}
     </section>
+  );
+}
+
+/** Copies the spec as pretty JSON, ready to paste into a client's panel. */
+function CopyJson({ spec }: { spec: AdapterSpec }) {
+  const [copied, setCopied] = useState(false);
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(spec, null, 2));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      window.prompt("Copy the spec JSON:", JSON.stringify(spec));
+    }
+  }
+  return (
+    <button type="button" className="btn btn--xs press" onClick={copy}>
+      {copied ? "Copied" : "Copy JSON"}
+    </button>
   );
 }

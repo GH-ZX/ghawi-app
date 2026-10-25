@@ -75,7 +75,7 @@ export default async function config(): Promise<NextConfig> {
       // Arabic, "/edit" the CV builder. cv.localhost works the same under `next dev`.
       const cv = [{ type: "host" as const, value: String.raw`cv\.(?:ghawi\.app|localhost)` }];
       // boti.ghawi.app is the Plus Store X client panel, served from /boti
-      // (its API, /api/boti/* and /api/library, is reached as is).
+      // (its API, /api/boti/*, is reached as is).
       const boti = [{ type: "host" as const, value: String.raw`boti\.(?:ghawi\.app|localhost)` }];
       return {
         beforeFiles: [

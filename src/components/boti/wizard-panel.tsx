@@ -17,18 +17,17 @@ type Details = {
   telegram_bot: string;
 };
 
-type Keys = { ENCRYPTION_KEY: string; TELEGRAM_WEBHOOK_SECRET: string; LIBRARY_KEY: string };
+type Keys = { ENCRYPTION_KEY: string; TELEGRAM_WEBHOOK_SECRET: string };
 
 const STEPS: { id: StepId; title: string; detail: string }[] = [
   { id: "deploy_key", title: "Deploy key", detail: "New Ed25519 key pair. The private key goes straight into the repo secret; you get the public key for the client." },
   { id: "register", title: "Register", detail: "Adds the client to .github/clients.json on main." },
   { id: "branch", title: "Client branch", detail: "Creates client/<name> from main with the Worker name and SUPABASE_URL in wrangler.jsonc." },
-  { id: "keys", title: "Keys", detail: "ENCRYPTION_KEY, TELEGRAM_WEBHOOK_SECRET and the library key. Shown once." },
+  { id: "keys", title: "Keys", detail: "ENCRYPTION_KEY and TELEGRAM_WEBHOOK_SECRET. Shown once." },
 ];
 
 const EMPTY: Details = { name: "", repo: "", domain: "", worker_name: "plus-store-x", supabase_ref: "", supabase_url: "", telegram_bot: "" };
 
-const LIBRARY_URL = "https://boti.ghawi.app/api/library";
 
 function Checklist({ details, publicKey, keys }: { details: Details; publicKey: string | null; keys: Keys | null }) {
   const worker = details.worker_name || "plus-store-x";
@@ -81,11 +80,9 @@ function Checklist({ details, publicKey, keys }: { details: Details; publicKey: 
             <div className="boti__keys">
               <CopyValue label="ENCRYPTION_KEY — never change it later" value={keys.ENCRYPTION_KEY} />
               <CopyValue label="TELEGRAM_WEBHOOK_SECRET" value={keys.TELEGRAM_WEBHOOK_SECRET} />
-              <CopyValue label="LIBRARY_KEY" value={keys.LIBRARY_KEY} />
-              <CopyValue label="LIBRARY_URL (a variable, not a secret)" value={LIBRARY_URL} />
             </div>
           ) : (
-            <p className="hint">Run the Keys step to generate ENCRYPTION_KEY, TELEGRAM_WEBHOOK_SECRET and LIBRARY_KEY.</p>
+            <p className="hint">Run the Keys step to generate ENCRYPTION_KEY and TELEGRAM_WEBHOOK_SECRET.</p>
           )}
         </li>
         <li>
@@ -134,7 +131,7 @@ export function WizardPanel({ onCreated }: { onCreated: () => void }) {
   };
 
   async function runStep(id: StepId): Promise<boolean> {
-    if (id === "keys" && keys && !window.confirm("New keys replace the ones shown (and the client's library key stops working). Continue?")) return false;
+    if (id === "keys" && keys && !window.confirm("New keys replace the ones shown. Continue?")) return false;
     setSteps((s) => ({ ...s, [id]: { status: "running" } }));
     try {
       const body = await api<Record<string, unknown> & { ok?: boolean; error?: string }>("/api/boti/wizard", {
@@ -150,7 +147,7 @@ export function WizardPanel({ onCreated }: { onCreated: () => void }) {
       if (id === "register") message = body.already ? "Already in clients.json" : "Committed to main";
       if (id === "branch") message = body.created ? `Created ${String(body.branch)}` : `${String(body.branch)} updated`;
       if (id === "keys") {
-        setKeys({ ENCRYPTION_KEY: String(body.ENCRYPTION_KEY), TELEGRAM_WEBHOOK_SECRET: String(body.TELEGRAM_WEBHOOK_SECRET), LIBRARY_KEY: String(body.LIBRARY_KEY) });
+        setKeys({ ENCRYPTION_KEY: String(body.ENCRYPTION_KEY), TELEGRAM_WEBHOOK_SECRET: String(body.TELEGRAM_WEBHOOK_SECRET) });
         message = "Generated — copy them now, they aren't shown again";
       }
       setSteps((s) => ({ ...s, [id]: { status: "done", message } }));

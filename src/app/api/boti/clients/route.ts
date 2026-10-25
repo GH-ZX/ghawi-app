@@ -9,7 +9,6 @@ type ClientRow = {
   supabase_ref: string | null;
   telegram_bot: string | null;
   notes: string | null;
-  library_key_hash: string | null;
   created_at: string;
 };
 
@@ -56,7 +55,6 @@ export async function GET() {
           supabase_ref: row?.supabase_ref ?? null,
           telegram_bot: row?.telegram_bot ?? null,
           notes: row?.notes ?? null,
-          has_library_key: Boolean(row?.library_key_hash),
           behind: compare?.behind ?? null,
           ahead: compare?.ahead ?? null,
           compare_url: compare ? `https://github.com/${gh.repo}/compare/${client.branch}...main` : null,

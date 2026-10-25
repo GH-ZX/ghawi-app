@@ -75,7 +75,6 @@ use `?preset=nocturne` (or `pnpm run preview`) to see a pinned theme.
 | `/admin` | Dynamic | Invitation, inbox, site content, stats and theme; `noindex` (own root layout) |
 | `boti.ghawi.app` (`/boti`) | Dynamic | boti, the Plus Store X client panel: sign in, then clients, ship, new client, API library; `noindex` (own root layout) |
 | `/api/boti/*` | Dynamic | boti's API (admin session): clients, ship, runs, wizard, adapters |
-| `/api/library` | Dynamic | The API library for client bots (`Authorization: Bearer <library key>`) |
 | `/api/contact` | Dynamic | Contact form endpoint |
 | `/api/track` | Dynamic | The page's visit and click counter (no cookies) |
 | `/api/admin/*` | Dynamic | Sign-in, sign-out, messages, site content, files, stats, theme, invitation |
@@ -266,7 +265,7 @@ D1 database `ghawi-app-contacts`, migrations in `migrations/` (append-only; appl
 - `invite_settings`, `invite_guests`, `invite_rsvps`, `invite_photos` — the wedding
   invitation (photo files themselves live in R2).
 - `boti_clients`, `boti_adapters`, `boti_events` — boti: what GitHub doesn't know about
-  each client (domain, bot, Supabase ref, the library key's SHA-256), the API library's
+  each client (domain, bot, Supabase ref), the API library's
   specs, and the activity log (since 0008).
 
 Timestamps are stored as `strftime('%Y-%m-%dT%H:%M:%fZ')`. Compare them against
@@ -303,8 +302,8 @@ session cookie, like `cv.ghawi.app/edit`).
 | --- | --- |
 | **Clients** | Every client in `clients.json` with the details boti keeps (domain, bot, Supabase ref, notes): site up or down (`https://<domain>/health`), updates behind `main` (compare API), the last sync run, links to the store, panel and bot. **Activity** lists the latest boti actions. |
 | **Ship** | Pick clients (or "the ones behind"), then merge `main` into each `client/<name>`. Every merge starts that client's sync; the page follows the runs live. A conflict links to the compare page: resolve it locally. |
-| **New client** | Name, client repo, Supabase URL/ref, Worker name, domain, bot. Steps, each retryable: **Deploy key** (Ed25519 pair made in the Worker; the private key goes straight into the repo secret `DEPLOY_KEY_<NAME>`, only the public key comes back), **Register** (adds the entry to `clients.json` on `main`), **Client branch** (`client/<name>` from `main`, with `"name"` and `vars.SUPABASE_URL` set in `wrangler.jsonc`, comments kept), **Keys** (`ENCRYPTION_KEY`, `TELEGRAM_WEBHOOK_SECRET`, a library key — shown once). Then a printable checklist for the owner, and **Run first sync** for when they have added the deploy key. |
-| **API library** | Provider and payment APIs as JSON specs (format below): edit with live validation, enable/disable; the version goes up on every save. **Try it** runs one endpoint from the server with a token typed in the form (never stored) and shows the request, the mapped result and the raw reply. |
+| **New client** | Name, client repo, Supabase URL/ref, Worker name, domain, bot. Steps, each retryable: **Deploy key** (Ed25519 pair made in the Worker; the private key goes straight into the repo secret `DEPLOY_KEY_<NAME>`, only the public key comes back), **Register** (adds the entry to `clients.json` on `main`), **Client branch** (`client/<name>` from `main`, with `"name"` and `vars.SUPABASE_URL` set in `wrangler.jsonc`, comments kept), **Keys** (`ENCRYPTION_KEY`, `TELEGRAM_WEBHOOK_SECRET` — shown once, nothing stored). Then a printable checklist for the owner, and **Run first sync** for when they have added the deploy key. |
+| **API library** | Provider and payment APIs as JSON specs (format below): edit with live validation, enable/disable; the version goes up on every save. **Copy JSON** copies a spec to paste into a client's panel by hand. **Try it** runs one endpoint from the server with a token typed in the form (never stored) and shows the request, the mapped result and the raw reply. |
 
 Setup, once:
 
@@ -317,9 +316,10 @@ Setup, once:
 Locally, `boti.localhost:3000` (or `localhost:3000/boti`) works under `pnpm dev`, with
 `GITHUB_TOKEN` and `BOTI_REPO` in `.dev.vars`.
 
-Client bots read the library at `https://boti.ghawi.app/api/library` with
-`Authorization: Bearer <LIBRARY_KEY>` (their Cloudflare secret `LIBRARY_KEY`, var
-`LIBRARY_URL`). Only the key's SHA-256 is stored here; **Keys** issues a new one.
+boti is private to the coder: client bots never contact it, and nothing about boti goes
+into a client's project. A spec reaches a client only when you copy its JSON and paste it
+into that client's panel (Providers → Custom API, or Settings → Payments → Custom
+payment methods).
 
 ### Adapter spec
 

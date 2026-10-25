@@ -1,4 +1,4 @@
-import { generateDeployKey, randomBase64Key, randomToken, sha256Hex } from "@/lib/boti/crypto";
+import { generateDeployKey, randomBase64Key, randomToken } from "@/lib/boti/crypto";
 import { readClients, type ClientEntry } from "@/lib/boti/github";
 import { setJsoncName, setJsoncVar } from "@/lib/boti/jsonc";
 import { botiGuard, CLIENT_NAME, errorText, githubFor, json, logEvent } from "@/lib/boti/server";
@@ -27,8 +27,8 @@ const secretName = (name: string) => `DEPLOY_KEY_${name.toUpperCase().replace(/-
  *                repo secret DEPLOY_KEY_<NAME>, only the public key comes back.
  *   register   → adds the client to .github/clients.json on main (+ boti row).
  *   branch     → client/<name> from main, with the Worker name and SUPABASE_URL.
- *   keys       → ENCRYPTION_KEY, TELEGRAM_WEBHOOK_SECRET and a library key,
- *                returned once; only the library key's hash is kept.
+ *   keys       → ENCRYPTION_KEY and TELEGRAM_WEBHOOK_SECRET, returned once
+ *                (nothing is stored).
  *   sync       → runs "Sync client repo" for the branch (once the client has
  *                added the deploy key to their repo).
  */
@@ -104,18 +104,11 @@ export async function POST(request: Request) {
       }
 
       case "keys": {
-        if (!db) return json({ error: "no_database" }, 503);
-        const libraryKey = `lib_${randomToken(40)}`;
-        await db
-          .prepare(`INSERT INTO boti_clients (name, library_key_hash) VALUES (?1, ?2) ON CONFLICT(name) DO UPDATE SET library_key_hash = ?2`)
-          .bind(name, await sha256Hex(libraryKey))
-          .run();
-        await logEvent(auth.env, "wizard.keys", name, { library_key: "rotated" });
+        await logEvent(auth.env, "wizard.keys", name, {});
         return json({
           ok: true,
           ENCRYPTION_KEY: randomBase64Key(32),
           TELEGRAM_WEBHOOK_SECRET: randomToken(48),
-          LIBRARY_KEY: libraryKey,
         });
       }
 

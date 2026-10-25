@@ -1,7 +1,8 @@
 /**
  * Adapter specs: a provider or payment API described as data, so a new API
  * reaches every Plus Store X client bot without a code change. boti.ghawi.app
- * stores them (Library) and serves the enabled ones at GET /api/library; the
+ * stores them (Library) as the coder's private catalog; a spec's JSON is copied
+ * into a client's panel by hand (boti never talks to client bots). The
  * bot implements the same format. The README's "Adapter spec" section is the
  * human version of this file — keep the two in step.
  */

@@ -15,7 +15,6 @@ export type Client = {
   supabase_ref: string | null;
   telegram_bot: string | null;
   notes: string | null;
-  has_library_key: boolean;
   behind: number | null;
   ahead: number | null;
   compare_url: string | null;
@@ -181,7 +180,6 @@ export function ClientsPanel({
                 <SiteBadge site={client.site} />
                 <VersionBadge client={client} />
                 <RunBadge run={client.last_sync} />
-                {client.has_library_key ? <span className="badge badge--soft">Library key set</span> : null}
               </div>
               {client.last_sync ? (
                 <p className="hint">
