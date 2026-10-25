@@ -11,13 +11,16 @@ export const STEP_IDS = ["welcome", "telegram", "github", "supabase", "cloudflar
 export type StepId = (typeof STEP_IDS)[number];
 
 export type StepStatus = "todo" | "active" | "done" | "skipped";
+/** The coder's interface language. */
 export type Lang = "en" | "ar";
+/** The store's languages: both by default (customers pick in the bot). */
+export type StoreLang = "both" | "ar" | "en";
 
 /** Non-secret facts typed during setup. Anything not listed here is dropped before saving. */
 export type SetupInputs = {
   client: string;
   brand: string;
-  lang: Lang;
+  lang: StoreLang;
   bot_username: string;
   repo: string;
   supabase_url: string;
@@ -43,7 +46,7 @@ export type SetupState = {
 export const EMPTY_INPUTS: SetupInputs = {
   client: "",
   brand: "",
-  lang: "ar",
+  lang: "both",
   bot_username: "",
   repo: "",
   supabase_url: "",
@@ -109,10 +112,15 @@ const WORKER = /^[a-z0-9][a-z0-9-]{0,62}$/;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const DOMAIN = /^(?=.{3,253}$)[a-z0-9-]+(\.[a-z0-9-]+)+$/i;
 
-export function newSetup(lang: Lang = "ar"): SetupState {
+export function newSetup(lang: StoreLang = "both"): SetupState {
   const steps = Object.fromEntries(STEP_IDS.map((id) => [id, "todo"])) as Record<StepId, StepStatus>;
   steps.welcome = "active";
   return { version: 1, current: "welcome", steps, tasks: {}, inputs: { ...EMPTY_INPUTS, lang }, actions: {} };
+}
+
+/** "Sara Store!" → "sara-store" (Latin letters and digits only; Arabic names give "" and are typed by hand). */
+export function slugify(value: string): string {
+  return value.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 31).replace(/-+$/, "");
 }
 
 /** "abc" from "https://abc.supabase.co". */
@@ -199,11 +207,19 @@ export function setupReducer(state: SetupState, action: SetupAction): SetupState
     case "input": {
       let value = action.value;
       if (action.key === "client" || action.key === "worker_name") value = value.toLowerCase().replace(/[^a-z0-9-]/g, "");
-      if (action.key === "lang") value = value === "en" ? "en" : "ar";
+      if (action.key === "lang") value = value === "en" || value === "ar" ? value : "both";
       if (action.key === "domain") value = cleanDomain(value);
       if (action.key === "bot_username") value = value.trim().replace(/^@/, "");
       const inputs = { ...state.inputs, [action.key]: value } as SetupInputs;
       if (action.key === "supabase_url") inputs.supabase_ref = refFromUrl(value) || state.inputs.supabase_ref;
+      // The client id follows the store name until it's edited on its own.
+      if (action.key === "brand" && (!state.inputs.client || state.inputs.client === slugify(state.inputs.brand))) {
+        const slug = slugify(value);
+        if (slug.length >= 2) {
+          inputs.client = slug;
+          if (!state.inputs.worker_name || state.inputs.worker_name === state.inputs.client) inputs.worker_name = slug;
+        }
+      }
       // The Worker name follows the client name until it's edited on its own.
       if (action.key === "client" && (!state.inputs.worker_name || state.inputs.worker_name === state.inputs.client)) inputs.worker_name = value;
       return { ...state, inputs };
@@ -269,7 +285,7 @@ export function sanitizeState(raw: unknown): SetupState | null {
     const v = rawInputs[key];
     if (typeof v === "string") (inputs as Record<string, string>)[key] = v.slice(0, key === "public_key" ? 200 : 120);
   }
-  inputs.lang = inputs.lang === "en" ? "en" : "ar";
+  inputs.lang = inputs.lang === "en" || inputs.lang === "ar" ? inputs.lang : "both";
   if (inputs.public_key && !/^ssh-ed25519 [A-Za-z0-9+/=]+( [^\n]*)?$/.test(inputs.public_key)) inputs.public_key = "";
 
   const current = typeof r.current === "string" && (STEP_IDS as readonly string[]).includes(r.current) ? (r.current as StepId) : "welcome";

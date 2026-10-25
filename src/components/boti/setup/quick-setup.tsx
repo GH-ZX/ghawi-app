@@ -1,13 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { BotIcon, CardIcon, ChipIcon, CloudIcon, ExternalIcon, PrintIcon, RepoIcon, SendIcon, SparkIcon } from "@/components/icons";
 import {
   CLIENT_SLUG,
   type Lang,
   newSetup,
   OPTIONAL_STEPS,
-  progress,
   type SetupAction,
   type SetupState,
   setupReducer,
@@ -45,19 +45,19 @@ function readLang(): Lang {
   }
 }
 
-/** Guided onboarding of a new client store: one calm step at a time, with a "client view" for showing it live. */
+/** Guided onboarding of a new client store. The start screen lives in the console; a setup opens full screen. */
 export function QuickSetup({ onChanged }: { onChanged: () => void }) {
   // Rendered only after the console loads on the client, so localStorage is safe to read here.
   const [lang, setLangState] = useState<Lang>(() => (typeof window === "undefined" ? "ar" : readLang()));
   const [list, setList] = useState<SetupSummary[] | null>(null);
   const [state, rawDispatch] = useReducer(setupReducer, undefined, () => newSetup());
   const [open, setOpen] = useState(false);
-  const [clientView, setClientView] = useState(false);
   const [howto, setHowto] = useState(false);
   const [actions, setActions] = useState<Partial<Record<ActionId, ActionState>>>({});
   const [keys, setKeys] = useState<Keys | null>(null);
   const [health, setHealth] = useState<Health>(null);
   const [save, setSave] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [direction, setDirection] = useState<"fwd" | "back">("fwd");
   const dirty = useRef(false);
   const [listVersion, setListVersion] = useState(0);
 
@@ -103,24 +103,20 @@ export function QuickSetup({ onChanged }: { onChanged: () => void }) {
     return () => window.clearTimeout(timer);
   }, [state, open]);
 
-  function start() {
-    rawDispatch({ type: "load", state: newSetup(lang) });
+  function enter(next: SetupState) {
+    rawDispatch({ type: "load", state: next });
     dirty.current = false;
     setKeys(null);
     setHealth(null);
     setActions({});
+    setSave("idle");
+    setDirection("fwd");
     setOpen(true);
   }
 
   async function resume(name: string) {
     const body = await api<{ setup: { state: SetupState | null } | null }>(`/api/boti/setup?name=${encodeURIComponent(name)}`);
-    if (!body.setup?.state) return;
-    rawDispatch({ type: "load", state: body.setup.state });
-    dirty.current = false;
-    setKeys(null);
-    setHealth(null);
-    setActions({});
-    setOpen(true);
+    if (body.setup?.state) enter(body.setup.state);
   }
 
   async function remove(name: string) {
@@ -129,11 +125,11 @@ export function QuickSetup({ onChanged }: { onChanged: () => void }) {
     setListVersion((v) => v + 1);
   }
 
-  function close() {
+  const exit = useCallback(() => {
     setOpen(false);
-    setClientView(false);
+    setHowto(false);
     setListVersion((v) => v + 1);
-  }
+  }, []);
 
   const run = useCallback(
     async (id: ActionId) => {
@@ -178,22 +174,6 @@ export function QuickSetup({ onChanged }: { onChanged: () => void }) {
     [state, keys, lang, dispatch, onChanged],
   );
 
-  // Client view: ←/→ move between steps (mirrored in Arabic), Esc leaves.
-  useEffect(() => {
-    if (!clientView) return;
-    const onKey = (event: KeyboardEvent) => {
-      if (howto) return;
-      const index = STEP_IDS.indexOf(state.current);
-      const forward = lang === "ar" ? "ArrowLeft" : "ArrowRight";
-      const backward = lang === "ar" ? "ArrowRight" : "ArrowLeft";
-      if (event.key === forward && index < STEP_IDS.length - 1) rawDispatch({ type: "go", step: STEP_IDS[index + 1] });
-      if (event.key === backward && index > 0) rawDispatch({ type: "go", step: STEP_IDS[index - 1] });
-      if (event.key === "Escape") setClientView(false);
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [clientView, state, lang, howto]);
-
   const dir = lang === "ar" ? "rtl" : "ltr";
   const langToggle = (
     <div className="seg qs-lang" role="group" aria-label="Language">
@@ -206,9 +186,8 @@ export function QuickSetup({ onChanged }: { onChanged: () => void }) {
     </div>
   );
 
-  // ───────────────────────────── start screen
-  if (!open) {
-    return (
+  return (
+    <>
       <section className="boti__panel qs" lang={lang} dir={dir}>
         <div className="qs-hero card">
           <div className="qs-hero__glow" aria-hidden="true" />
@@ -232,7 +211,7 @@ export function QuickSetup({ onChanged }: { onChanged: () => void }) {
                 );
               })}
             </ol>
-            <button type="button" className="btn press qs-hero__cta" onClick={start}>
+            <button type="button" className="btn press qs-hero__cta" onClick={() => enter(newSetup())}>
               {tr(lang, UI.start)}
             </button>
           </div>
@@ -265,10 +244,54 @@ export function QuickSetup({ onChanged }: { onChanged: () => void }) {
           </div>
         ) : null}
       </section>
-    );
-  }
 
-  // ───────────────────────────── a setup
+      {open
+        ? createPortal(
+            <Stage
+              state={state}
+              dispatch={dispatch}
+              lang={lang}
+              dir={dir}
+              langToggle={langToggle}
+              save={save}
+              direction={direction}
+              setDirection={setDirection}
+              actions={actions}
+              run={run}
+              keys={keys}
+              health={health}
+              howto={howto}
+              setHowto={setHowto}
+              exit={exit}
+            />,
+            document.body,
+          )
+        : null}
+    </>
+  );
+}
+
+export type StageProps = {
+  state: SetupState;
+  dispatch: (action: SetupAction) => void;
+  lang: Lang;
+  dir: "rtl" | "ltr";
+  langToggle: React.ReactNode;
+  save: "idle" | "saving" | "saved" | "error";
+  direction: "fwd" | "back";
+  setDirection: (d: "fwd" | "back") => void;
+  actions: Partial<Record<ActionId, ActionState>>;
+  run: (id: ActionId) => void;
+  keys: Keys | null;
+  health: Health;
+  howto: boolean;
+  setHowto: (open: boolean) => void;
+  exit: () => void;
+};
+
+/** The full-screen setup: one centred step at a time, Setup Assistant style. */
+export function Stage(props: StageProps) {
+  const { state, dispatch, lang, dir, langToggle, save, direction, setDirection, actions, run, keys, health, howto, setHowto, exit } = props;
   const step = state.current;
   const index = STEP_IDS.indexOf(step);
   const text = STEP_TEXT[step];
@@ -276,159 +299,158 @@ export function QuickSetup({ onChanged }: { onChanged: () => void }) {
   const status = state.steps[step];
   const problems = stepProblems(state, step);
   const optional = OPTIONAL_STEPS.includes(step);
-  const pct = progress(state);
   const workIndex = WORK.indexOf(step as (typeof WORK)[number]);
-  const firstProblem = problems[0];
-  const problemText = firstProblem ? tr(lang, PROBLEMS[firstProblem.startsWith("task:") ? "task" : firstProblem] ?? PROBLEMS.task) : "";
+  const first = problems[0];
+  const blocker = first ? tr(lang, PROBLEMS[first.startsWith("task:") ? "task" : first] ?? PROBLEMS.task) : "";
+  const blockedByDetails = problems.some((p) => p.startsWith("action:") || p === "client");
+  const title = useRef<HTMLHeadingElement>(null);
 
-  const go = (target: StepId) => dispatch({ type: "go", step: target });
+  // The page behind stays still; focus lands on each new step's title.
+  useEffect(() => {
+    const { overflow } = document.body.style;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = overflow;
+    };
+  }, []);
+  useEffect(() => {
+    title.current?.focus({ preventScroll: true });
+  }, [step]);
 
-  const footer = (
-    <div className="qs-footer">
-      <button type="button" className="btn btn--sm btn--ghost press" disabled={index === 0} onClick={() => go(STEP_IDS[index - 1])}>
-        {tr(lang, UI.back)}
-      </button>
-      <div className="qs-footer__main">
-        {step !== "done" && status === "done" ? (
-          <>
-            <button type="button" className="btn btn--sm btn--soft press" onClick={() => dispatch({ type: "reopen", step })}>
-              {tr(lang, UI.reopen)}
+  const go = (target: StepId) => {
+    setDirection(STEP_IDS.indexOf(target) >= index ? "fwd" : "back");
+    dispatch({ type: "go", step: target });
+  };
+
+  let primary: { label: string; onClick: () => void; disabled?: boolean };
+  if (step === "done") primary = { label: tr(lang, UI.finish), onClick: exit };
+  else if (status === "done") primary = { label: tr(lang, UI.continue), onClick: () => go(STEP_IDS[index + 1]) };
+  else
+    primary = {
+      label: step === "welcome" ? tr(lang, UI.getStarted) : tr(lang, UI.continue),
+      disabled: problems.length > 0,
+      onClick: () => {
+        setDirection("fwd");
+        dispatch({ type: "complete", step });
+      },
+    };
+
+  return (
+    <div className="qs-stage" lang={lang} dir={dir} role="dialog" aria-modal="true" aria-label={tr(lang, UI.heading)}>
+      <div className="qs-stage__backdrop" aria-hidden="true">
+        <span className="qs-blob qs-blob--1" />
+        <span className="qs-blob qs-blob--2" />
+        <span className="qs-blob qs-blob--3" />
+      </div>
+
+      <header className="qs-stage__bar">
+        <button type="button" className="qs-exit press" onClick={exit}>
+          {tr(lang, UI.exit)}
+        </button>
+        <span className="qs-stage__brand" dir="auto">
+          {state.inputs.brand || ""}
+        </span>
+        <div className="qs-stage__tools">
+          <span className="qs-save" aria-live="polite">
+            {save === "saving" ? tr(lang, UI.saving) : save === "saved" ? tr(lang, UI.saved) : save === "error" ? tr(lang, UI.saveFailed) : ""}
+          </span>
+          {langToggle}
+        </div>
+      </header>
+
+      <main className="qs-stage__main">
+        <div className="qs-screen" key={step} data-dir={direction} data-status={status}>
+          <span className="qs-screen__icon" aria-hidden="true">
+            {status === "done" || step === "done" ? <DrawnCheck size={30} /> : <Icon size={30} />}
+          </span>
+          {step !== "done" ? (
+            <p className="qs-screen__eyebrow">
+              {tr(lang, UI.step)} {workIndex + 1} {tr(lang, UI.of)} {WORK.length}
+              {status === "done" ? ` · ${tr(lang, UI.status.done)}` : status === "skipped" ? ` · ${tr(lang, UI.status.skipped)}` : ""}
+            </p>
+          ) : null}
+          <h1 className="qs-screen__title" tabIndex={-1} ref={title}>
+            {step === "done" ? tr(lang, UI.doneTitle) : tr(lang, text.client)}
+          </h1>
+          <p className="qs-screen__sub">{step === "done" ? tr(lang, UI.doneText) : tr(lang, text.goal)}</p>
+          {text.howto.length ? (
+            <button type="button" className="qs-howto press" onClick={() => setHowto(true)}>
+              {tr(lang, UI.howto)}
             </button>
-            <button type="button" className="btn btn--sm press" onClick={() => go(STEP_IDS[index + 1])}>
-              {tr(lang, UI.next)}
+          ) : null}
+
+          {step === "done" ? (
+            <DoneSummary state={state} lang={lang} />
+          ) : (
+            <StepBody step={step} state={state} dispatch={dispatch} lang={lang} actions={actions} run={run} keys={keys} health={health} />
+          )}
+        </div>
+      </main>
+
+      <footer className="qs-stage__foot">
+        {problems.length && step !== "done" && status !== "done" ? (
+          <p className="qs-blocker" id="qs-blocker">
+            {blockedByDetails ? tr(lang, UI.detailsNeeded) : blocker}
+          </p>
+        ) : null}
+        <button
+          type="button"
+          className="qs-primary press"
+          disabled={primary.disabled}
+          aria-describedby={primary.disabled ? "qs-blocker" : undefined}
+          onClick={primary.onClick}
+        >
+          {primary.label}
+        </button>
+        <div className="qs-secondary">
+          {index > 0 ? (
+            <button type="button" className="qs-text-btn press" onClick={() => go(STEP_IDS[index - 1])}>
+              {tr(lang, UI.back)}
             </button>
-          </>
-        ) : step !== "done" ? (
-          <>
-            {optional ? (
-              <button type="button" className="btn btn--sm btn--soft press" onClick={() => dispatch({ type: "skip", step })}>
+          ) : (
+            <span />
+          )}
+          <div className="qs-secondary__end">
+            {optional && status !== "done" && status !== "skipped" ? (
+              <button
+                type="button"
+                className="qs-text-btn press"
+                onClick={() => {
+                  setDirection("fwd");
+                  dispatch({ type: "skip", step });
+                }}
+              >
                 {tr(lang, UI.skip)}
               </button>
             ) : null}
-            <button
-              type="button"
-              className="btn btn--sm press"
-              disabled={problems.length > 0}
-              aria-describedby={problems.length ? "qs-blocker" : undefined}
-              onClick={() => dispatch({ type: "complete", step })}
-            >
-              {step === "welcome" ? tr(lang, UI.next) : tr(lang, UI.complete)}
-            </button>
-          </>
-        ) : null}
-      </div>
-    </div>
-  );
-
-  const stepCard = (
-    <article className="card qs-step" key={step} data-status={status}>
-      <header className="qs-step__head">
-        <span className="qs-step__icon" aria-hidden="true">
-          {status === "done" ? <DrawnCheck size={22} /> : <Icon size={22} />}
-        </span>
-        <div className="qs-step__titles">
-          {step !== "done" ? (
-            <span className="qs-step__count">
-              {tr(lang, UI.step)} {workIndex + 1} {tr(lang, UI.of)} {WORK.length}
-            </span>
-          ) : null}
-          <h3>{clientView ? tr(lang, text.client) : tr(lang, text.title)}</h3>
-          <p className="muted">{tr(lang, text.goal)}</p>
-        </div>
-        {text.howto.length ? (
-          <button type="button" className="btn btn--xs btn--ghost press qs-step__howto" onClick={() => setHowto(true)}>
-            {tr(lang, UI.howto)}
-          </button>
-        ) : null}
-      </header>
-
-      {step === "done" ? (
-        <DoneSummary state={state} lang={lang} />
-      ) : (
-        <StepBody step={step} state={state} dispatch={dispatch} lang={lang} clientView={clientView} actions={actions} run={run} keys={keys} health={health} />
-      )}
-
-      {problems.length && step !== "done" && status !== "done" ? (
-        <p className="hint qs-blocker" id="qs-blocker">
-          {problemText}
-        </p>
-      ) : null}
-      {footer}
-    </article>
-  );
-
-  const rail = (
-    <nav className="qs-rail" aria-label={tr(lang, UI.heading)}>
-      <ol>
-        {STEP_IDS.map((id, n) => {
-          const S = ICONS[id];
-          const s = state.steps[id];
-          return (
-            <li key={id}>
-              <button type="button" className="qs-rail__item press" aria-current={id === step ? "step" : undefined} data-status={s} onClick={() => go(id)}>
-                <span className="qs-rail__dot">{s === "done" ? <DrawnCheck size={14} /> : <S size={15} />}</span>
-                <span className="qs-rail__label">{tr(lang, STEP_TEXT[id].title)}</span>
-                <span className="qs-rail__status">{tr(lang, UI.status[s])}</span>
+            {step !== "done" && status === "done" ? (
+              <button type="button" className="qs-text-btn press" onClick={() => dispatch({ type: "reopen", step })}>
+                {tr(lang, UI.reopen)}
               </button>
-              {n < STEP_IDS.length - 1 ? <span className="qs-rail__line" data-done={s === "done" || s === "skipped" || undefined} aria-hidden="true" /> : null}
-            </li>
-          );
-        })}
-      </ol>
-    </nav>
-  );
+            ) : null}
+          </div>
+        </div>
+        <nav className="qs-dots" aria-label={tr(lang, UI.stepsNav)}>
+          {WORK.map((id, n) => (
+            <button
+              key={id}
+              type="button"
+              className="qs-dot"
+              data-status={state.steps[id]}
+              aria-current={id === step ? "step" : undefined}
+              aria-label={`${tr(lang, UI.goToStep)} ${n + 1}: ${tr(lang, STEP_TEXT[id].title)} (${tr(lang, UI.status[state.steps[id]])})`}
+              onClick={() => go(id)}
+            />
+          ))}
+        </nav>
+      </footer>
 
-  return (
-    <section className={`boti__panel qs ${clientView ? "qs--client" : ""}`} lang={lang} dir={dir}>
       <p className="qs-sr" aria-live="polite">
         {`${tr(lang, text.title)} — ${tr(lang, text.goal)}`}
       </p>
 
-      <div className="qs-top boti__no-print">
-        <div className="qs-top__title">
-          <ProgressRing value={pct} size={clientView ? 120 : 48} stroke={clientView ? 9 : 5} />
-          <div>
-            <strong>{state.inputs.brand || state.inputs.client || tr(lang, UI.heading)}</strong>
-            {!clientView ? (
-              <span className="hint" dir="ltr">
-                {state.inputs.client ? `client/${state.inputs.client}` : ""}
-              </span>
-            ) : null}
-          </div>
-        </div>
-        <div className="qs-top__tools">
-          {!clientView ? (
-            <span className="hint qs-save" aria-live="polite">
-              {save === "saving" ? tr(lang, UI.saving) : save === "saved" ? tr(lang, UI.saved) : save === "error" ? tr(lang, UI.saveFailed) : ""}
-            </span>
-          ) : null}
-          {langToggle}
-          <button type="button" className="btn btn--xs btn--soft press" aria-pressed={clientView} onClick={() => setClientView((v) => !v)}>
-            {clientView ? tr(lang, UI.exitClientView) : tr(lang, UI.clientView)}
-          </button>
-          {!clientView ? (
-            <button type="button" className="btn btn--xs btn--ghost press" onClick={close}>
-              {tr(lang, UI.close)}
-            </button>
-          ) : null}
-        </div>
-      </div>
-
-      <div className="qs-layout">
-        {!clientView ? rail : null}
-        {stepCard}
-      </div>
-
-      {clientView ? (
-        <div className="qs-dots boti__no-print" aria-hidden="true">
-          {WORK.map((id) => (
-            <span key={id} data-status={state.steps[id]} data-current={id === step || undefined} />
-          ))}
-        </div>
-      ) : null}
-
       <HowToDrawer open={howto} onClose={() => setHowto(false)} guides={text.howto} lang={lang} title={`${tr(lang, UI.howto)} · ${tr(lang, text.title)}`} />
-    </section>
+    </div>
   );
 }
 
@@ -436,7 +458,7 @@ function DoneSummary({ state, lang }: { state: SetupState; lang: Lang }) {
   const i = state.inputs;
   const rows: { label: string; value: string; href?: string }[] = [
     { label: tr(lang, UI.brand), value: i.brand },
-    { label: tr(lang, UI.clientName), value: i.client },
+    { label: tr(lang, UI.language), value: tr(lang, i.lang === "both" ? UI.langBoth : i.lang === "ar" ? UI.langAr : UI.langEn) },
     { label: tr(lang, UI.store), value: i.domain ? `https://${i.domain}` : "—", href: i.domain ? `https://${i.domain}` : undefined },
     { label: tr(lang, UI.panel), value: i.domain ? `https://${i.domain}/admin/` : "—", href: i.domain ? `https://${i.domain}/admin/` : undefined },
     { label: tr(lang, UI.bot), value: i.bot_username ? `@${i.bot_username}` : "—", href: i.bot_username ? `https://t.me/${i.bot_username}` : undefined },
@@ -447,16 +469,11 @@ function DoneSummary({ state, lang }: { state: SetupState; lang: Lang }) {
   return (
     <div className="qs-done">
       <Confetti />
-      <div className="qs-done__badge" aria-hidden="true">
-        <DrawnCheck size={40} />
-      </div>
-      <h4>{tr(lang, UI.doneTitle)}</h4>
-      <p className="muted">{tr(lang, UI.doneText)}</p>
       <dl className="qs-done__rows">
         {rows.map((row, n) => (
           <div key={row.label} style={{ ["--i" as string]: n }}>
             <dt>{row.label}</dt>
-            <dd dir="ltr">
+            <dd dir="auto">
               {row.href ? (
                 <a href={row.href} target="_blank" rel="noopener noreferrer">
                   {row.value} <ExternalIcon size={12} />
@@ -468,7 +485,7 @@ function DoneSummary({ state, lang }: { state: SetupState; lang: Lang }) {
           </div>
         ))}
       </dl>
-      <button type="button" className="btn btn--sm btn--soft press boti__no-print" onClick={() => window.print()}>
+      <button type="button" className="qs-pill press" onClick={() => window.print()}>
         <PrintIcon size={14} /> {tr(lang, UI.print)}
       </button>
     </div>

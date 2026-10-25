@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { ExternalIcon } from "@/components/icons";
 import { type Lang, type SetupAction, type SetupInputs, type SetupState, type StepId, TASKS, stepProblems } from "@/lib/boti/setup";
 import { PROBLEMS, TASK_TEXT, tr, UI } from "@/lib/boti/setup-content";
@@ -16,14 +17,13 @@ type Props = {
   state: SetupState;
   dispatch: (action: SetupAction) => void;
   lang: Lang;
-  clientView: boolean;
   actions: Partial<Record<ActionId, ActionState>>;
   run: (id: ActionId) => void;
   keys: Keys | null;
   health: Health;
 };
 
-function Field({ label, k, state, dispatch, placeholder, problem, lang, type = "text", dirLtr = true, hint }: {
+function Field({ label, k, state, dispatch, placeholder, problem, lang, type = "text", ltr = true, hint, big }: {
   label: string;
   k: keyof SetupInputs;
   state: SetupState;
@@ -32,20 +32,21 @@ function Field({ label, k, state, dispatch, placeholder, problem, lang, type = "
   problem?: string;
   lang: Lang;
   type?: string;
-  dirLtr?: boolean;
+  ltr?: boolean;
   hint?: string;
+  big?: boolean;
 }) {
   const id = `qs-${k}`;
   const value = state.inputs[k];
   const invalid = Boolean(problem && value);
   return (
-    <label className="field" htmlFor={id}>
-      <span className="field__label">{label}</span>
+    <label className={`qs-field ${big ? "qs-field--big" : ""}`} htmlFor={id}>
+      <span className="qs-field__label">{label}</span>
       <input
         id={id}
-        className="input"
+        className="qs-input"
         type={type}
-        dir={dirLtr ? "ltr" : undefined}
+        dir={ltr ? "ltr" : "auto"}
         value={value}
         placeholder={placeholder}
         autoComplete="off"
@@ -53,13 +54,13 @@ function Field({ label, k, state, dispatch, placeholder, problem, lang, type = "
         aria-invalid={invalid || undefined}
         onChange={(e) => dispatch({ type: "input", key: k, value: e.target.value })}
       />
-      {invalid ? <span className="hint qs-bad">{tr(lang, PROBLEMS[problem!])}</span> : hint ? <span className="hint">{hint}</span> : null}
+      {invalid ? <span className="qs-field__hint qs-bad">{tr(lang, PROBLEMS[problem!])}</span> : hint ? <span className="qs-field__hint">{hint}</span> : null}
     </label>
   );
 }
 
-/** The step's checklist: big tick boxes, staggered in. */
-function Tasks({ step, state, dispatch, lang, clientView }: Pick<Props, "step" | "state" | "dispatch" | "lang" | "clientView">) {
+/** The step's checklist: large tick rows, staggered in. */
+function Tasks({ step, state, dispatch, lang }: Pick<Props, "step" | "state" | "dispatch" | "lang">) {
   const tasks = TASKS[step];
   if (!tasks.length) return null;
   return (
@@ -72,12 +73,26 @@ function Tasks({ step, state, dispatch, lang, clientView }: Pick<Props, "step" |
               <input type="checkbox" checked={on} onChange={(e) => dispatch({ type: "task", id: task.id, value: e.target.checked })} />
               <span className="qs-task__box" aria-hidden="true">{on ? <DrawnCheck size={16} /> : null}</span>
               <span className="qs-task__text">{tr(lang, TASK_TEXT[task.id])}</span>
-              {!clientView ? <span className="qs-task__tag">{task.required ? tr(lang, UI.required) : tr(lang, UI.optional)}</span> : null}
+              {!task.required ? <span className="qs-task__tag">{tr(lang, UI.optional)}</span> : null}
             </label>
           </li>
         );
       })}
     </ul>
+  );
+}
+
+/** Coder-only internals, folded away so the client's screen stays calm. */
+function Details({ lang, attention, children }: { lang: Lang; attention?: boolean; children: ReactNode }) {
+  return (
+    <details className="qs-details" data-attention={attention || undefined}>
+      <summary>
+        <span>{tr(lang, UI.details)}</span>
+        {attention ? <span className="qs-details__dot" aria-label={tr(lang, UI.detailsNeeded)} /> : null}
+        <span className="qs-details__hint">{tr(lang, UI.detailsHint)}</span>
+      </summary>
+      <div className="qs-details__body">{children}</div>
+    </details>
   );
 }
 
@@ -94,12 +109,16 @@ function ActionButton({ id, label, run, actions, lang, disabled, done }: {
   const status = a.status === "idle" && done ? "done" : a.status;
   return (
     <div className="qs-action" data-status={status}>
-      <button type="button" className={`btn btn--sm press ${status === "done" ? "btn--soft" : ""}`} disabled={disabled || status === "running"} onClick={() => run(id)}>
+      <button type="button" className="qs-pill press" disabled={disabled || status === "running"} onClick={() => run(id)}>
         {status === "running" ? <span className="spinner" aria-hidden="true" /> : status === "done" ? <DrawnCheck size={16} /> : null}
         {label}
-        {status === "done" ? ` · ${tr(lang, UI.runAgain)}` : ""}
+        {status === "done" ? <span className="qs-pill__again"> · {tr(lang, UI.runAgain)}</span> : null}
       </button>
-      {a.message ? <span className={status === "error" ? "error-text" : "hint"} role={status === "error" ? "alert" : undefined}>{a.message}</span> : null}
+      {a.message ? (
+        <span className={status === "error" ? "error-text" : "qs-field__hint"} role={status === "error" ? "alert" : undefined}>
+          {a.message}
+        </span>
+      ) : null}
     </div>
   );
 }
@@ -114,8 +133,10 @@ function Commands({ lines }: { lines: string[] }) {
   );
 }
 
+const missingAction = (state: SetupState, step: StepId) => stepProblems(state, step).some((p) => p.startsWith("action:"));
+
 export function StepBody(props: Props) {
-  const { step, state, dispatch, lang, clientView, actions, run, keys, health } = props;
+  const { step, state, dispatch, lang, actions, run, keys, health } = props;
   const i = state.inputs;
   const problems = stepProblems(state, step);
   const has = (key: string) => problems.includes(key);
@@ -125,23 +146,35 @@ export function StepBody(props: Props) {
     case "welcome":
       return (
         <div className="qs-body">
-          {!clientView ? (
-            <div className="boti__grid">
-              <Field label={tr(lang, UI.clientName)} k="client" state={state} dispatch={dispatch} placeholder="sara-store" problem={has("client") ? "client" : undefined} lang={lang} hint={`client/${i.client || "<name>"}`} />
-              <Field label={tr(lang, UI.brand)} k="brand" state={state} dispatch={dispatch} placeholder="Sara Store" lang={lang} dirLtr={false} />
-            </div>
-          ) : null}
-          <div className="field">
-            <span className="field__label">{tr(lang, UI.language)}</span>
-            <div className="seg" role="group" aria-label={tr(lang, UI.language)}>
-              {(["ar", "en"] as const).map((l) => (
-                <button key={l} type="button" className="press" aria-pressed={i.lang === l} onClick={() => dispatch({ type: "input", key: "lang", value: l })}>
-                  {l === "ar" ? "العربية" : "English"}
+          <Field big label={tr(lang, UI.brand)} k="brand" state={state} dispatch={dispatch} placeholder="Sara Store" lang={lang} ltr={false} />
+          <div className="qs-field">
+            <span className="qs-field__label">{tr(lang, UI.language)}</span>
+            <div className="qs-choices" role="radiogroup" aria-label={tr(lang, UI.language)}>
+              {([
+                ["both", UI.langBoth, UI.langBothHint],
+                ["ar", UI.langAr, null],
+                ["en", UI.langEn, null],
+              ] as const).map(([value, label, hint]) => (
+                <button
+                  key={value}
+                  type="button"
+                  role="radio"
+                  aria-checked={i.lang === value}
+                  className="qs-choice press"
+                  onClick={() => dispatch({ type: "input", key: "lang", value })}
+                >
+                  <span className="qs-choice__radio" aria-hidden="true">{i.lang === value ? <DrawnCheck size={14} /> : null}</span>
+                  <span className="qs-choice__text">
+                    <strong>{tr(lang, label)}</strong>
+                    {hint ? <span>{tr(lang, hint)}</span> : null}
+                  </span>
                 </button>
               ))}
             </div>
           </div>
-          {clientView && i.brand ? <p className="qs-big-brand">{i.brand}</p> : null}
+          <Details lang={lang} attention={Boolean(i.brand) && has("client")}>
+            <Field label={tr(lang, UI.clientName)} k="client" state={state} dispatch={dispatch} placeholder="sara-store" problem={has("client") ? "client" : undefined} lang={lang} hint={`client/${i.client || "<name>"}`} />
+          </Details>
         </div>
       );
 
@@ -151,7 +184,7 @@ export function StepBody(props: Props) {
           <Tasks {...props} />
           <Field label={tr(lang, UI.botUsername)} k="bot_username" state={state} dispatch={dispatch} placeholder="SaraStoreBot" problem={has("bot_username") ? "bot_username" : undefined} lang={lang} />
           <p className="qs-note">{tr(lang, UI.tokenNote)}</p>
-          <a className="btn btn--xs btn--ghost press qs-inline-link" href="https://t.me/BotFather" target="_blank" rel="noopener noreferrer">
+          <a className="qs-link" href="https://t.me/BotFather" target="_blank" rel="noopener noreferrer">
             @BotFather <ExternalIcon size={14} />
           </a>
         </div>
@@ -161,35 +194,29 @@ export function StepBody(props: Props) {
       return (
         <div className="qs-body">
           <Field label={tr(lang, UI.repo)} k="repo" state={state} dispatch={dispatch} placeholder="sara/my-store" problem={has("repo") ? "repo" : undefined} lang={lang} />
-          {!clientView ? (
-            <>
-              <ActionButton id="deploy_key" label={tr(lang, UI.deployKey)} run={run} actions={actions} lang={lang} disabled={!nameOk} done={state.actions.deploy_key} />
-              {i.public_key ? (
-                <div className="qs-reveal">
-                  <CopyValue value={i.public_key} />
-                  <span className="hint">{tr(lang, UI.deployKeyHint)}</span>
-                </div>
-              ) : null}
-            </>
-          ) : null}
           <Tasks {...props} />
+          <Details lang={lang} attention={missingAction(state, "github")}>
+            <ActionButton id="deploy_key" label={tr(lang, UI.deployKey)} run={run} actions={actions} lang={lang} disabled={!nameOk} done={state.actions.deploy_key} />
+            {i.public_key ? (
+              <div className="qs-reveal">
+                <CopyValue value={i.public_key} />
+                <span className="qs-field__hint">{tr(lang, UI.deployKeyHint)}</span>
+              </div>
+            ) : null}
+          </Details>
         </div>
       );
 
     case "supabase":
       return (
         <div className="qs-body">
-          <div className="boti__grid">
-            <Field label={tr(lang, UI.supabaseUrl)} k="supabase_url" state={state} dispatch={dispatch} placeholder="https://abcd.supabase.co" problem={has("supabase_url") ? "supabase_url" : undefined} lang={lang} hint={i.supabase_ref ? `ref: ${i.supabase_ref}` : undefined} />
-            <Field label={tr(lang, UI.ownerEmail)} k="owner_email" type="email" state={state} dispatch={dispatch} placeholder="owner@example.com" problem={has("owner_email") ? "owner_email" : undefined} lang={lang} />
-          </div>
-          {!clientView ? (
-            <div className="field">
-              <span className="field__label">{tr(lang, UI.commands)}</span>
-              <Commands lines={["npx supabase login", `npx supabase link --project-ref ${i.supabase_ref || "<ref>"}`, "npx supabase db push"]} />
-            </div>
-          ) : null}
+          <Field label={tr(lang, UI.supabaseUrl)} k="supabase_url" state={state} dispatch={dispatch} placeholder="https://abcd.supabase.co" problem={has("supabase_url") ? "supabase_url" : undefined} lang={lang} hint={i.supabase_ref ? `ref · ${i.supabase_ref}` : undefined} />
+          <Field label={tr(lang, UI.ownerEmail)} k="owner_email" type="email" state={state} dispatch={dispatch} placeholder="owner@example.com" problem={has("owner_email") ? "owner_email" : undefined} lang={lang} />
           <Tasks {...props} />
+          <Details lang={lang}>
+            <span className="qs-field__label">{tr(lang, UI.commands)}</span>
+            <Commands lines={["npx supabase login", `npx supabase link --project-ref ${i.supabase_ref || "<ref>"}`, "npx supabase db push"]} />
+          </Details>
         </div>
       );
 
@@ -205,25 +232,37 @@ export function StepBody(props: Props) {
       ];
       return (
         <div className="qs-body">
-          <div className="boti__grid">
-            <Field label={tr(lang, UI.workerName)} k="worker_name" state={state} dispatch={dispatch} problem={has("worker_name") ? "worker_name" : undefined} lang={lang} />
-            <Field label={tr(lang, UI.domain)} k="domain" state={state} dispatch={dispatch} placeholder="store.example.com" problem={has("domain") ? "domain" : undefined} lang={lang} />
+          <Field label={tr(lang, UI.domain)} k="domain" state={state} dispatch={dispatch} placeholder="store.example.com" problem={has("domain") ? "domain" : undefined} lang={lang} />
+          <Tasks {...props} />
+          <div className="qs-health" aria-live="polite">
+            <button type="button" className="qs-pill press" disabled={!i.domain || actions.health?.status === "running"} onClick={() => run("health")}>
+              {actions.health?.status === "running" ? <span className="spinner" aria-hidden="true" /> : null}
+              {tr(lang, UI.check)}
+            </button>
+            {health ? (
+              <span className={`qs-live ${health.up ? "qs-live--up" : "qs-live--down"}`}>
+                <span className="qs-live__dot" aria-hidden="true" />
+                {health.up ? tr(lang, UI.siteUp) : tr(lang, UI.siteDown)}
+                {health.ms != null ? ` · ${health.ms} ms` : ""}
+              </span>
+            ) : !i.domain ? (
+              <span className="qs-field__hint">{tr(lang, UI.needsDomain)}</span>
+            ) : null}
           </div>
-          {!clientView ? (
+          <Details lang={lang} attention={missingAction(state, "cloudflare")}>
+            <Field label={tr(lang, UI.workerName)} k="worker_name" state={state} dispatch={dispatch} problem={has("worker_name") ? "worker_name" : undefined} lang={lang} />
             <div className="qs-actions">
               <ActionButton id="register" label={`1 · ${tr(lang, UI.register)}`} run={run} actions={actions} lang={lang} disabled={!ready} done={state.actions.register} />
               <ActionButton id="branch" label={`2 · ${tr(lang, UI.branch)}`} run={run} actions={actions} lang={lang} disabled={!ready || !state.actions.register} done={state.actions.branch} />
               <ActionButton id="sync" label={`3 · ${tr(lang, UI.sync)}`} run={run} actions={actions} lang={lang} disabled={!state.actions.branch} done={state.actions.sync} />
-              {!ready ? <p className="hint">{tr(lang, UI.needsName)}</p> : null}
+              {!ready ? <p className="qs-field__hint">{tr(lang, UI.needsName)}</p> : null}
             </div>
-          ) : null}
-          {!clientView ? (
             <div className="qs-secrets">
               <div className="qs-secrets__head">
                 <strong>{tr(lang, UI.secrets)}</strong>
                 <ActionButton id="keys" label={tr(lang, UI.keys)} run={run} actions={actions} lang={lang} disabled={!nameOk} />
               </div>
-              {keys ? <p className="hint qs-warn">{tr(lang, UI.keysOnce)}</p> : null}
+              {keys ? <p className="qs-field__hint qs-warn">{tr(lang, UI.keysOnce)}</p> : null}
               <ul className="qs-secret-list" dir="ltr">
                 {secrets.map((s, n) => (
                   <li key={s.name} style={{ ["--i" as string]: n }}>
@@ -237,7 +276,7 @@ export function StepBody(props: Props) {
                             {tr(lang, UI.fromClient)} · {s.note}
                           </span>
                           <button type="button" className="btn btn--xs btn--soft press" onClick={() => void navigator.clipboard?.writeText(s.name)}>
-                            {s.name.length > 18 ? "Copy name" : "Copy"}
+                            Copy name
                           </button>
                         </div>
                       </div>
@@ -246,22 +285,7 @@ export function StepBody(props: Props) {
                 ))}
               </ul>
             </div>
-          ) : null}
-          <Tasks {...props} />
-          <div className="qs-health" aria-live="polite">
-            <button type="button" className="btn btn--sm btn--soft press" disabled={!i.domain || actions.health?.status === "running"} onClick={() => run("health")}>
-              {actions.health?.status === "running" ? <span className="spinner" aria-hidden="true" /> : null}
-              {tr(lang, UI.check)}
-            </button>
-            {!i.domain ? <span className="hint">{tr(lang, UI.needsDomain)}</span> : null}
-            {health ? (
-              <span className={`qs-live ${health.up ? "qs-live--up" : "qs-live--down"}`}>
-                <span className="qs-live__dot" aria-hidden="true" />
-                {health.up ? tr(lang, UI.siteUp) : tr(lang, UI.siteDown)}
-                {health.ms != null ? ` · ${health.ms} ms` : ""}
-              </span>
-            ) : null}
-          </div>
+          </Details>
         </div>
       );
     }
@@ -271,7 +295,7 @@ export function StepBody(props: Props) {
         <div className="qs-body">
           <Tasks {...props} />
           {i.domain ? (
-            <a className="btn btn--xs btn--ghost press qs-inline-link" href={`https://${i.domain}/admin/`} target="_blank" rel="noopener noreferrer">
+            <a className="qs-link" href={`https://${i.domain}/admin/`} target="_blank" rel="noopener noreferrer">
               {tr(lang, UI.panel)} <ExternalIcon size={14} />
             </a>
           ) : null}
@@ -283,14 +307,14 @@ export function StepBody(props: Props) {
         <div className="qs-body">
           <div className="qs-links">
             {i.domain ? (
-              <a className="btn btn--sm press" href={`https://${i.domain}/admin/`} target="_blank" rel="noopener noreferrer">
+              <a className="qs-pill qs-pill--strong press" href={`https://${i.domain}/admin/`} target="_blank" rel="noopener noreferrer">
                 {tr(lang, UI.panel)} <ExternalIcon size={14} />
               </a>
             ) : (
-              <span className="hint">{tr(lang, UI.needsDomain)}</span>
+              <span className="qs-field__hint">{tr(lang, UI.needsDomain)}</span>
             )}
             {i.bot_username ? (
-              <a className="btn btn--sm btn--soft press" href={`https://t.me/${i.bot_username}`} target="_blank" rel="noopener noreferrer">
+              <a className="qs-pill press" href={`https://t.me/${i.bot_username}`} target="_blank" rel="noopener noreferrer">
                 @{i.bot_username} <ExternalIcon size={14} />
               </a>
             ) : null}

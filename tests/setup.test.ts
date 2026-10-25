@@ -85,6 +85,22 @@ describe("quick setup reducer", () => {
     expect(progress(s)).toBe(1);
   });
 
+  it("the client id follows the store name until edited", () => {
+    let s = apply(newSetup(), { type: "input", key: "brand", value: "Sara Store!" });
+    expect(s.inputs.client).toBe("sara-store");
+    expect(s.inputs.worker_name).toBe("sara-store");
+    s = apply(s, { type: "input", key: "client", value: "sara" }, { type: "input", key: "brand", value: "Sara Shop" });
+    expect(s.inputs.client).toBe("sara");
+    expect(apply(newSetup(), { type: "input", key: "brand", value: "متجر سارة" }).inputs.client).toBe("");
+  });
+
+  it("store language: both by default, or one of ar / en", () => {
+    expect(newSetup().inputs.lang).toBe("both");
+    expect(setupReducer(newSetup(), { type: "input", key: "lang", value: "en" }).inputs.lang).toBe("en");
+    expect(setupReducer(newSetup(), { type: "input", key: "lang", value: "xx" }).inputs.lang).toBe("both");
+    expect(sanitizeState({ inputs: { lang: "ar" } })!.inputs.lang).toBe("ar");
+  });
+
   it("reopens a finished step", () => {
     const s = apply(newSetup(), { type: "input", key: "client", value: "sara" }, { type: "input", key: "brand", value: "Sara" }, { type: "complete", step: "welcome" }, { type: "reopen", step: "welcome" });
     expect(s.steps.welcome).toBe("active");
@@ -120,7 +136,7 @@ describe("what gets stored", () => {
       ["brand", "bot_username", "client", "domain", "lang", "owner_email", "public_key", "repo", "supabase_ref", "supabase_url", "worker_name"].sort(),
     );
     expect(JSON.stringify(s)).not.toMatch(/secret|hunter2|AAH/);
-    expect(s.inputs.lang).toBe("ar");
+    expect(s.inputs.lang).toBe("both");
   });
 
   it("drops a public key that isn't an ssh-ed25519 key, and rejects junk", () => {
