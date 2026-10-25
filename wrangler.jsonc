@@ -72,7 +72,7 @@
     "TURNSTILE_SITE_KEY": "0x4AAAAAAFWI655DLJFx_2zZ",
     // boti.ghawi.app manages this repo's client branches. Its token is the
     // GITHUB_TOKEN secret (fine-grained, this repo only).
-    "BOTI_REPO": "GH-ZX/plus-store-x"
+    "BOTI_REPO": "GH-ZX/boti"
   },
 "routes": [
   { "pattern": "ghawi.app", "custom_domain": true },

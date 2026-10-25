@@ -1,6 +1,6 @@
 /**
  * The few GitHub REST calls boti makes against the Plus Store X repo
- * (BOTI_REPO, e.g. GH-ZX/plus-store-x) with the GITHUB_TOKEN secret.
+ * (BOTI_REPO, e.g. GH-ZX/boti) with the GITHUB_TOKEN secret.
  * Errors carry GitHub's status and message, never the token.
  */
 import { encryptGithubSecret } from "./crypto";

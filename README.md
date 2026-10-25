@@ -292,7 +292,7 @@ build directory is the usual culprit on Windows.
 ## boti · boti.ghawi.app
 
 The coder's control panel for the **Plus Store X** client bots. The product repo
-(`BOTI_REPO`, `GH-ZX/plus-store-x`) has one branch per client, `client/<name>`, listed
+(`BOTI_REPO`, `GH-ZX/boti`) has one branch per client, `client/<name>`, listed
 in `.github/clients.json`. Its *Sync client repo* Action mirrors a client branch to the
 client's own repo on every push, and the client's Cloudflare deploys it. boti drives that
 flow from a browser. Sign in with the ghawi.app admin account (each host keeps its own
@@ -308,7 +308,7 @@ session cookie, like `cv.ghawi.app/edit`).
 Setup, once:
 
 1. `pnpm exec wrangler d1 migrations apply ghawi-app-contacts --remote` (adds 0008).
-2. A fine-grained GitHub token for `GH-ZX/plus-store-x` only, with **Contents: read and
+2. A fine-grained GitHub token for `GH-ZX/boti` only, with **Contents: read and
    write**, **Actions: read and write**, **Secrets: read and write** and **Metadata: read**:
    `pnpm exec wrangler secret put GITHUB_TOKEN`. `BOTI_REPO` is a var in `wrangler.jsonc`.
 3. Deploy (push to `main`). The `boti.ghawi.app` custom domain is in `wrangler.jsonc`'s routes.
