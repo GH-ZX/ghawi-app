@@ -179,6 +179,10 @@ export function ServiceIcon({ name, size = 24 }: { name: string; size?: number }
       return <ChipIcon size={size} />;
     case "plug":
       return <PlugIcon size={size} />;
+    case "doc":
+      return <DocIcon size={size} />;
+    case "spark":
+      return <SparkIcon size={size} />;
     default:
       return <CodeIcon size={size} />;
   }

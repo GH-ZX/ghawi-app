@@ -82,7 +82,9 @@
   // The CV and its builder (next.config.ts rewrites it onto /resume).
   { "pattern": "cv.ghawi.app", "custom_domain": true },
   // boti, the Plus Store X client panel (next.config.ts rewrites it onto /boti).
-  { "pattern": "boti.ghawi.app", "custom_domain": true }
+  { "pattern": "boti.ghawi.app", "custom_domain": true },
+  // home, the owner's page of every ghawi service (next.config.ts rewrites it onto /home).
+  { "pattern": "home.ghawi.app", "custom_domain": true }
 ],
 
   "observability": {

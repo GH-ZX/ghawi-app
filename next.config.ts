@@ -77,9 +77,12 @@ export default async function config(): Promise<NextConfig> {
       // boti.ghawi.app is the Plus Store X client panel, served from /boti
       // (its API, /api/boti/*, is reached as is).
       const boti = [{ type: "host" as const, value: String.raw`boti\.(?:ghawi\.app|localhost)` }];
+      // home.ghawi.app is the owner's door to every ghawi service, served from /home.
+      const home = [{ type: "host" as const, value: String.raw`home\.(?:ghawi\.app|localhost)` }];
       return {
         beforeFiles: [
           { source: "/", has: boti, destination: "/boti" },
+          { source: "/", has: home, destination: "/home" },
           { source: "/", has: invite, destination: "/invite/general" },
           { source: "/:slug((?!api$|invite$)[a-z0-9][a-z0-9-]*)", has: invite, destination: "/invite/:slug" },
           { source: "/", has: cv, destination: "/resume/en" },
@@ -121,6 +124,22 @@ export default async function config(): Promise<NextConfig> {
         {
           // The client panel, on its host or the /boti fallback path.
           source: "/boti",
+          headers: [
+            { key: "X-Robots-Tag", value: "noindex, nofollow" },
+            { key: "Cache-Control", value: "no-store" },
+          ],
+        },
+        {
+          // The services page, on its host or the /home fallback path.
+          source: "/home",
+          headers: [
+            { key: "X-Robots-Tag", value: "noindex, nofollow" },
+            { key: "Cache-Control", value: "no-store" },
+          ],
+        },
+        {
+          source: "/",
+          has: [{ type: "host", value: String.raw`home\.(?:ghawi\.app|localhost)` }],
           headers: [
             { key: "X-Robots-Tag", value: "noindex, nofollow" },
             { key: "Cache-Control", value: "no-store" },

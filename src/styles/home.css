@@ -1,0 +1,15 @@
+/* home.ghawi.app: one card per service, around the admin's bar and page. */
+
+.home-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); }
+.home-card { border-radius: 20px; border: 1px solid var(--line); background: var(--surface); display: flex; flex-direction: column; transition: border-color .2s ease; }
+.home-card:has(.home-card__main:hover) { border-color: var(--accent); }
+.home-card__main { display: flex; gap: 14px; padding: 18px; color: inherit; text-decoration: none; flex: 1; border-radius: inherit; }
+.home-card__main:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.home-card__icon { flex: none; width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; background: var(--tile); color: var(--accent-text); }
+.home-card__text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.home-card__name { display: inline-flex; align-items: center; gap: 6px; font-weight: 800; font-size: 16px; }
+.home-card__name svg { color: var(--muted); }
+.home-card__host { font-size: 12.5px; color: var(--muted); overflow-wrap: anywhere; }
+.home-card__about { font-size: 14px; line-height: 1.55; margin-top: 4px; }
+.home-card__more { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 18px 16px 76px; }
+@media (max-width: 420px) { .home-card__more { padding-inline-start: 18px; } }
