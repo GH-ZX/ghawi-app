@@ -522,7 +522,7 @@ body { overflow-x: clip; }
 
 /* ───────────────────────────── work at a glance */
 .glance { display: grid; gap: 8px; margin-bottom: 16px; }
-@media (min-width: 760px) { .glance { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 20px; } }
+@media (min-width: 760px) { .glance { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 20px; } }
 .glance__card {
   height: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 18px;
   border: 1px solid var(--line); background: var(--surface); color: var(--ink); text-decoration: none;

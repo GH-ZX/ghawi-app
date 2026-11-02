@@ -95,7 +95,7 @@ export type ChannelId = (typeof CHANNEL_IDS)[number];
 /** Where a "see an example" link may point: the three showcases. */
 export const PROOF_ANCHORS = ["", "#gh-store", "#store-bot", "#storefront"] as const;
 
-export const CASE_SLUGS = ["gh-store", "store-bot", "storefront"] as const;
+export const CASE_SLUGS = ["gh-store", "store-bot", "stori", "storefront"] as const;
 export type CaseSlug = (typeof CASE_SLUGS)[number];
 
 /* ------------------------------------------------------------------ *
@@ -462,6 +462,7 @@ const en: Dictionary = {
     glance: [
       { name: "GH Store", line: "My own store: website, Mini App and bot", href: "#gh-store" },
       { name: "Store bot", line: "Client project: a whole store in one chat", href: "#store-bot" },
+      { name: "Stori", line: "My platform: online stores for local shops", href: "#stori" },
       { name: "Game top-up store", line: "Client project: a web store that delivers itself", href: "#storefront" },
     ],
   },
@@ -534,6 +535,32 @@ const en: Dictionary = {
   },
 
   projects: [
+    {
+      id: "stori",
+      kicker: "Store platform · Live",
+      name: "Stori",
+      title: "An online store for every shop, on its own accounts.",
+      body: "A platform that hands local shops a complete online store, supermarkets first: five storefront templates in six palettes, an Arabic admin panel, Sham Cash payments and scheduled delivery. Each store runs on the owner's own domain and GitHub, Cloudflare and Supabase accounts.",
+      points: [
+        "Five storefront templates that differ in structure, each in six palettes",
+        "Arabic admin panel: Excel import, products sold by weight, delivery zones, profit reports",
+        "Sham Cash payments, re-checked with the provider, plus cash on delivery",
+        "The owner's own domain, accounts and database, with a daily encrypted backup",
+        "One codebase: every new feature reaches every store",
+      ],
+      stack: ["Cloudflare Workers", "Hono", "React", "Supabase Postgres", "D1", "TypeScript"],
+      live: true,
+      links: [
+        { label: "stori.ghawi.app", href: "https://stori.ghawi.app" },
+        { label: "Live demo store", href: "https://stori-demo.ghawi.app/?lang=en" },
+      ],
+      shots: {
+        desktop: "A Stori supermarket store's home page in a desktop browser",
+        mobile: "The same store on a phone, in the mosaic template",
+        bar: "stori.ghawi.app",
+      },
+      cta: { label: "I want a store like this", topic: "web" },
+    },
     {
       id: "storefront",
       kicker: "Web store · Live",
@@ -882,6 +909,23 @@ const en: Dictionary = {
           "The bot runs the client's store on its own: customers buy and receive in seconds, and the owner manages it all from the admin panel. Shown without the client's name.",
       },
       {
+        slug: "stori",
+        title: "Stori — a complete online store for every shop, on its own accounts",
+        description:
+          "How I built Stori: one codebase that ships a full online store — five templates, an Arabic admin panel, Sham Cash payments — to each shop, on the shop's own GitHub, Cloudflare and Supabase accounts.",
+        challenge:
+          "Local shops, supermarkets first, want to sell online under their own name, in Arabic, with the payments their customers already use. A generic store builder doesn't fit how a supermarket works — prices by weight, delivery slots, cash on delivery — and the owner wants the store, the domain and the customers' data to be theirs, not rented.",
+        built: [
+          "One codebase, one deployment per client: each store runs on the client's own GitHub, Cloudflare and Supabase accounts and domain.",
+          "Five storefront templates that differ in structure, each in six palettes, Arabic first with English beside it.",
+          "An Arabic admin panel: Excel import, products sold by weight, delivery zones and slots, staff permissions with two-step sign-in, and profit reports.",
+          "Sham Cash payments that are re-checked with the provider before an order counts as paid, plus cash on delivery.",
+          "A platform at stori.ghawi.app: the showcase, a live demo store, and an owner panel that ships updates to every store and watches their health.",
+        ],
+        result:
+          "Stori is live at stori.ghawi.app, with a demo supermarket store anyone can browse. The first client stores are next, and every new feature lands in all of them at once.",
+      },
+      {
         slug: "storefront",
         title: "A bilingual game top-up store",
         description:
@@ -1091,6 +1135,7 @@ const ar: Dictionary = {
     glance: [
       { name: "GH Store", line: "متجري الخاص: موقع وتطبيق مصغّر وبوت", href: "#gh-store" },
       { name: "بوت متجر", line: "مشروع لعميل: متجر كامل في محادثة واحدة", href: "#store-bot" },
+      { name: "Stori", line: "منصّتي: متاجر إلكترونية للمحلات", href: "#stori" },
       { name: "متجر شحن ألعاب", line: "مشروع لعميل: متجر ويب يسلّم وحده", href: "#storefront" },
     ],
   },
@@ -1163,6 +1208,32 @@ const ar: Dictionary = {
   },
 
   projects: [
+    {
+      id: "stori",
+      kicker: "منصّة متاجر · تعمل الآن",
+      name: "Stori",
+      title: "متجر إلكتروني لكل محل، على حساباته هو.",
+      body: "منصّة تسلّم المحلات متجراً إلكترونياً كاملاً، بدأت بالسوبرماركت: خمسة تصاميم للواجهة بستة ألوان، ولوحة تحكم عربية، ودفع عبر شام كاش وتوصيل بمواعيد. كل متجر يعمل على دومين صاحبه وحساباته في GitHub وCloudflare وSupabase.",
+      points: [
+        "خمسة تصاميم للواجهة تختلف في البنية، كلٌّ منها بستة ألوان",
+        "لوحة تحكم عربية: استيراد من Excel، بيع بالوزن، مناطق توصيل وتقارير أرباح",
+        "دفع عبر شام كاش يُتحقَّق منه لدى المزوّد، أو نقداً عند الاستلام",
+        "دومين صاحب المتجر وحساباته وقاعدة بياناته، مع نسخة احتياطية مشفّرة يومياً",
+        "قاعدة كود واحدة: كل ميزة جديدة تصل إلى كل المتاجر",
+      ],
+      stack: ["Cloudflare Workers", "Hono", "React", "Supabase Postgres", "D1", "TypeScript"],
+      live: true,
+      links: [
+        { label: "stori.ghawi.app", href: "https://stori.ghawi.app" },
+        { label: "متجر تجريبي", href: "https://stori-demo.ghawi.app" },
+      ],
+      shots: {
+        desktop: "الصفحة الرئيسية لمتجر سوبرماركت من Stori في متصفح الحاسوب",
+        mobile: "المتجر نفسه على الهاتف بتصميم الفسيفساء",
+        bar: "stori.ghawi.app",
+      },
+      cta: { label: "أريد متجراً مثله", topic: "web" },
+    },
     {
       id: "storefront",
       kicker: "متجر ويب · يعمل الآن",
@@ -1509,6 +1580,23 @@ const ar: Dictionary = {
         ],
         result:
           "يدير البوت متجر العميل وحده: يشتري العملاء ويستلمون خلال ثوانٍ، ويدير المالك كل شيء من لوحة التحكّم. يظهر هنا دون اسم العميل.",
+      },
+      {
+        slug: "stori",
+        title: "Stori — متجر إلكتروني كامل لكل محل، على حساباته هو",
+        description:
+          "كيف بنيت Stori: قاعدة كود واحدة تسلّم كل محل متجراً إلكترونياً كاملاً — خمسة تصاميم ولوحة تحكم عربية ودفع عبر شام كاش — على حسابات المحل نفسه في GitHub وCloudflare وSupabase.",
+        challenge:
+          "المحلات المحلية، بدءاً بالسوبرماركت، تريد أن تبيع أونلاين باسمها وبالعربية وبطرق الدفع التي يستخدمها زبائنها. منشئ المتاجر العام لا يناسب طريقة عمل السوبرماركت — أسعار بالوزن ومواعيد توصيل ودفع عند الاستلام — وصاحب المحل يريد أن يكون المتجر والدومين وبيانات الزبائن ملكه، لا مستأجرة.",
+        built: [
+          "قاعدة كود واحدة ونشر مستقل لكل عميل: كل متجر يعمل على دومين العميل وحساباته في GitHub وCloudflare وSupabase.",
+          "خمسة تصاميم للواجهة تختلف في البنية، كلٌّ منها بستة ألوان، بالعربية أولاً ومعها الإنجليزية.",
+          "لوحة تحكم عربية: استيراد من Excel، وبيع بالوزن، ومناطق ومواعيد توصيل، وصلاحيات موظفين مع دخول بخطوتين، وتقارير أرباح.",
+          "دفع عبر شام كاش يُتحقَّق منه لدى المزوّد قبل اعتبار الطلب مدفوعاً، إضافة إلى الدفع عند الاستلام.",
+          "منصّة على stori.ghawi.app: صفحة العرض، ومتجر تجريبي حي، ولوحة مالك ترسل التحديثات لكل المتاجر وتراقب حالتها.",
+        ],
+        result:
+          "Stori يعمل الآن على stori.ghawi.app، مع متجر سوبرماركت تجريبي يمكن لأي أحد تصفّحه. متاجر العملاء الأولى هي الخطوة التالية، وكل ميزة جديدة تصل إليها جميعاً في الوقت نفسه.",
       },
       {
         slug: "storefront",

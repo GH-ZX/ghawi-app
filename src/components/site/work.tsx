@@ -5,6 +5,7 @@ import {
   BotIcon,
   CheckIcon,
   ChevronIcon,
+  CloudIcon,
   CodeIcon,
   ExternalIcon,
   LedgerIcon,
@@ -25,7 +26,9 @@ import { StoreShots } from "./store-shots";
 
 const DOOR_ICONS = [WindowIcon, PhoneIcon, SendIcon];
 const PRINCIPLE_ICONS = [LedgerIcon, BellIcon, RepeatIcon, ShieldIcon];
+/** Each showcase's icon by its anchor; anything else by position. */
 const GLANCE_ICONS = [StoreIcon, BotIcon, CodeIcon];
+const GLANCE_ICON_OF: Record<string, typeof StoreIcon> = { "#gh-store": StoreIcon, "#store-bot": BotIcon, "#stori": CloudIcon, "#storefront": CodeIcon };
 
 /** An outbound link that says so to screen readers. */
 export function Out({
@@ -93,7 +96,7 @@ export function Work({ ctx }: { ctx: PageContext }) {
         {work.glance.length ? (
           <ul className="glance" data-reveal>
             {work.glance.map((item, index) => {
-              const Icon = GLANCE_ICONS[index % GLANCE_ICONS.length];
+              const Icon = GLANCE_ICON_OF[item.href] ?? GLANCE_ICONS[index % GLANCE_ICONS.length];
               return (
                 <li key={item.href + item.name}>
                   <a className="glance__card press" href={item.href}>
