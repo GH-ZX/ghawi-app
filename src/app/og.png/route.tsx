@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { THEMES, logoSvg } from "@/lib/ghstore-ui";
 import { storeTheme } from "@/lib/theme";
+import { wordmarkSvg } from "@/components/logo";
 
 /** Rendered once at build: the card is the same for both languages. */
 export const dynamic = "force-static";
@@ -21,12 +22,9 @@ export async function GET() {
   // Prerendered at build, where these files exist. Rubik is the energetic
   // preset's face; the subsets carry Latin only (OFL, from Google Fonts).
   const asset = (name: string) => readFile(join(process.cwd(), "src/assets", name)).catch(() => null);
-  const [photo, medium, extraBold] = await Promise.all([
-    asset("og-portrait.jpg"),
-    asset("Rubik-Medium.ttf"),
-    asset("Rubik-ExtraBold.ttf"),
-  ]);
-  const portrait = photo ? `data:image/jpeg;base64,${photo.toString("base64")}` : null;
+  const [medium, extraBold] = await Promise.all([asset("Rubik-Medium.ttf"), asset("Rubik-ExtraBold.ttf")]);
+  // The hero's GHAWI. wordmark stands where a portrait used to.
+  const word = `data:image/svg+xml;utf8,${encodeURIComponent(wordmarkSvg({ g: c.accentText, ink: c.ink, dot: c.dot }))}`;
   const fonts = [
     ...(medium ? [{ name: "Rubik", data: medium, weight: 500 as const, style: "normal" as const }] : []),
     ...(extraBold ? [{ name: "Rubik", data: extraBold, weight: 800 as const, style: "normal" as const }] : []),
@@ -72,12 +70,22 @@ export async function GET() {
           </div>
         </div>
 
-        {portrait ? (
-          <div style={{ display: "flex", width: 360, height: 518, borderRadius: 36, overflow: "hidden", border: `2px solid ${c.line}` }}>
-            {/* eslint-disable-next-line @next/next/no-img-element -- rendered by next/og */}
-            <img src={portrait} width={360} height={450} style={{ width: 360, height: 518, objectFit: "cover" }} alt="" />
-          </div>
-        ) : null}
+        <div
+          style={{
+            display: "flex",
+            width: 360,
+            height: 518,
+            borderRadius: 36,
+            border: `2px solid ${c.line}`,
+            alignItems: "center",
+            justifyContent: "center",
+            background: c.surface,
+            backgroundImage: `radial-gradient(circle at 50% 50%, ${c.tile} 0%, ${c.surface} 62%)`,
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element -- rendered by next/og */}
+          <img src={word} width={300} height={70} alt="" />
+        </div>
       </div>
     ),
     {

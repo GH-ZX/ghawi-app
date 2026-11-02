@@ -75,3 +75,9 @@ export function Wordmark({ draw = false, label = "Ghawi", className = "" }: { dr
     </svg>
   );
 }
+
+/** The wordmark as an SVG string in fixed colours (the link-preview image can't read CSS variables). */
+export function wordmarkSvg({ g, ink, dot }: { g: string; ink: string; dot: string }): string {
+  const paths = WORD.map((letter) => `<path d="${letter.d}" fill="none" stroke="${letter.accent ? g : ink}" stroke-width="24"/>`).join("");
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 514 120">${paths}<path d="${WORD_DOT}" fill="${dot}"/></svg>`;
+}
