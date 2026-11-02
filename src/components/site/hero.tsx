@@ -1,7 +1,6 @@
 import type { CSSProperties } from "react";
-import Image from "next/image";
 import { ArrowDownIcon, ArrowIcon, TelegramGlyph, WhatsAppGlyph } from "@/components/icons";
-import { PORTRAIT } from "@/lib/content";
+import { Wordmark } from "@/components/logo";
 import { handleOf, withProducts, type PageContext } from "@/lib/site-content";
 
 /** Entrance order for the staggered rise (see .rise in site.css). */
@@ -111,15 +110,11 @@ export function Hero({ ctx }: { ctx: PageContext }) {
             <span className="blob blob--b" />
             <span className="blob blob--c" />
           </div>
-          <figure className="portrait">
-            <Image
-              src={PORTRAIT}
-              alt={hero.portraitAlt}
-              width={1200}
-              height={1500}
-              priority
-              sizes="(max-width: 960px) 92vw, 440px"
-            />
+          <figure className="portrait portrait--mark">
+            <div className="portrait__mark">
+              <Wordmark draw label={profile.name} />
+              <span className="portrait__url num">ghawi.app</span>
+            </div>
             <a className="glass-chip press" href={links.store} target="_blank" rel="noopener noreferrer" data-track="hero-store">
               <span className="live-dot" aria-hidden="true" />
               {hero.liveChip}

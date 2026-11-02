@@ -135,6 +135,23 @@ body { overflow-x: clip; }
 .portrait__name strong { font-family: var(--font-heading); font-size: 22px; font-weight: 800; letter-spacing: -.01em; line-height: 1.15; }
 .portrait__name span { font-size: 15px; opacity: .78; }
 .portrait__place { font-size: 12px; font-weight: 600; opacity: .8; white-space: nowrap; }
+/* The wordmark in place of the photo: the GH. grid, a glow behind the letters, the name beneath. */
+.portrait--mark {
+  display: grid; place-items: center;
+  background:
+    radial-gradient(55% 40% at 50% 50%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 72%),
+    linear-gradient(color-mix(in srgb, var(--line) 70%, transparent) 1px, transparent 1px) 50% 50% / 44px 44px,
+    linear-gradient(90deg, color-mix(in srgb, var(--line) 70%, transparent) 1px, transparent 1px) 50% 50% / 44px 44px,
+    var(--surface);
+}
+.portrait--mark::after { display: none; }
+.portrait__mark { width: 84%; display: flex; flex-direction: column; align-items: center; gap: 18px; direction: ltr; }
+.portrait__mark .logo { width: 100%; height: auto; }
+.portrait__url { font-size: 13px; font-weight: 700; letter-spacing: .32em; color: var(--muted); padding-inline-start: .32em; }
+.portrait--mark .portrait__caption { color: var(--ink); }
+.portrait--mark .portrait__name span, .portrait--mark .portrait__place { color: var(--muted); opacity: 1; }
+.portrait--mark .glass-chip { color: var(--ink); background: color-mix(in srgb, var(--surface-2) 80%, transparent); border-color: var(--line); }
+@media (hover: hover) { .portrait--mark .glass-chip:hover { background: var(--surface-2); } }
 .glass-chip {
   position: absolute; z-index: 3; top: 18px; inset-inline-start: 18px;
   display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px; border-radius: 999px;
