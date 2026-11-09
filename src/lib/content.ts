@@ -606,13 +606,13 @@ const en: Dictionary = {
       stack: ["Node.js", "Fastify", "SQLite", "Playwright", "Docker", "Cloudflare Tunnel"],
       live: true,
       links: [
-        { label: "shapi.ghawi.app", href: "https://shapi.ghawi.app" },
-        { label: "API docs", href: "https://shapi.ghawi.app/docs" },
+        { label: "sham.ghawi.app", href: "https://sham.ghawi.app" },
+        { label: "API docs", href: "https://sham.ghawi.app/docs" },
       ],
       shots: {
         desktop: "GH-Cash's home page in a desktop browser, in Arabic",
         mobile: "GH-Cash's hosted payment page on a phone: the exact amount, the wallet to pay and a countdown",
-        bar: "shapi.ghawi.app",
+        bar: "sham.ghawi.app",
         more: "GH-Cash's API docs: the signed webhook and how to verify it",
       },
       cta: { label: "I want payments like this", topic: "web" },
@@ -1005,7 +1005,7 @@ const en: Dictionary = {
           "Wallet sessions encrypted with AES-256-GCM in an isolated container; a merchant dashboard, API keys, and docs with a ready-made prompt for AI coding tools.",
         ],
         result:
-          "GH-Cash is live at shapi.ghawi.app: $0.50 per wallet a month after a one-day free trial, or a one-off $5 setup where I link the wallet and wire the API into the merchant's store.",
+          "GH-Cash is live at sham.ghawi.app: $0.50 per wallet a month after a one-day free trial, or a one-off $5 setup where I link the wallet and wire the API into the merchant's store.",
       },
     ],
   },
@@ -1340,13 +1340,13 @@ const ar: Dictionary = {
       stack: ["Node.js", "Fastify", "SQLite", "Playwright", "Docker", "Cloudflare Tunnel"],
       live: true,
       links: [
-        { label: "shapi.ghawi.app", href: "https://shapi.ghawi.app" },
-        { label: "توثيق الـ API", href: "https://shapi.ghawi.app/docs" },
+        { label: "sham.ghawi.app", href: "https://sham.ghawi.app" },
+        { label: "توثيق الـ API", href: "https://sham.ghawi.app/docs" },
       ],
       shots: {
         desktop: "الصفحة الرئيسية لـ GH-Cash في متصفح الحاسوب",
         mobile: "صفحة الدفع من GH-Cash على الهاتف: المبلغ المطلوب بالضبط، والمحفظة، وعدّاد الوقت",
-        bar: "shapi.ghawi.app",
+        bar: "sham.ghawi.app",
         more: "توثيق GH-Cash: الـ Webhook الموقّع وطريقة التحقّق منه",
       },
       cta: { label: "أريد دفعاً مثله", topic: "web" },
@@ -1739,7 +1739,7 @@ const ar: Dictionary = {
           "جلسات المحافظ مشفّرة بـ AES-256-GCM في حاوية معزولة، ولوحة تحكم للتاجر ومفاتيح API، وتوثيق مع برومبت جاهز لأدوات الذكاء الاصطناعي.",
         ],
         result:
-          "GH-Cash يعمل الآن على shapi.ghawi.app: ‏0.5$ لكل محفظة شهرياً بعد تجربة مجانية ليوم كامل، أو تفعيل لمرة واحدة بـ 5$ أربط فيه المحفظة وأدمج الـ API في متجر التاجر.",
+          "GH-Cash يعمل الآن على sham.ghawi.app: ‏0.5$ لكل محفظة شهرياً بعد تجربة مجانية ليوم كامل، أو تفعيل لمرة واحدة بـ 5$ أربط فيه المحفظة وأدمج الـ API في متجر التاجر.",
       },
     ],
   },

@@ -8,10 +8,10 @@ export type HomeLink = { label: string; href: string };
 
 /**
  * GH-Cash, the ShamCash payment-confirmation API (its own app, Docker on the
- * home server). Moving from shapi.ghawi.app to sham.ghawi.app: change it here
- * once the new host answers. Its admin has its own sign-in.
+ * home server, behind the ghawi Cloudflare tunnel). Its admin has its own
+ * sign-in.
  */
-export const GH_CASH_URL = "https://shapi.ghawi.app";
+export const GH_CASH_URL = "https://sham.ghawi.app";
 export const GH_CASH_ADMIN_URL = `${GH_CASH_URL}/admin`;
 
 export type HomeService = {
