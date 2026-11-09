@@ -68,11 +68,12 @@ use `?preset=nocturne` (or `pnpm run preview`) to see a pinned theme.
 | --- | --- | --- |
 | `/` | Dynamic redirect | → `/ar` or `/en`: the visitor's earlier choice (`lang` cookie), else `Accept-Language`, else English |
 | `/en`, `/ar` | Dynamic, edge-cached | The site, from the content in D1. Correct `<html lang dir>` from the `[lang]` root layout; Arabic is fully right-to-left |
-| `/en/work/<slug>`, `/ar/work/<slug>` | Dynamic, edge-cached | Case studies: `gh-store`, `store-bot`, `storefront` |
+| `/en/work/<slug>`, `/ar/work/<slug>` | Dynamic, edge-cached | Case studies: `gh-store`, `store-bot`, `stori`, `storefront`, `gh-cash` |
 | `cv.ghawi.app` (`/`, `/ar`) | Dynamic, edge-cached | The CV, black on white (`/resume/[lang]`, own root layout) |
 | `cv.ghawi.app/edit` | Dynamic | The CV builder: sign in, edit with a live preview, print to PDF (`/resume/edit`) |
 | `cv.ghawi.app/ahmed-ghawi-cv(-ar).pdf` | Dynamic | The CV as PDF: the one uploaded in the builder, else `public/media/cv` (`/cv/[file]`) |
-| `/admin` | Dynamic | Invitation, inbox, site content, stats and theme; `noindex` (own root layout) |
+| `/admin` | Dynamic | Inbox, site content, stats and theme (`?tab=site\|stats\|theme` opens one); the top bar links to the GH-Cash admin; `noindex` (own root layout) |
+| `/admin/other` | Dynamic | Admin → Other: the wedding invitation's settings, kept out of the main admin now the wedding is over |
 | `boti.ghawi.app` (`/boti`) | Dynamic | boti, the Plus Store X client panel: sign in, then clients, ship, new client, API library; `noindex` (own root layout) |
 | `/api/boti/*` | Dynamic | boti's API (admin session): clients, ship, runs, wizard, adapters |
 | `/api/contact` | Dynamic | Contact form endpoint |
@@ -218,7 +219,7 @@ Under `next dev`, `http://invite.localhost:3000/haifa` behaves the same.
 - **Contact**: people guests can reach, each with a WhatsApp button (`wa.me`) and
   their number; edited in the admin. Every text on the page uses the chosen
   font pairing — no generic sans for labels and buttons.
-- **Wedding photos** (Admin → Invitation → Photos) appear on the invitation, on the
+- **Wedding photos** (Admin → Other → Photos) appear on the invitation, on the
   thank-you page, or both — chosen per photo (`placement`, migration 0006). The
   invitation's photo section only exists once it has photos.
   The admin's browser resizes each photo (2000 px and a 640 px thumbnail) before
@@ -236,7 +237,7 @@ Under `next dev`, `http://invite.localhost:3000/haifa` behaves the same.
   `src/lib/invite-logo.ts`, which every surface draws from: the seal, the hero, the
   welcome screen, QR cards, `/invite/og.png` and the tab icon. An uploaded logo
   replaces it everywhere.
-- **Admin → Invitation**: guests (personal link, honorific, which party they see,
+- **Admin → Other → Wedding invitation** (`/admin/other`): guests (personal link, honorific, which party they see,
   how many people, an optional theme and personal line), copy / WhatsApp / preview,
   who opened their link and when, every reply and the totals per party; and the
   settings — names (with a "deceased" option per father), every line of wording,

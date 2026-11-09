@@ -93,9 +93,9 @@ export const CHANNEL_IDS = ["telegram", "whatsapp", "instagram", "github", "link
 export type ChannelId = (typeof CHANNEL_IDS)[number];
 
 /** Where a "see an example" link may point: the three showcases. */
-export const PROOF_ANCHORS = ["", "#gh-store", "#store-bot", "#storefront"] as const;
+export const PROOF_ANCHORS = ["", "#gh-store", "#store-bot", "#stori", "#storefront", "#gh-cash"] as const;
 
-export const CASE_SLUGS = ["gh-store", "store-bot", "stori", "storefront"] as const;
+export const CASE_SLUGS = ["gh-store", "store-bot", "stori", "storefront", "gh-cash"] as const;
 export type CaseSlug = (typeof CASE_SLUGS)[number];
 
 /* ------------------------------------------------------------------ *
@@ -113,8 +113,12 @@ export interface Project {
   /** Shown with a live dot when the product is publicly reachable. */
   live: boolean;
   links: { label: string; href: string }[];
-  /** Alt text for the real screenshots in public/media/<id>. */
-  shots: { desktop: string; mobile: string; bar: string };
+  /**
+   * Alt text for the real screenshots in public/media/<id>: desktop-<lang>.webp,
+   * mobile-<lang>.webp and, when `more` is set, a third (more-<lang>.webp) on
+   * the case study.
+   */
+  shots: { desktop: string; mobile: string; bar: string; more: string };
   cta: { label: string; topic: string };
 }
 
@@ -464,6 +468,7 @@ const en: Dictionary = {
       { name: "Store bot", line: "Client project: a whole store in one chat", href: "#store-bot" },
       { name: "Stori", line: "My platform: online stores for local shops", href: "#stori" },
       { name: "Game top-up store", line: "Client project: a web store that delivers itself", href: "#storefront" },
+      { name: "GH-Cash", line: "My API: ShamCash payments confirmed on their own", href: "#gh-cash" },
     ],
   },
 
@@ -558,6 +563,7 @@ const en: Dictionary = {
         desktop: "A Stori supermarket store's home page in a desktop browser",
         mobile: "The same store on a phone, in the mosaic template",
         bar: "stori.ghawi.app",
+        more: "",
       },
       cta: { label: "I want a store like this", topic: "web" },
     },
@@ -580,8 +586,36 @@ const en: Dictionary = {
         desktop: "The store's home page: a featured game and the full catalogue strip",
         mobile: "A game's page on a phone: packs with prices and buy buttons",
         bar: "Live store",
+        more: "",
       },
       cta: { label: "Ask for a live demo", topic: "web" },
+    },
+    {
+      id: "gh-cash",
+      kicker: "Payments API · Live",
+      name: "GH-Cash",
+      title: "ShamCash payments, confirmed on their own.",
+      body: "A payment-confirmation gateway for ShamCash. A merchant links their wallet by scanning a QR code, creates an invoice through the API for an exact amount, and gets a signed webhook the moment that amount arrives. It only reads incoming payments: it can never send money.",
+      points: [
+        "Link a ShamCash wallet as a linked device, by scanning a QR code",
+        "Invoices by API in SYP or USD, with a hosted payment page and a countdown",
+        "HMAC-signed webhooks, retried with backoff until they land",
+        "Read-only by design: it confirms payments and never moves money",
+        "$0.50 per wallet a month, after a one-day free trial",
+      ],
+      stack: ["Node.js", "Fastify", "SQLite", "Playwright", "Docker", "Cloudflare Tunnel"],
+      live: true,
+      links: [
+        { label: "shapi.ghawi.app", href: "https://shapi.ghawi.app" },
+        { label: "API docs", href: "https://shapi.ghawi.app/docs" },
+      ],
+      shots: {
+        desktop: "GH-Cash's home page in a desktop browser, in Arabic",
+        mobile: "GH-Cash's hosted payment page on a phone: the exact amount, the wallet to pay and a countdown",
+        bar: "shapi.ghawi.app",
+        more: "GH-Cash's API docs: the signed webhook and how to verify it",
+      },
+      cta: { label: "I want payments like this", topic: "web" },
     },
   ],
 
@@ -956,6 +990,23 @@ const en: Dictionary = {
         result:
           "The store is live and selling. It's where my commerce work started, and its lessons shaped GH Store's ledger and supplier sync. Shown without its name.",
       },
+      {
+        slug: "gh-cash",
+        title: "GH-Cash — ShamCash payments confirmed automatically, by API",
+        description:
+          "How I built GH-Cash: a read-only gateway that watches a merchant's ShamCash wallet, matches each incoming payment to its invoice and tells the merchant's server with a signed webhook.",
+        challenge:
+          "ShamCash has no API for merchants. A shop that takes it checks every transfer by hand — open the app, compare the amount, mark the order paid — which is slow, easy to get wrong and impossible at 3 a.m. Merchants want payments confirmed automatically, without giving anyone the power to move their money.",
+        built: [
+          "Wallet linking by QR: the merchant adds GH-Cash as a linked device from the ShamCash app, and can unlink it from the app at any time.",
+          "An invoices API in SYP and USD: an exact amount, an expiry, and a hosted payment page with the wallet address and a countdown.",
+          "A matcher that reads the wallet's latest transfers only while an invoice is pending, and pays the invoice whose amount, currency and time fit — never the same transfer twice.",
+          "Webhooks signed with HMAC-SHA256 and a timestamp, retried with backoff up to eight times.",
+          "Wallet sessions encrypted with AES-256-GCM in an isolated container; a merchant dashboard, API keys, and docs with a ready-made prompt for AI coding tools.",
+        ],
+        result:
+          "GH-Cash is live at shapi.ghawi.app: $0.50 per wallet a month after a one-day free trial, or a one-off $5 setup where I link the wallet and wire the API into the merchant's store.",
+      },
     ],
   },
 
@@ -1151,6 +1202,7 @@ const ar: Dictionary = {
       { name: "بوت متجر", line: "مشروع لعميل: متجر كامل في محادثة واحدة", href: "#store-bot" },
       { name: "Stori", line: "منصّتي: متاجر إلكترونية للمحلات", href: "#stori" },
       { name: "متجر شحن ألعاب", line: "مشروع لعميل: متجر ويب يسلّم وحده", href: "#storefront" },
+      { name: "GH-Cash", line: "واجهتي البرمجية: تأكيد دفعات شام كاش تلقائياً", href: "#gh-cash" },
     ],
   },
 
@@ -1245,6 +1297,7 @@ const ar: Dictionary = {
         desktop: "الصفحة الرئيسية لمتجر سوبرماركت من Stori في متصفح الحاسوب",
         mobile: "المتجر نفسه على الهاتف بتصميم الفسيفساء",
         bar: "stori.ghawi.app",
+        more: "",
       },
       cta: { label: "أريد متجراً مثله", topic: "web" },
     },
@@ -1267,8 +1320,36 @@ const ar: Dictionary = {
         desktop: "الصفحة الرئيسية للمتجر: لعبة مميّزة وشريط الكتالوج كاملاً",
         mobile: "صفحة لعبة على الهاتف: الباقات بأسعارها وأزرار الشراء",
         bar: "متجر يعمل الآن",
+        more: "",
       },
       cta: { label: "اطلب عرضاً حيّاً", topic: "web" },
+    },
+    {
+      id: "gh-cash",
+      kicker: "واجهة دفع برمجية · تعمل الآن",
+      name: "GH-Cash",
+      title: "دفعات شام كاش، تتأكّد وحدها.",
+      body: "بوابة لتأكيد دفعات شام كاش. يربط التاجر محفظته بمسح رمز QR، وينشئ فاتورة بمبلغ محدّد عبر الـ API، فيصله Webhook موقّع لحظة وصول المبلغ. تقرأ الدفعات الواردة فقط، ولا تستطيع إرسال أي مبلغ.",
+      points: [
+        "ربط محفظة شام كاش كجهاز مرتبط، بمسح رمز QR",
+        "فواتير عبر الـ API بالليرة السورية أو الدولار، مع صفحة دفع جاهزة وعدّاد للوقت",
+        "Webhooks موقّعة بـ HMAC، يُعاد إرسالها تلقائياً حتى تصل",
+        "قراءة فقط بالتصميم: تؤكّد الدفعات ولا تحرّك أي مبلغ",
+        "0.5$ لكل محفظة شهرياً، بعد تجربة مجانية ليوم كامل",
+      ],
+      stack: ["Node.js", "Fastify", "SQLite", "Playwright", "Docker", "Cloudflare Tunnel"],
+      live: true,
+      links: [
+        { label: "shapi.ghawi.app", href: "https://shapi.ghawi.app" },
+        { label: "توثيق الـ API", href: "https://shapi.ghawi.app/docs" },
+      ],
+      shots: {
+        desktop: "الصفحة الرئيسية لـ GH-Cash في متصفح الحاسوب",
+        mobile: "صفحة الدفع من GH-Cash على الهاتف: المبلغ المطلوب بالضبط، والمحفظة، وعدّاد الوقت",
+        bar: "shapi.ghawi.app",
+        more: "توثيق GH-Cash: الـ Webhook الموقّع وطريقة التحقّق منه",
+      },
+      cta: { label: "أريد دفعاً مثله", topic: "web" },
     },
   ],
 
@@ -1642,6 +1723,23 @@ const ar: Dictionary = {
         ],
         result:
           "المتجر يعمل ويبيع الآن. منه بدأ عملي في التجارة الرقمية، ودروسه شكّلت دفتر حسابات GH Store ومزامنة مزوّديه. يظهر هنا دون اسمه.",
+      },
+      {
+        slug: "gh-cash",
+        title: "GH-Cash — تأكيد دفعات شام كاش تلقائياً عبر API",
+        description:
+          "كيف بنيت GH-Cash: بوابة للقراءة فقط تراقب محفظة شام كاش لدى التاجر، وتطابق كل دفعة واردة مع فاتورتها، وتبلّغ خادم التاجر بـ Webhook موقّع.",
+        challenge:
+          "لا يوفّر شام كاش واجهة برمجية للتجّار. المتجر الذي يقبله يتحقّق من كل حوالة يدوياً — يفتح التطبيق ويقارن المبلغ ثم يعلّم الطلب مدفوعاً — وهذا بطيء وعرضة للخطأ ومستحيل في منتصف الليل. التاجر يريد تأكيد الدفعات تلقائياً، دون أن يمنح أحداً القدرة على تحريك أمواله.",
+        built: [
+          "ربط المحفظة برمز QR: يضيف التاجر GH-Cash كجهاز مرتبط من تطبيق شام كاش، ويستطيع فصله من التطبيق في أي وقت.",
+          "واجهة فواتير بالليرة السورية والدولار: مبلغ محدّد ومدة صلاحية، وصفحة دفع جاهزة فيها عنوان المحفظة وعدّاد للوقت.",
+          "مطابِق يقرأ آخر حوالات المحفظة فقط ما دامت هناك فاتورة معلّقة، ويدفع الفاتورة التي يطابقها المبلغ والعملة والوقت — ولا يستعمل الحوالة نفسها مرتين.",
+          "Webhooks موقّعة بـ HMAC-SHA256 مع طابع زمني، يُعاد إرسالها بفواصل متزايدة حتى ثماني محاولات.",
+          "جلسات المحافظ مشفّرة بـ AES-256-GCM في حاوية معزولة، ولوحة تحكم للتاجر ومفاتيح API، وتوثيق مع برومبت جاهز لأدوات الذكاء الاصطناعي.",
+        ],
+        result:
+          "GH-Cash يعمل الآن على shapi.ghawi.app: ‏0.5$ لكل محفظة شهرياً بعد تجربة مجانية ليوم كامل، أو تفعيل لمرة واحدة بـ 5$ أربط فيه المحفظة وأدمج الـ API في متجر التاجر.",
       },
     ],
   },

@@ -3,6 +3,7 @@ import {
   ArrowIcon,
   BellIcon,
   BotIcon,
+  CardIcon,
   CheckIcon,
   ChevronIcon,
   CloudIcon,
@@ -28,7 +29,7 @@ const DOOR_ICONS = [WindowIcon, PhoneIcon, SendIcon];
 const PRINCIPLE_ICONS = [LedgerIcon, BellIcon, RepeatIcon, ShieldIcon];
 /** Each showcase's icon by its anchor; anything else by position. */
 const GLANCE_ICONS = [StoreIcon, BotIcon, CodeIcon];
-const GLANCE_ICON_OF: Record<string, typeof StoreIcon> = { "#gh-store": StoreIcon, "#store-bot": BotIcon, "#stori": CloudIcon, "#storefront": CodeIcon };
+const GLANCE_ICON_OF: Record<string, typeof StoreIcon> = { "#gh-store": StoreIcon, "#store-bot": BotIcon, "#stori": CloudIcon, "#storefront": CodeIcon, "#gh-cash": CardIcon };
 
 /** An outbound link that says so to screen readers. */
 export function Out({
@@ -354,6 +355,33 @@ export function StorefrontShots({ project, locale }: { project: Project; locale:
       </figure>
       <figure className="phone-shot">
         <Image src={src("mobile")} alt={project.shots.mobile} width={780} height={1688} sizes="(max-width: 640px) 30vw, 160px" />
+      </figure>
+    </div>
+  );
+}
+
+/** A project's third real screen, on its case study (public/media/<id>/more-<lang>.webp). */
+export function MoreShot({ project, locale }: { project: Project; locale: Locale }) {
+  if (!project.shots.more) return null;
+  return (
+    <div className="shots shots--more" dir="ltr">
+      <figure className="browser-shot">
+        <div className="browser-shot__bar" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+          <span className="browser-shot__url">
+            <span className="live-dot" />
+            {project.shots.bar}
+          </span>
+        </div>
+        <Image
+          src={`/media/${project.id}/more-${locale}.webp`}
+          alt={project.shots.more}
+          width={2000}
+          height={1250}
+          sizes="(max-width: 1000px) 92vw, 920px"
+        />
       </figure>
     </div>
   );

@@ -6,6 +6,14 @@
 
 export type HomeLink = { label: string; href: string };
 
+/**
+ * GH-Cash, the ShamCash payment-confirmation API (its own app, Docker on the
+ * home server). Moving from shapi.ghawi.app to sham.ghawi.app: change it here
+ * once the new host answers. Its admin has its own sign-in.
+ */
+export const GH_CASH_URL = "https://shapi.ghawi.app";
+export const GH_CASH_ADMIN_URL = `${GH_CASH_URL}/admin`;
+
 export type HomeService = {
   name: string;
   /** What it is, in a line. */
@@ -27,7 +35,7 @@ export const HOME_SERVICES: HomeService[] = [
   },
   {
     name: "Admin",
-    about: "Contact inbox, site content, theme, stats and the invitation's settings.",
+    about: "Contact inbox, site content, theme and stats. The wedding invitation is under Other.",
     icon: "chip",
     href: "https://ghawi.app/admin",
   },
@@ -49,6 +57,16 @@ export const HOME_SERVICES: HomeService[] = [
     ],
   },
   {
+    name: "GH-Cash",
+    about: "ShamCash payment confirmation by API: merchants, wallets, invoices.",
+    icon: "card",
+    href: GH_CASH_ADMIN_URL,
+    more: [
+      { label: "Site", href: GH_CASH_URL },
+      { label: "Docs", href: `${GH_CASH_URL}/docs` },
+    ],
+  },
+  {
     name: "CV",
     about: "The CV in English and Arabic, and its builder.",
     icon: "doc",
@@ -60,8 +78,9 @@ export const HOME_SERVICES: HomeService[] = [
   },
   {
     name: "Invitation",
-    about: "The wedding invitation. Guests and RSVPs are in Admin.",
+    about: "The wedding invitation (ended). Guests and RSVPs are in Admin → Other.",
     icon: "spark",
     href: "https://invite.ghawi.app",
+    more: [{ label: "Settings", href: "https://ghawi.app/admin/other" }],
   },
 ];

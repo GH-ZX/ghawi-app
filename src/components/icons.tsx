@@ -183,6 +183,8 @@ export function ServiceIcon({ name, size = 24 }: { name: string; size?: number }
       return <DocIcon size={size} />;
     case "spark":
       return <SparkIcon size={size} />;
+    case "card":
+      return <CardIcon size={size} />;
     default:
       return <CodeIcon size={size} />;
   }

@@ -1,16 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ExternalIcon, MoonIcon, SunIcon } from "@/components/icons";
-import { Logo } from "@/components/logo";
 import { DEFAULT_CONTENT } from "@/lib/content";
-import { InvitePanel } from "./invite-panel";
+import type { AdminSection } from "@/lib/admin-sections";
+import { AdminBar, AdminTabs } from "./admin-bar";
 import { SitePanel } from "./site-panel";
 import { StatsPanel } from "./stats-panel";
 import { ThemePanel } from "./theme-panel";
-import { getEffectiveMode, setMode } from "@/lib/theme-client";
 
 type Message = {
   id: number;
@@ -49,14 +46,15 @@ function formatWhen(iso: string): string {
   return Number.isNaN(date.getTime()) ? iso : when.format(date);
 }
 
-export function AdminConsole() {
+/** /admin: the inbox first; the wedding invitation lives under Other (/admin/other). */
+export function AdminConsole({ initialSection = "inbox" }: { initialSection?: AdminSection }) {
   const router = useRouter();
   const [messages, setMessages] = useState<Message[] | null>(null);
   const [stats, setStats] = useState<Stats>({ total: 0, unread: 0, undelivered: 0 });
   const [loadError, setLoadError] = useState<string | null>(null);
   const [view, setView] = useState<View>("inbox");
   const [query, setQuery] = useState("");
-  const [section, setSection] = useState<"inbox" | "site" | "stats" | "theme" | "invite">("invite");
+  const [section, setSection] = useState<AdminSection>(initialSection);
 
   // Bumped after every change; the effect below refetches when it moves.
   const [version, setVersion] = useState(0);
@@ -113,63 +111,14 @@ export function AdminConsole() {
     reload();
   }
 
-  async function signOut() {
-    await fetch("/api/admin/logout", { method: "POST" });
-    router.refresh();
-  }
-
   const archivedCount = stats.total - stats.unread;
 
   return (
     <div className="admin">
-      <header className="admin__bar">
-        <div className="admin__bar-inner">
-          <Link className="admin__brand" href="/admin">
-            <Logo height={20} />
-            ghawi.app <span>/ inbox</span>
-          </Link>
-          <div className="admin__actions">
-            <button
-              type="button"
-              className="icon-btn press"
-              onClick={() => setMode(getEffectiveMode() === "dark" ? "light" : "dark")}
-              aria-label="Toggle light and dark"
-            >
-              <span className="when-light">
-                <MoonIcon />
-              </span>
-              <span className="when-dark">
-                <SunIcon />
-              </span>
-            </button>
-            <a className="btn btn--xs btn--ghost press" href="/en" target="_blank" rel="noopener noreferrer">
-              Site <ExternalIcon size={14} />
-            </a>
-            <button type="button" className="btn btn--xs btn--soft press" onClick={signOut}>
-              Sign out
-            </button>
-          </div>
-        </div>
-      </header>
+      <AdminBar where={section} />
 
       <main className="admin__main">
-        <div className="seg admin__tabs" role="group" aria-label="Section">
-          <button type="button" className="press" aria-pressed={section === "invite"} onClick={() => setSection("invite")}>
-            Invitation
-          </button>
-          <button type="button" className="press" aria-pressed={section === "inbox"} onClick={() => setSection("inbox")}>
-            Inbox{stats.unread ? ` · ${stats.unread}` : ""}
-          </button>
-          <button type="button" className="press" aria-pressed={section === "site"} onClick={() => setSection("site")}>
-            Site
-          </button>
-          <button type="button" className="press" aria-pressed={section === "stats"} onClick={() => setSection("stats")}>
-            Stats
-          </button>
-          <button type="button" className="press" aria-pressed={section === "theme"} onClick={() => setSection("theme")}>
-            Theme
-          </button>
-        </div>
+        <AdminTabs current={section} onPick={setSection} unread={stats.unread} />
 
         {section === "site" ? (
           <SitePanel />
@@ -177,8 +126,6 @@ export function AdminConsole() {
           <StatsPanel />
         ) : section === "theme" ? (
           <ThemePanel />
-        ) : section === "invite" ? (
-          <InvitePanel />
         ) : (
           <>
         <dl className="kpis">

@@ -540,6 +540,12 @@ body { overflow-x: clip; }
 /* ───────────────────────────── work at a glance */
 .glance { display: grid; gap: 8px; margin-bottom: 16px; }
 @media (min-width: 760px) { .glance { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 20px; } }
+/* Five cards: three over two, rather than four and one alone. */
+@media (min-width: 1000px) {
+  .glance:has(> li:nth-child(5):last-child) { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .glance:has(> li:nth-child(5):last-child) > li { grid-column: span 2; }
+  .glance:has(> li:nth-child(5):last-child) > li:nth-child(n + 4) { grid-column: span 3; }
+}
 .glance__card {
   height: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 18px;
   border: 1px solid var(--line); background: var(--surface); color: var(--ink); text-decoration: none;
@@ -665,6 +671,9 @@ body { overflow-x: clip; }
 .case__actions { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 8px; }
 .case__visual { margin-block: 20px 8px; }
 .case__visual .botcase__media { min-height: 0; }
+.case__visual--more { margin-block: 8px 20px; }
+.shots--more { padding: 0; max-width: 920px; margin-inline: auto; }
+.shots--more img { width: 100%; height: auto; }
 .case__body { display: grid; gap: 12px; padding-block: 24px 8px; }
 @media (min-width: 900px) { .case__body { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; } }
 .case__part { border-radius: 24px; border: 1px solid var(--line); background: var(--surface); padding: 22px; }
