@@ -166,18 +166,6 @@ export default async function CasePage({ params }: Params) {
             <h2>{t.cases.result}</h2>
             <p>{item.result}</p>
           </section>
-          {stack.length ? (
-            <section className="case__part" data-reveal>
-              <h2>{t.cases.stack}</h2>
-              <ul className="chips">
-                {stack.map((tool) => (
-                  <li key={tool} className="chip">
-                    {tool}
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ) : null}
         </div>
 
         {project?.shots.more ? (

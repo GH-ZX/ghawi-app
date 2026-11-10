@@ -4,6 +4,7 @@ import {
   BellIcon,
   BotIcon,
   CardIcon,
+  ChannelMark,
   CheckIcon,
   ChevronIcon,
   CloudIcon,
@@ -12,7 +13,6 @@ import {
   LedgerIcon,
   PhoneIcon,
   RepeatIcon,
-  RepoIcon,
   SendIcon,
   ShieldIcon,
   StoreIcon,
@@ -145,11 +145,6 @@ export function Work({ ctx }: { ctx: PageContext }) {
                     {store.channel}
                   </Out>
                 ) : null}
-                {links.storeSource ? (
-                  <Out className="btn btn--sm btn--ghost press" href={links.storeSource} newTab={t.ui.newTab} track="store-source">
-                    {store.source}
-                  </Out>
-                ) : null}
               </div>
               <CaseLink slug="gh-store" locale={locale} label={t.ui.caseStudy} />
             </div>
@@ -172,13 +167,6 @@ export function Work({ ctx }: { ctx: PageContext }) {
                     </li>
                   );
                 })}
-              </ul>
-              <ul className="chips feature__stack">
-                {store.stack.map((item) => (
-                  <li key={item} className="chip">
-                    {item}
-                  </li>
-                ))}
               </ul>
             </div>
           </div>
@@ -231,54 +219,27 @@ export function Work({ ctx }: { ctx: PageContext }) {
           ))}
         </div>
 
-        <More t={t} githubUrl={ctx.urls.github} />
+        <More t={t} githubUrl={ctx.urls.github} handle={ctx.profile.github} />
       </div>
     </section>
   );
 }
 
-/** The two newest repositories, the rest a tap away: the page stays short on phones. */
-function More({ t, githubUrl }: { t: Dictionary; githubUrl: string }) {
-  if (!t.more.items.length) return null;
-  const row = (repo: Dictionary["more"]["items"][number]) => (
-    <li key={repo.name}>
-      <a className="list-row" href={repo.url} target="_blank" rel="noopener noreferrer" data-track="github-repo">
-        <span className="round-icon" aria-hidden="true">
-          <RepoIcon />
-        </span>
+/** No repository list: one link to the GitHub account, for anyone who wants to look. */
+function More({ t, githubUrl, handle }: { t: Dictionary; githubUrl: string; handle: string }) {
+  return (
+    <div className="more" data-reveal>
+      <a className="list-row more__github" href={githubUrl} target="_blank" rel="noopener noreferrer" data-track="github">
+        <ChannelMark id="github" />
         <span className="list-row__main">
-          <span className="repo__top">
-            <span className="repo__name">{repo.name}</span>
-            <span className="repo__kind">{repo.kind}</span>
+          <span className="list-row__title">{t.more.title}</span>
+          <span className="list-row__meta">
+            <bdi>github.com/{handle}</bdi>
           </span>
-          <span className="list-row__meta">{repo.blurb}</span>
         </span>
         <ChevronIcon className="list-row__chev" />
         <span className="sr-only"> {t.ui.newTab}</span>
       </a>
-    </li>
-  );
-  const first = t.more.items.slice(0, 2);
-  const rest = t.more.items.slice(2);
-
-  return (
-    <div className="more" data-reveal>
-      <div className="more__head">
-        <h3>{t.more.title}</h3>
-        <Out className="btn btn--xs btn--ghost press" href={githubUrl} newTab={t.ui.newTab} track="github">
-          {t.more.all}
-          <ExternalIcon size={14} />
-        </Out>
-      </div>
-      <ul className="list">{first.map(row)}</ul>
-      {rest.length ? (
-        <details className="more__rest">
-          <summary className="btn btn--xs btn--soft press">
-            {t.ui.showAll} · {t.more.items.length}
-          </summary>
-          <ul className="list">{rest.map(row)}</ul>
-        </details>
-      ) : null}
     </div>
   );
 }
@@ -308,13 +269,6 @@ function ProjectCard({ project, locale, newTab, caseLabel }: { project: Project;
           ))}
         </ul>
         <div className="project__foot">
-          <ul className="chips">
-            {project.stack.map((item) => (
-              <li key={item} className="chip">
-                {item}
-              </li>
-            ))}
-          </ul>
           <div className="project__links">
             {project.cta.label ? (
               <TopicLink topic={project.cta.topic} className="btn btn--sm press">
@@ -405,13 +359,6 @@ export function BotShowcase({ bot, locale, caseLabel, compact = false }: { bot: 
             <li key={point}>
               <CheckIcon size={16} />
               {point}
-            </li>
-          ))}
-        </ul>
-        <ul className="chips botcase__stack">
-          {bot.stack.map((item) => (
-            <li key={item} className="chip">
-              {item}
             </li>
           ))}
         </ul>

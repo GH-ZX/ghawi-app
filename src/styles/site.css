@@ -722,3 +722,6 @@ body { overflow-x: clip; }
   .principle p { display: none; }
   .botcase__phone--main { width: min(230px, 58%); }
 }
+
+/* More on GitHub: one row, the account itself */
+.more__github { border-radius: 22px; background: var(--surface); border: 1px solid var(--line); }
