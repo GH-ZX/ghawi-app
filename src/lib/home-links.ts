@@ -67,8 +67,8 @@ export const HOME_SERVICES: HomeService[] = [
     ],
   },
   {
-    name: "net",
-    about: "MikroTik: lessons, visuals, script wizards and a live router console.",
+    name: "GH net",
+    about: "MikroTik manager: lessons, visuals, script wizards and a live router console.",
     icon: "router",
     href: "https://net.ghawi.app",
     more: [

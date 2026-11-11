@@ -32,6 +32,7 @@ const MAX_ITEMS = 40;
 const TEMPLATES: Record<string, unknown> = {
   "testimonials.items": { quote: "", name: "", role: "", url: "" },
   "projects.links": { label: "", href: "" },
+  "projects.shots.gallery": "",
 };
 
 type Plain = Record<string, unknown>;

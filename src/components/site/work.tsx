@@ -126,8 +126,8 @@ export function Work({ ctx }: { ctx: PageContext }) {
                 {store.kicker}
               </span>
               <div className="feature__brand">
-                <Logo height={26} label="GH Store" />
-                <span>GH Store</span>
+                <Logo height={26} label={store.name} />
+                <span>{store.name}</span>
               </div>
               <h3 id="store-title" className="feature__title">
                 {store.title}
@@ -339,6 +339,34 @@ export function MoreShot({ project, locale }: { project: Project; locale: Locale
         />
       </figure>
     </div>
+  );
+}
+
+/** More real screens of a project, on its case study (public/media/<id>/gallery-<n>.webp). */
+export function ShotGallery({ project }: { project: Project }) {
+  if (!project.shots.gallery.length) return null;
+  return (
+    <ul className="gallery">
+      {project.shots.gallery.map((caption, index) => {
+        const src = `/media/${project.id}/gallery-${index + 1}.webp`;
+        return (
+          <li key={src}>
+            <figure className="gallery__item">
+              <a className="gallery__shot browser-shot" href={src} target="_blank" rel="noopener noreferrer" dir="ltr">
+                <span className="browser-shot__bar" aria-hidden="true">
+                  <i />
+                  <i />
+                  <i />
+                  <span className="browser-shot__url">{project.shots.bar}</span>
+                </span>
+                <Image src={src} alt={caption} width={2000} height={1250} sizes="(max-width: 760px) 92vw, (max-width: 1100px) 46vw, 540px" />
+              </a>
+              <figcaption>{caption}</figcaption>
+            </figure>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 

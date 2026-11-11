@@ -7,7 +7,7 @@ import { Spotlight } from "@/components/site/spotlight";
 import { StoreShots } from "@/components/site/store-shots";
 import { Tabbar } from "@/components/site/tabbar";
 import { Track } from "@/components/site/track";
-import { BotMedia, MoreShot, Out, StorefrontShots, TopicLink } from "@/components/site/work";
+import { BotMedia, MoreShot, Out, ShotGallery, StorefrontShots, TopicLink } from "@/components/site/work";
 import { CASE_SLUGS, defaultLocale, isLocale, SITE_URL, type CaseSlug, type Dictionary } from "@/lib/content";
 import { caseOf, isCaseSlug, navOf, pageContext, visibleSections } from "@/lib/site-content";
 import { getSiteContent } from "@/lib/site-server";
@@ -172,6 +172,13 @@ export default async function CasePage({ params }: Params) {
           <div className="shell case__visual case__visual--more" data-reveal>
             <MoreShot project={project} locale={lang} />
           </div>
+        ) : null}
+
+        {project?.shots.gallery.length ? (
+          <section className="shell case__screens" aria-labelledby="case-screens" data-reveal>
+            <h2 id="case-screens">{t.cases.screens}</h2>
+            <ShotGallery project={project} />
+          </section>
         ) : null}
 
         <section className="shell" data-reveal>

@@ -116,9 +116,10 @@ export interface Project {
   /**
    * Alt text for the real screenshots in public/media/<id>: desktop-<lang>.webp,
    * mobile-<lang>.webp and, when `more` is set, a third (more-<lang>.webp) on
-   * the case study.
+   * the case study. `gallery` captions more screens shown on the case study,
+   * gallery-1.webp, gallery-2.webp… (one set for both languages).
    */
-  shots: { desktop: string; mobile: string; bar: string; more: string };
+  shots: { desktop: string; mobile: string; bar: string; more: string; gallery: string[] };
   cta: { label: string; topic: string };
 }
 
@@ -186,6 +187,8 @@ export interface Dictionary {
     glance: { name: string; line: string; href: string }[];
   };
   store: {
+    /** The flagship's name beside its logo. */
+    name: string;
     kicker: string;
     title: string;
     body: string;
@@ -328,6 +331,7 @@ export interface Dictionary {
     built: string;
     result: string;
     stack: string;
+    screens: string;
     cta: { title: string; body: string; button: string };
     more: string;
     items: CaseStudy[];
@@ -466,14 +470,15 @@ const en: Dictionary = {
     glance: [
       { name: "GH Store", line: "My own store: website, Mini App and bot", href: "#gh-store" },
       { name: "Store bot", line: "Client project: a whole store in one chat", href: "#store-bot" },
-      { name: "Stori", line: "My platform: online stores for local shops", href: "#stori" },
-      { name: "Game top-up store", line: "Client project: a web store that delivers itself", href: "#storefront" },
-      { name: "GH-Cash", line: "My API: ShamCash payments confirmed on their own", href: "#gh-cash" },
-      { name: "net.ghawi.app", line: "My platform: learn and run MikroTik visually", href: "#net" },
+      { name: "Stori", line: "The platform that builds online stores for shops", href: "#stori" },
+      { name: "Game store", line: "Client project: a web store that delivers itself", href: "#storefront" },
+      { name: "ShamCash payment gateway", line: "GH-Cash: take ShamCash payments in your store, fast and automatic", href: "#gh-cash" },
+      { name: "MikroTik manager", line: "GH net: manage MikroTik and learn it", href: "#net" },
     ],
   },
 
   store: {
+    name: "GH Store",
     kicker: "Flagship · Live",
     title: "One store, three doors.",
     body: "A multi-supplier store for digital goods: game top-ups, gift cards, subscriptions and virtual numbers. Customers buy on the website, inside a Telegram Mini App or straight from the bot — one account, one wallet, one catalogue and one order history across all three.",
@@ -543,7 +548,7 @@ const en: Dictionary = {
   projects: [
     {
       id: "stori",
-      kicker: "Store platform · Live",
+      kicker: "Store-building platform · Live",
       name: "Stori",
       title: "An online store for every shop, on its own accounts.",
       body: "A platform that hands local shops a complete online store, supermarkets first: five storefront templates in six palettes, an Arabic admin panel, Sham Cash payments and scheduled delivery. Each store runs on the owner's own domain and GitHub, Cloudflare and Supabase accounts.",
@@ -565,13 +570,14 @@ const en: Dictionary = {
         mobile: "The same store on a phone, in the mosaic template",
         bar: "stori.ghawi.app",
         more: "",
+        gallery: [],
       },
       cta: { label: "I want a store like this", topic: "web" },
     },
     {
       id: "storefront",
       kicker: "Web store · Live",
-      name: "Game top-up storefront",
+      name: "Game store",
       title: "Where it started.",
       body: "A bilingual shop for game top-ups and gift cards: dozens of games, packs synced from a supplier and delivered automatically, wallet recharge and invoices. Shown here without its name.",
       points: [
@@ -588,15 +594,16 @@ const en: Dictionary = {
         mobile: "A game's page on a phone: packs with prices and buy buttons",
         bar: "Live store",
         more: "",
+        gallery: [],
       },
       cta: { label: "Ask for a live demo", topic: "web" },
     },
     {
       id: "gh-cash",
-      kicker: "Payments API · Live",
-      name: "GH-Cash",
+      kicker: "GH-Cash service · Live",
+      name: "ShamCash payment gateway",
       title: "ShamCash payments, confirmed on their own.",
-      body: "A payment-confirmation gateway for ShamCash. A merchant links their wallet by scanning a QR code, creates an invoice through the API for an exact amount, and gets a signed webhook the moment that amount arrives. It only reads incoming payments: it can never send money.",
+      body: "GH-Cash is a service for taking ShamCash payments in your store, fast and automatically. A merchant links their wallet by scanning a QR code, creates an invoice through the API for an exact amount, and gets a signed webhook the moment that amount arrives. It only reads incoming payments: it can never send money.",
       points: [
         "Link a ShamCash wallet as a linked device, by scanning a QR code",
         "Invoices by API in SYP or USD, with a hosted payment page and a countdown",
@@ -615,15 +622,16 @@ const en: Dictionary = {
         mobile: "GH-Cash's hosted payment page on a phone: the exact amount, the wallet to pay and a countdown",
         bar: "sham.ghawi.app",
         more: "GH-Cash's API docs: the signed webhook and how to verify it",
+        gallery: [],
       },
       cta: { label: "I want payments like this", topic: "web" },
     },
     {
       id: "net",
-      kicker: "Learning platform · Live",
-      name: "net.ghawi.app",
+      kicker: "GH net platform · Live",
+      name: "MikroTik manager",
       title: "MikroTik, learned visually and run from the browser.",
-      body: "A free platform for mastering MikroTik RouterOS: hands-on lessons with labs that check your real router, animations that show packets moving through NAT and the firewall, wizards that write commented configurations, and a live console that reaches your router through a small bridge on your laptop.",
+      body: "GH net is a free platform for managing and learning MikroTik RouterOS: hands-on lessons with labs that check your real router, animations that show packets moving through NAT and the firewall, wizards that write commented configurations, and a live console that reaches your router through a small bridge on your laptop.",
       points: [
         "80 lessons in 14 tracks, from plugging in a laptop to VoIP, VPNs, containers and ISP setups",
         "22 interactive visuals: the packet flow, masquerade, port forwarding, SIP calls, WireGuard and more",
@@ -642,6 +650,18 @@ const en: Dictionary = {
         mobile: "The masquerade animation on a phone: the router has just rewritten the packet's source address",
         bar: "net.ghawi.app",
         more: "The VoIP wizard: a generated RouterOS script with every line explained",
+        gallery: [
+          "The learning path: 80 lessons in 14 tracks, from Foundation to Pro",
+          "A lesson: the masquerade animation mid-play, the router's rewrite shown in the packet header",
+          "The RouterOS packet flow: a port-forwarded packet walking through prerouting, routing and forward",
+          "A SIP call, message by message: REGISTER, the digest challenge, INVITE and ringing",
+          "The firewall simulator: a scanner hitting Winbox is dropped by the fourth default rule",
+          "A VLAN bridge you configure, in the light look: ports, PVIDs and the generated script",
+          "The WireGuard wizard: a client config and a QR code for each phone and laptop",
+          "A library script: Cloudflare DDNS, with your values filled in and a one-click install",
+          "Fix it: a guided check for one-way VoIP audio, step by step",
+          "Connect: starting the bridge, and how a MacBook on Ethernet and Wi-Fi picks its routes",
+        ],
       },
       cta: { label: "Set up my network", topic: "it" },
     },
@@ -943,6 +963,7 @@ const en: Dictionary = {
     built: "What I built",
     result: "Where it is now",
     stack: "Built with",
+    screens: "Screens",
     cta: {
       title: "Want something like this?",
       body: "Tell me what you're building. You'll get a scope, a price and a timeline within a day.",
@@ -1003,7 +1024,7 @@ const en: Dictionary = {
       },
       {
         slug: "storefront",
-        title: "A bilingual game top-up store",
+        title: "A bilingual game store",
         description:
           "A web store for game top-ups and gift cards: supplier catalogue sync, automatic fulfilment, ShamCash wallet recharge and invoices, in Arabic and English.",
         challenge:
@@ -1020,7 +1041,7 @@ const en: Dictionary = {
       },
       {
         slug: "gh-cash",
-        title: "GH-Cash — ShamCash payments confirmed automatically, by API",
+        title: "ShamCash payment gateway (GH-Cash) — payments confirmed automatically, by API",
         description:
           "How I built GH-Cash: a read-only gateway that watches a merchant's ShamCash wallet, matches each incoming payment to its invoice and tells the merchant's server with a signed webhook.",
         challenge:
@@ -1037,7 +1058,7 @@ const en: Dictionary = {
       },
       {
         slug: "net",
-        title: "net.ghawi.app — learn, build and run MikroTik visually",
+        title: "MikroTik manager (GH net) — learn, build and run MikroTik visually",
         description:
           "How I built net.ghawi.app: a free MikroTik RouterOS platform with visual lessons, script wizards and a live console that reaches the router through a small bridge on the laptop.",
         challenge:
@@ -1243,16 +1264,17 @@ const ar: Dictionary = {
     title: "منشورة، تعمل، وتستقبل الطلبات.",
     lead: "منتجات حقيقية لا نماذج عرض — كلّ منها صمّمته وبنيته وأطلقته بنفسي.",
     glance: [
-      { name: "GH Store", line: "متجري الخاص: موقع وتطبيق مصغّر وبوت", href: "#gh-store" },
+      { name: "متجر GH", line: "متجري الخاص: موقع وتطبيق مصغّر وبوت", href: "#gh-store" },
       { name: "بوت متجر", line: "مشروع لعميل: متجر كامل في محادثة واحدة", href: "#store-bot" },
-      { name: "Stori", line: "منصّتي: متاجر إلكترونية للمحلات", href: "#stori" },
-      { name: "متجر شحن ألعاب", line: "مشروع لعميل: متجر ويب يسلّم وحده", href: "#storefront" },
-      { name: "GH-Cash", line: "واجهتي البرمجية: تأكيد دفعات شام كاش تلقائياً", href: "#gh-cash" },
-      { name: "net.ghawi.app", line: "منصّتي: تعلّم MikroTik وإدارته بصرياً", href: "#net" },
+      { name: "Stori", line: "منصّة إنشاء المتاجر الإلكترونية للمحلات", href: "#stori" },
+      { name: "متجر ألعاب", line: "مشروع لعميل: متجر ويب يسلّم وحده", href: "#storefront" },
+      { name: "بوابة دفع شام كاش", line: "خدمة GH-Cash لاستقبال دفعات متجرك بسرعة وتلقائياً", href: "#gh-cash" },
+      { name: "مدير مايكروتيك", line: "GH net: منصّة لإدارة MikroTik وتعلّمه", href: "#net" },
     ],
   },
 
   store: {
+    name: "متجر GH",
     kicker: "المشروع الرئيسي · يعمل الآن",
     title: "متجر واحد بثلاث واجهات.",
     body: "متجر للمنتجات الرقمية يجمع عدّة مزوّدين: شحن الألعاب، والبطاقات، والاشتراكات، والأرقام الافتراضية. يشتري العميل من الموقع أو من تطبيق تيليجرام المصغّر أو من البوت مباشرةً — بحساب واحد ومحفظة واحدة وكتالوج واحد وسجلّ طلبات واحد في الواجهات الثلاث.",
@@ -1322,7 +1344,7 @@ const ar: Dictionary = {
   projects: [
     {
       id: "stori",
-      kicker: "منصّة متاجر · تعمل الآن",
+      kicker: "منصّة إنشاء المتاجر · تعمل الآن",
       name: "Stori",
       title: "متجر إلكتروني لكل محل، على حساباته هو.",
       body: "منصّة تسلّم المحلات متجراً إلكترونياً كاملاً، بدأت بالسوبرماركت: خمسة تصاميم للواجهة بستة ألوان، ولوحة تحكم عربية، ودفع عبر شام كاش وتوصيل بمواعيد. كل متجر يعمل على دومين صاحبه وحساباته في GitHub وCloudflare وSupabase.",
@@ -1344,13 +1366,14 @@ const ar: Dictionary = {
         mobile: "المتجر نفسه على الهاتف بتصميم الفسيفساء",
         bar: "stori.ghawi.app",
         more: "",
+        gallery: [],
       },
       cta: { label: "أريد متجراً مثله", topic: "web" },
     },
     {
       id: "storefront",
       kicker: "متجر ويب · يعمل الآن",
-      name: "متجر شحن ألعاب",
+      name: "متجر ألعاب",
       title: "من هنا بدأت.",
       body: "متجر ثنائي اللغة لشحن الألعاب والبطاقات: عشرات الألعاب، وباقات تُزامَن من المزوّد وتُسلَّم تلقائياً، وشحن للمحفظة وفواتير. يظهر هنا دون اسمه.",
       points: [
@@ -1367,15 +1390,16 @@ const ar: Dictionary = {
         mobile: "صفحة لعبة على الهاتف: الباقات بأسعارها وأزرار الشراء",
         bar: "متجر يعمل الآن",
         more: "",
+        gallery: [],
       },
       cta: { label: "اطلب عرضاً حيّاً", topic: "web" },
     },
     {
       id: "gh-cash",
-      kicker: "واجهة دفع برمجية · تعمل الآن",
-      name: "GH-Cash",
+      kicker: "خدمة GH-Cash · تعمل الآن",
+      name: "بوابة دفع شام كاش",
       title: "دفعات شام كاش، تتأكّد وحدها.",
-      body: "بوابة لتأكيد دفعات شام كاش. يربط التاجر محفظته بمسح رمز QR، وينشئ فاتورة بمبلغ محدّد عبر الـ API، فيصله Webhook موقّع لحظة وصول المبلغ. تقرأ الدفعات الواردة فقط، ولا تستطيع إرسال أي مبلغ.",
+      body: "GH-Cash خدمة لاستقبال دفعات شام كاش في متجرك بسرعة وتلقائياً. يربط التاجر محفظته بمسح رمز QR، وينشئ فاتورة بمبلغ محدّد عبر الـ API، فيصله Webhook موقّع لحظة وصول المبلغ. تقرأ الدفعات الواردة فقط، ولا تستطيع إرسال أي مبلغ.",
       points: [
         "ربط محفظة شام كاش كجهاز مرتبط، بمسح رمز QR",
         "فواتير عبر الـ API بالليرة السورية أو الدولار، مع صفحة دفع جاهزة وعدّاد للوقت",
@@ -1394,15 +1418,16 @@ const ar: Dictionary = {
         mobile: "صفحة الدفع من GH-Cash على الهاتف: المبلغ المطلوب بالضبط، والمحفظة، وعدّاد الوقت",
         bar: "sham.ghawi.app",
         more: "توثيق GH-Cash: الـ Webhook الموقّع وطريقة التحقّق منه",
+        gallery: [],
       },
       cta: { label: "أريد دفعاً مثله", topic: "web" },
     },
     {
       id: "net",
-      kicker: "منصّة تعليمية · تعمل الآن",
-      name: "net.ghawi.app",
+      kicker: "منصّة GH net · تعمل الآن",
+      name: "مدير مايكروتيك",
       title: "MikroTik، تتعلّمه بالصورة وتديره من المتصفح.",
-      body: "منصّة مجانية لإتقان RouterOS من MikroTik: دروس عملية مع تمارين تتحقّق من راوترك الحقيقي، ورسوم متحرّكة تُظهر الحزم وهي تعبر الـ NAT والجدار الناري، ومعالجات تكتب الإعدادات مع شرح كل سطر، ولوحة مباشرة تصل إلى راوترك عبر جسر صغير يعمل على حاسوبك.",
+      body: "GH net منصّة مجانية لإدارة RouterOS من MikroTik وتعلّمه: دروس عملية مع تمارين تتحقّق من راوترك الحقيقي، ورسوم متحرّكة تُظهر الحزم وهي تعبر الـ NAT والجدار الناري، ومعالجات تكتب الإعدادات مع شرح كل سطر، ولوحة مباشرة تصل إلى راوترك عبر جسر صغير يعمل على حاسوبك.",
       points: [
         "80 درساً في 14 مساراً، من توصيل الحاسوب إلى VoIP والـ VPN والحاويات وإعدادات مزوّدي الإنترنت",
         "22 رسماً تفاعلياً: مسار الحزم، والـ masquerade، وتوجيه المنافذ، ومكالمات SIP، وWireGuard وغيرها",
@@ -1421,6 +1446,18 @@ const ar: Dictionary = {
         mobile: "رسم الـ masquerade على الهاتف: الراوتر غيّر للتوّ عنوان المصدر في الحزمة",
         bar: "net.ghawi.app",
         more: "معالج VoIP: سكربت RouterOS جاهز مع شرح كل سطر",
+        gallery: [
+          "مسار التعلّم: 80 درساً في 14 مساراً، من الأساسيات إلى مستوى المحترفين",
+          "درس: رسم الـ masquerade أثناء التشغيل، والراوتر يغيّر العنوان في ترويسة الحزمة",
+          "مسار الحزم في RouterOS: حزمة موجّهة عبر port forward تمرّ بالـ prerouting ثم التوجيه ثم الـ forward",
+          "مكالمة SIP رسالة برسالة: REGISTER، وتحدّي المصادقة، وINVITE، والرنين",
+          "محاكي الجدار الناري: محاولة مسح لـ Winbox تُحجب عند القاعدة الافتراضية الرابعة",
+          "جسر VLAN تضبطه بنفسك، بالمظهر الفاتح: المنافذ والـ PVID والسكربت الناتج",
+          "معالج WireGuard: ملف إعداد ورمز QR لكل هاتف وحاسوب",
+          "سكربت من المكتبة: Cloudflare DDNS، بقيمك أنت وتثبيت بنقرة واحدة",
+          "Fix it: فحص موجّه خطوة بخطوة لمشكلة الصوت باتجاه واحد في VoIP",
+          "الاتصال: تشغيل الجسر، وكيف يختار ماك بوك موصول بالإيثرنت والواي فاي مساراته",
+        ],
       },
       cta: { label: "أريد إعداد شبكتي", topic: "it" },
     },
@@ -1722,6 +1759,7 @@ const ar: Dictionary = {
     built: "ماذا بنيت",
     result: "أين وصل اليوم",
     stack: "بُني بـ",
+    screens: "لقطات من الموقع",
     cta: {
       title: "تريد شيئاً مثل هذا؟",
       body: "أخبرني ماذا تبني، ويصلك نطاق العمل والسعر والمدّة خلال يوم.",
@@ -1731,7 +1769,7 @@ const ar: Dictionary = {
     items: [
       {
         slug: "gh-store",
-        title: "GH Store — متجر واحد على الويب وفي تطبيق مصغّر وفي بوت",
+        title: "متجر GH — متجر واحد على الويب وفي تطبيق مصغّر وفي بوت",
         description:
           "كيف بنيت GH Store وأشغّله: كتالوج واحد ومحفظة واحدة وسجلّ طلبات واحد عبر موقع وتطبيق تيليجرام مصغّر وبوت، بمدفوعات لا تخصم مرّتين.",
         challenge:
@@ -1782,7 +1820,7 @@ const ar: Dictionary = {
       },
       {
         slug: "storefront",
-        title: "متجر شحن ألعاب ثنائي اللغة",
+        title: "متجر ألعاب ثنائي اللغة",
         description:
           "متجر ويب لشحن الألعاب والبطاقات: مزامنة كتالوج المزوّد، وتنفيذ تلقائي، وشحن محفظة ShamCash، وفواتير، بالعربية والإنجليزية.",
         challenge:
@@ -1799,7 +1837,7 @@ const ar: Dictionary = {
       },
       {
         slug: "gh-cash",
-        title: "GH-Cash — تأكيد دفعات شام كاش تلقائياً عبر API",
+        title: "بوابة دفع شام كاش (GH-Cash) — تأكيد الدفعات تلقائياً عبر API",
         description:
           "كيف بنيت GH-Cash: بوابة للقراءة فقط تراقب محفظة شام كاش لدى التاجر، وتطابق كل دفعة واردة مع فاتورتها، وتبلّغ خادم التاجر بـ Webhook موقّع.",
         challenge:
@@ -1816,7 +1854,7 @@ const ar: Dictionary = {
       },
       {
         slug: "net",
-        title: "net.ghawi.app — تعلّم MikroTik وابنِ إعداداته وأدِره بصرياً",
+        title: "مدير مايكروتيك (GH net) — تعلّم MikroTik وابنِ إعداداته وأدِره بصرياً",
         description:
           "كيف بنيت net.ghawi.app: منصّة مجانية لـ RouterOS من MikroTik فيها دروس بصرية ومعالجات للسكربتات ولوحة مباشرة تصل إلى الراوتر عبر جسر صغير على الحاسوب.",
         challenge:
