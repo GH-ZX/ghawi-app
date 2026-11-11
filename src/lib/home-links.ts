@@ -1,5 +1,5 @@
 /**
- * home.ghawi.app: every ghawi service in one place, for the owner only. Not linked from ghawi.app and
+ * home.ghawi.app: every ghawi service in one place. A plain page (no sign-in), not linked from ghawi.app and
  * never indexed; a service shows on the public site only when it's ready to.
  * Add a service here and it appears on the page.
  */

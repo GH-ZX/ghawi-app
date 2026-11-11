@@ -1438,8 +1438,8 @@ const ar: Dictionary = {
       stack: ["React", "TypeScript", "Vite", "Node.js", "RouterOS REST API", "Cloudflare Workers"],
       live: true,
       links: [
-        { label: "net.ghawi.app", href: "https://net.ghawi.app" },
-        { label: "ابدأ التعلّم", href: "https://net.ghawi.app/learn" },
+        { label: "net.ghawi.app", href: "https://net.ghawi.app/?lang=ar" },
+        { label: "ابدأ التعلّم", href: "https://net.ghawi.app/learn?lang=ar" },
       ],
       shots: {
         desktop: "الصفحة الرئيسية لـ net.ghawi.app: مسار التعلّم والرتبة والاختصارات",

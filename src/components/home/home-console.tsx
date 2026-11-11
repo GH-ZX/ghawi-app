@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { ExternalIcon, MoonIcon, ServiceIcon, SunIcon } from "@/components/icons";
 import { Logo } from "@/components/logo";
 import { HOME_SERVICES } from "@/lib/home-links";
@@ -8,15 +7,8 @@ import { getEffectiveMode, setMode } from "@/lib/theme-client";
 
 const host = (href: string) => new URL(href).host + new URL(href).pathname.replace(/\/$/, "");
 
-/** home.ghawi.app: a card per ghawi service, each opening in its own tab. */
+/** home.ghawi.app: a card per ghawi service, each opening in its own tab. A plain page, no sign-in. */
 export function HomeConsole() {
-  const router = useRouter();
-
-  async function signOut() {
-    await fetch("/api/admin/logout", { method: "POST" });
-    router.refresh();
-  }
-
   return (
     <div className="admin">
       <header className="admin__bar">
@@ -38,9 +30,6 @@ export function HomeConsole() {
               <span className="when-dark">
                 <SunIcon />
               </span>
-            </button>
-            <button type="button" className="btn btn--xs btn--soft press" onClick={signOut}>
-              Sign out
             </button>
           </div>
         </div>
