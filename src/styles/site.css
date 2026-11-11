@@ -540,8 +540,9 @@ body { overflow-x: clip; }
 /* ───────────────────────────── work at a glance */
 .glance { display: grid; gap: 8px; margin-bottom: 16px; }
 @media (min-width: 760px) { .glance { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 20px; } }
-/* Five cards: three over two, rather than four and one alone. */
+/* Five cards: three over two, rather than four and one alone. Six: three over three. */
 @media (min-width: 1000px) {
+  .glance:has(> li:nth-child(6):last-child) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .glance:has(> li:nth-child(5):last-child) { grid-template-columns: repeat(6, minmax(0, 1fr)); }
   .glance:has(> li:nth-child(5):last-child) > li { grid-column: span 2; }
   .glance:has(> li:nth-child(5):last-child) > li:nth-child(n + 4) { grid-column: span 3; }

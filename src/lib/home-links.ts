@@ -67,6 +67,16 @@ export const HOME_SERVICES: HomeService[] = [
     ],
   },
   {
+    name: "net",
+    about: "MikroTik: lessons, visuals, script wizards and a live router console.",
+    icon: "router",
+    href: "https://net.ghawi.app",
+    more: [
+      { label: "Bridge", href: "https://net.ghawi.app/connect" },
+      { label: "Repo", href: "https://github.com/GH-ZX/ghawi-net" },
+    ],
+  },
+  {
     name: "CV",
     about: "The CV in English and Arabic, and its builder.",
     icon: "doc",

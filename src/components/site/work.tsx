@@ -13,6 +13,7 @@ import {
   LedgerIcon,
   PhoneIcon,
   RepeatIcon,
+  RouterIcon,
   SendIcon,
   ShieldIcon,
   StoreIcon,
@@ -29,7 +30,7 @@ const DOOR_ICONS = [WindowIcon, PhoneIcon, SendIcon];
 const PRINCIPLE_ICONS = [LedgerIcon, BellIcon, RepeatIcon, ShieldIcon];
 /** Each showcase's icon by its anchor; anything else by position. */
 const GLANCE_ICONS = [StoreIcon, BotIcon, CodeIcon];
-const GLANCE_ICON_OF: Record<string, typeof StoreIcon> = { "#gh-store": StoreIcon, "#store-bot": BotIcon, "#stori": CloudIcon, "#storefront": CodeIcon, "#gh-cash": CardIcon };
+const GLANCE_ICON_OF: Record<string, typeof StoreIcon> = { "#gh-store": StoreIcon, "#store-bot": BotIcon, "#stori": CloudIcon, "#storefront": CodeIcon, "#gh-cash": CardIcon, "#net": RouterIcon };
 
 /** An outbound link that says so to screen readers. */
 export function Out({

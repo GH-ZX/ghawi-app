@@ -93,9 +93,9 @@ export const CHANNEL_IDS = ["telegram", "whatsapp", "instagram", "github", "link
 export type ChannelId = (typeof CHANNEL_IDS)[number];
 
 /** Where a "see an example" link may point: the three showcases. */
-export const PROOF_ANCHORS = ["", "#gh-store", "#store-bot", "#stori", "#storefront", "#gh-cash"] as const;
+export const PROOF_ANCHORS = ["", "#gh-store", "#store-bot", "#stori", "#storefront", "#gh-cash", "#net"] as const;
 
-export const CASE_SLUGS = ["gh-store", "store-bot", "stori", "storefront", "gh-cash"] as const;
+export const CASE_SLUGS = ["gh-store", "store-bot", "stori", "storefront", "gh-cash", "net"] as const;
 export type CaseSlug = (typeof CASE_SLUGS)[number];
 
 /* ------------------------------------------------------------------ *
@@ -469,6 +469,7 @@ const en: Dictionary = {
       { name: "Stori", line: "My platform: online stores for local shops", href: "#stori" },
       { name: "Game top-up store", line: "Client project: a web store that delivers itself", href: "#storefront" },
       { name: "GH-Cash", line: "My API: ShamCash payments confirmed on their own", href: "#gh-cash" },
+      { name: "net.ghawi.app", line: "My platform: learn and run MikroTik visually", href: "#net" },
     ],
   },
 
@@ -616,6 +617,33 @@ const en: Dictionary = {
         more: "GH-Cash's API docs: the signed webhook and how to verify it",
       },
       cta: { label: "I want payments like this", topic: "web" },
+    },
+    {
+      id: "net",
+      kicker: "Learning platform · Live",
+      name: "net.ghawi.app",
+      title: "MikroTik, learned visually and run from the browser.",
+      body: "A free platform for mastering MikroTik RouterOS: hands-on lessons with labs that check your real router, animations that show packets moving through NAT and the firewall, wizards that write commented configurations, and a live console that reaches your router through a small bridge on your laptop.",
+      points: [
+        "80 lessons in 14 tracks, from plugging in a laptop to VoIP, VPNs, containers and ISP setups",
+        "22 interactive visuals: the packet flow, masquerade, port forwarding, SIP calls, WireGuard and more",
+        "12 wizards that turn a form into a RouterOS script, with every line explained",
+        "A live console through a local bridge: traffic, DHCP leases, firewall, logs and a terminal",
+        "Works offline once opened, for labs with no Internet",
+      ],
+      stack: ["React", "TypeScript", "Vite", "Node.js", "RouterOS REST API", "Cloudflare Workers"],
+      live: true,
+      links: [
+        { label: "net.ghawi.app", href: "https://net.ghawi.app" },
+        { label: "Start learning", href: "https://net.ghawi.app/learn" },
+      ],
+      shots: {
+        desktop: "net.ghawi.app's home page: the learning path, your rank and quick actions",
+        mobile: "The masquerade animation on a phone: the router has just rewritten the packet's source address",
+        bar: "net.ghawi.app",
+        more: "The VoIP wizard: a generated RouterOS script with every line explained",
+      },
+      cta: { label: "Set up my network", topic: "it" },
     },
   ],
 
@@ -1007,6 +1035,23 @@ const en: Dictionary = {
         result:
           "GH-Cash is live at sham.ghawi.app: $0.50 per wallet a month after a one-day free trial, or a one-off $5 setup where I link the wallet and wire the API into the merchant's store.",
       },
+      {
+        slug: "net",
+        title: "net.ghawi.app — learn, build and run MikroTik visually",
+        description:
+          "How I built net.ghawi.app: a free MikroTik RouterOS platform with visual lessons, script wizards and a live console that reaches the router through a small bridge on the laptop.",
+        challenge:
+          "MikroTik routers can do almost anything, but learning RouterOS means scattered docs and commands pasted into a terminal without seeing what they do. Packets are invisible, NAT and firewall order are abstract, and one wrong VLAN or firewall change locks you out of the router. And a web page can't talk to a router at all: RouterOS sends no CORS headers, so the browser refuses its answers.",
+        built: [
+          "A learning path of 80 lessons in 14 tracks, each with scenario quizzes and most with a lab that checks your real router, plus XP, ranks and a streak.",
+          "22 interactive visuals on two engines, a message ladder and a topology animator, plus the RouterOS packet flow, a firewall simulator and a VLAN bridge you can configure.",
+          "12 wizards and 36 library scripts that write RouterOS v7 configuration where every line says why it is there, installed on the router with one click.",
+          "A zero-dependency bridge on the laptop that finds routers on the cable (MNDP), reads the Mac's routes to explain Ethernet-plus-Wi-Fi setups, and relays to the router's REST API, bound to loopback and locked with a pairing token.",
+          "A live console with interface graphs, DHCP leases, firewall and NAT counters, connection tracking, logs and a terminal, and an offline cache for labs with no Internet.",
+        ],
+        result:
+          "net.ghawi.app is live and free: open it, plug a laptop into a MikroTik, and learn on the real thing.",
+      },
     ],
   },
 
@@ -1203,6 +1248,7 @@ const ar: Dictionary = {
       { name: "Stori", line: "منصّتي: متاجر إلكترونية للمحلات", href: "#stori" },
       { name: "متجر شحن ألعاب", line: "مشروع لعميل: متجر ويب يسلّم وحده", href: "#storefront" },
       { name: "GH-Cash", line: "واجهتي البرمجية: تأكيد دفعات شام كاش تلقائياً", href: "#gh-cash" },
+      { name: "net.ghawi.app", line: "منصّتي: تعلّم MikroTik وإدارته بصرياً", href: "#net" },
     ],
   },
 
@@ -1350,6 +1396,33 @@ const ar: Dictionary = {
         more: "توثيق GH-Cash: الـ Webhook الموقّع وطريقة التحقّق منه",
       },
       cta: { label: "أريد دفعاً مثله", topic: "web" },
+    },
+    {
+      id: "net",
+      kicker: "منصّة تعليمية · تعمل الآن",
+      name: "net.ghawi.app",
+      title: "MikroTik، تتعلّمه بالصورة وتديره من المتصفح.",
+      body: "منصّة مجانية لإتقان RouterOS من MikroTik: دروس عملية مع تمارين تتحقّق من راوترك الحقيقي، ورسوم متحرّكة تُظهر الحزم وهي تعبر الـ NAT والجدار الناري، ومعالجات تكتب الإعدادات مع شرح كل سطر، ولوحة مباشرة تصل إلى راوترك عبر جسر صغير يعمل على حاسوبك.",
+      points: [
+        "80 درساً في 14 مساراً، من توصيل الحاسوب إلى VoIP والـ VPN والحاويات وإعدادات مزوّدي الإنترنت",
+        "22 رسماً تفاعلياً: مسار الحزم، والـ masquerade، وتوجيه المنافذ، ومكالمات SIP، وWireGuard وغيرها",
+        "12 معالجاً يحوّل نموذجاً إلى سكربت RouterOS، مع شرح كل سطر",
+        "لوحة مباشرة عبر جسر محلي: حركة البيانات، وعناوين DHCP، والجدار الناري، والسجلات وطرفية أوامر",
+        "تعمل دون إنترنت بعد فتحها مرة، للتجارب المعزولة",
+      ],
+      stack: ["React", "TypeScript", "Vite", "Node.js", "RouterOS REST API", "Cloudflare Workers"],
+      live: true,
+      links: [
+        { label: "net.ghawi.app", href: "https://net.ghawi.app" },
+        { label: "ابدأ التعلّم", href: "https://net.ghawi.app/learn" },
+      ],
+      shots: {
+        desktop: "الصفحة الرئيسية لـ net.ghawi.app: مسار التعلّم والرتبة والاختصارات",
+        mobile: "رسم الـ masquerade على الهاتف: الراوتر غيّر للتوّ عنوان المصدر في الحزمة",
+        bar: "net.ghawi.app",
+        more: "معالج VoIP: سكربت RouterOS جاهز مع شرح كل سطر",
+      },
+      cta: { label: "أريد إعداد شبكتي", topic: "it" },
     },
   ],
 
@@ -1740,6 +1813,23 @@ const ar: Dictionary = {
         ],
         result:
           "GH-Cash يعمل الآن على sham.ghawi.app: ‏0.5$ لكل محفظة شهرياً بعد تجربة مجانية ليوم كامل، أو تفعيل لمرة واحدة بـ 5$ أربط فيه المحفظة وأدمج الـ API في متجر التاجر.",
+      },
+      {
+        slug: "net",
+        title: "net.ghawi.app — تعلّم MikroTik وابنِ إعداداته وأدِره بصرياً",
+        description:
+          "كيف بنيت net.ghawi.app: منصّة مجانية لـ RouterOS من MikroTik فيها دروس بصرية ومعالجات للسكربتات ولوحة مباشرة تصل إلى الراوتر عبر جسر صغير على الحاسوب.",
+        challenge:
+          "راوترات MikroTik تفعل كل شيء تقريباً، لكن تعلّم RouterOS يعني توثيقاً متفرّقاً وأوامر تُلصق في الطرفية دون رؤية ما تفعله. الحزم غير مرئية، وترتيب قواعد الـ NAT والجدار الناري مجرّد، وتعديل خاطئ واحد في الـ VLAN أو الجدار الناري يقفل عليك الوصول إلى الراوتر. ولا تستطيع صفحة ويب أن تكلّم الراوتر أصلاً: RouterOS لا يرسل ترويسات CORS، فيرفض المتصفح ردوده.",
+        built: [
+          "مسار تعلّم من 80 درساً في 14 مساراً، لكل درس أسئلة مبنية على مواقف حقيقية، ولمعظمها تمرين يتحقّق من راوترك الحقيقي، مع نقاط خبرة ورتب وسلسلة أيام.",
+          "22 رسماً تفاعلياً على محرّكين، مخطط للرسائل ومحرّك لرحلة الحزم بين الأجهزة، إضافة إلى مسار الحزم في RouterOS ومحاكٍ للجدار الناري وجسر VLAN تضبطه بنفسك.",
+          "12 معالجاً و36 سكربتاً جاهزاً تكتب إعدادات RouterOS v7 ويقول كل سطر فيها لماذا هو هناك، وتُثبَّت على الراوتر بنقرة واحدة.",
+          "جسر بلا أي اعتماديات يعمل على الحاسوب: يجد الراوترات على الكابل (MNDP)، ويقرأ مسارات الماك ليشرح إعداد الإيثرنت مع الواي فاي، وينقل الطلبات إلى REST API في الراوتر، مقيّداً بالعنوان المحلي ومحمياً برمز اقتران.",
+          "لوحة مباشرة فيها رسوم لحركة المنافذ، وعناوين DHCP، وعدّادات الجدار الناري والـ NAT، وتتبّع الاتصالات، والسجلات وطرفية أوامر، مع نسخة تعمل دون إنترنت للتجارب المعزولة.",
+        ],
+        result:
+          "net.ghawi.app يعمل الآن ومجاني: افتحه، وصِل حاسوبك براوتر MikroTik، وتعلّم على الجهاز الحقيقي.",
       },
     ],
   },

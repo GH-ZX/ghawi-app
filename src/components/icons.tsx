@@ -185,6 +185,8 @@ export function ServiceIcon({ name, size = 24 }: { name: string; size?: number }
       return <SparkIcon size={size} />;
     case "card":
       return <CardIcon size={size} />;
+    case "router":
+      return <RouterIcon size={size} />;
     default:
       return <CodeIcon size={size} />;
   }
@@ -315,6 +317,13 @@ export const GamepadIcon = ({ size = 20 }: P) => (
     <path d="M7.5 10v3M6 11.5h3" {...line} strokeWidth="1.6" />
     <circle cx="16" cy="10.5" r="1" fill="currentColor" />
     <circle cx="17.5" cy="12.8" r="1" fill="currentColor" />
+  </Svg>
+);
+
+export const RouterIcon = ({ size = 24 }: P) => (
+  <Svg size={size}>
+    <rect x="3" y="12.5" width="18" height="7" rx="2.5" {...line} strokeWidth="1.6" />
+    <path d="M7 16h.01M10.5 16h.01M14 16h3M8 12.5 6.2 6.5M16 12.5l1.8-6" {...line} strokeWidth="1.6" />
   </Svg>
 );
 
