@@ -1269,7 +1269,7 @@ const ar: Dictionary = {
       { name: "Stori", line: "منصّة إنشاء المتاجر الإلكترونية للمحلات", href: "#stori" },
       { name: "متجر ألعاب", line: "مشروع لعميل: متجر ويب يسلّم وحده", href: "#storefront" },
       { name: "بوابة دفع شام كاش", line: "خدمة GH-Cash لاستقبال دفعات متجرك بسرعة وتلقائياً", href: "#gh-cash" },
-      { name: "مدير مايكروتيك", line: "GH net: منصّة لإدارة MikroTik وتعلّمه", href: "#net" },
+      { name: "مدير مايكروتيك", line: "منصّة GH net لإدارة MikroTik وتعلّمه", href: "#net" },
     ],
   },
 
