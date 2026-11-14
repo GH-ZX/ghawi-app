@@ -397,7 +397,7 @@ const links: Links = {
   store: "https://gh-store.me",
   storeBot: "https://t.me/ghstore_robot",
   storeChannel: "https://t.me/ghstorex",
-  storeSource: "https://github.com/GH-ZX/gh-store-dev",
+  storeSource: "",
 };
 
 const settings: Settings = {
@@ -445,7 +445,7 @@ const en: Dictionary = {
 
   hero: {
     status: "Open to new projects",
-    proof: "Founder of GH Store · 1,000+ orders delivered",
+    proof: "Founder of GH Store",
     title: "I build stores, bots and websites that take real money.",
     titleAccent: "real money",
     lead: "Telegram store bots, online stores and fast websites, designed, built and run end to end: the database, the payments, the bot that talks to suppliers and the storefront your customers see. The proof is GH Store, live on the web and inside Telegram.",
@@ -488,9 +488,8 @@ const en: Dictionary = {
       { name: "Bot", detail: "@ghstore_robot" },
     ],
     figures: [
-      { value: "1,000+", label: "orders delivered" },
       { value: "{products}+", label: "products on sale right now" },
-      { value: "5", label: "suppliers behind a single catalogue" },
+      { value: "8", label: "suppliers behind a single catalogue" },
       { value: "4", label: "payment methods, from Telegram Stars to USDT" },
     ],
     principlesTitle: "Built to be trusted with money",
@@ -766,7 +765,7 @@ const en: Dictionary = {
   pricing: {
     label: "Pricing",
     title: "Ways to work together.",
-    lead: "A fixed scope and a fixed price, agreed before any work starts. Every project comes with the source code and a proper handover.",
+    lead: "A fixed scope and a fixed price, agreed before any work starts. A project built only for you comes with its source code and a proper handover.",
     from: "From",
     quote: "Quote within 24 h",
     note: "Prices in US dollars. You get a written quote after a short chat about what you need.",
@@ -980,13 +979,13 @@ const en: Dictionary = {
           "Digital goods — game top-ups, gift cards, subscriptions, virtual numbers — come from several suppliers, each with its own API, prices and ways to fail. Customers in the region pay in very different ways, from ShamCash to USDT to Telegram Stars, and many of them live inside Telegram rather than a browser.",
         built: [
           "One core behind three doors: the website, a Telegram Mini App and a bot share one account, one wallet, one catalogue and one order history.",
-          "Five suppliers behind a single catalogue, with automatic fulfilment and a price guard that pauses a package when its cost jumps.",
-          "Four payment methods — ShamCash, USDT (BEP20), NOWPayments and Telegram Stars — feeding one audited wallet ledger.",
+          "Eight suppliers behind a single catalogue, with automatic fulfilment and a price guard that pauses a package when its cost jumps.",
+          "Four payment methods — ShamCash, USDT on several networks, NOWPayments and Telegram Stars — feeding one audited wallet ledger.",
           "Money moves only inside the database: integer cents, ledger rows and idempotent orders, so retries and duplicate callbacks can't charge twice.",
           "Four design presets in light and dark, picked from the store's admin. This site wears the same design system.",
         ],
         result:
-          "GH Store is live at gh-store.me and in Telegram as @ghstore_robot. It has delivered more than 1,000 orders, and every new feature reaches all three doors at once.",
+          "GH Store is live at gh-store.me and in Telegram as @ghstore_robot. Every new feature reaches all three doors at once.",
       },
       {
         slug: "store-bot",
@@ -1083,7 +1082,7 @@ const en: Dictionary = {
     photo: false,
     headline: "Software Engineer · Telegram Commerce · IT Systems & DevOps",
     summary:
-      "Informatics engineer from Aleppo, Syria. I design, build and run commerce systems end to end — Telegram bots, Mini Apps, online stores and the cloud they run on — and I founded GH Store, a multi-supplier digital goods store that has delivered more than 1,000 orders. Hands-on with servers, networks, camera systems and IT support. Arabic native, working in English, available remotely.",
+      "Informatics engineer from Aleppo, Syria. I design, build and run commerce systems end to end — Telegram bots, Mini Apps, online stores and the cloud they run on — and I founded GH Store, a multi-supplier digital goods store. Hands-on with servers, networks, camera systems and IT support. Arabic native, working in English, available remotely.",
     labels: {
       contact: "Contact",
       profile: "Profile",
@@ -1119,7 +1118,7 @@ const en: Dictionary = {
         points: [
           "Built and run a multi-supplier digital goods store on the web, in a Telegram Mini App and in a bot, on one shared core.",
           "Designed an audited wallet ledger in Postgres: integer cents, idempotent orders and re-verified provider callbacks.",
-          "Integrated 5 suppliers and 4 payment methods (ShamCash, USDT BEP20, NOWPayments, Telegram Stars); 1,000+ orders delivered.",
+          "Integrated 8 suppliers and 4 payment methods (ShamCash, USDT on several networks, NOWPayments, Telegram Stars).",
           "TypeScript, React, Cloudflare Workers, Hyperdrive, Supabase Postgres, Telegram Bot API.",
         ],
       },
@@ -1163,7 +1162,7 @@ const en: Dictionary = {
         name: "GH Store",
         url: "https://gh-store.me",
         period: "2026",
-        body: "Digital goods store on the web, in a Telegram Mini App and in a bot: one wallet, five suppliers, four payment methods.",
+        body: "Digital goods store on the web, in a Telegram Mini App and in a bot: one wallet, eight suppliers, four payment methods.",
       },
       {
         name: "ghawi.app",
@@ -1195,7 +1194,7 @@ const en: Dictionary = {
       { group: "Front end", items: "React, Next.js, Vite, Tailwind CSS, Flutter, Telegram Mini Apps" },
       { group: "Back end", items: "Cloudflare Workers, Hono, FastAPI, Node.js, grammY, Aiogram 3" },
       { group: "Data", items: "PostgreSQL, Supabase, Cloudflare D1 & R2, Redis, SQLite" },
-      { group: "Payments", items: "ShamCash, Binance Pay, USDT (BEP20), NOWPayments, Telegram Stars" },
+      { group: "Payments", items: "ShamCash, Binance Pay, USDT (BEP20, TRC20, TON, Solana), NOWPayments, Telegram Stars" },
       { group: "DevOps & IT", items: "Docker, CI/CD, Linux servers, networking, camera systems, hardware repair" },
     ],
     languages: [
@@ -1241,7 +1240,7 @@ const ar: Dictionary = {
 
   hero: {
     status: "متاح لمشاريع جديدة",
-    proof: "مؤسس GH Store · أكثر من 1,000 طلب مُسلَّم",
+    proof: "مؤسس GH Store",
     title: "أبني متاجر وبوتات ومواقع تستقبل أموالاً حقيقية.",
     titleAccent: "أموالاً حقيقية",
     lead: "بوتات متاجر على تيليجرام، ومتاجر إلكترونية، ومواقع سريعة — أصمّمها وأبنيها وأشغّلها من أولها إلى آخرها: قاعدة البيانات، والمدفوعات، والبوت الذي يتحدّث مع المزوّدين، والواجهة التي يراها عملاؤك. والدليل GH Store، يعمل الآن على الويب وداخل تيليجرام.",
@@ -1284,9 +1283,8 @@ const ar: Dictionary = {
       { name: "البوت", detail: "@ghstore_robot" },
     ],
     figures: [
-      { value: "+1,000", label: "طلب مُسلَّم" },
       { value: "+{products}", label: "منتج معروض الآن" },
-      { value: "5", label: "مزوّدين خلف كتالوج واحد" },
+      { value: "8", label: "مزوّدين خلف كتالوج واحد" },
       { value: "4", label: "طرق دفع، من نجوم تيليجرام إلى USDT" },
     ],
     principlesTitle: "مبنيّ ليُؤتمَن على المال",
@@ -1562,7 +1560,7 @@ const ar: Dictionary = {
   pricing: {
     label: "الأسعار",
     title: "طرق العمل معاً.",
-    lead: "نطاق عمل ثابت وسعر ثابت، نتّفق عليهما قبل أن يبدأ أي شيء. ومع كل مشروع الكود المصدري وتسليم مرتّب.",
+    lead: "نطاق عمل ثابت وسعر ثابت، نتّفق عليهما قبل أن يبدأ أي شيء. والمشروع المبني لك وحدك يأتي مع كوده المصدري وتسليم مرتّب.",
     from: "يبدأ من",
     quote: "عرض سعر خلال 24 ساعة",
     note: "الأسعار بالدولار الأمريكي. يصلك عرض سعر مكتوب بعد محادثة قصيرة عمّا تحتاجه.",
@@ -1776,13 +1774,13 @@ const ar: Dictionary = {
           "المنتجات الرقمية — شحن الألعاب والبطاقات والاشتراكات والأرقام الافتراضية — تأتي من عدّة مزوّدين، لكلّ منهم واجهته وأسعاره وطرق تعطّله. والعملاء في المنطقة يدفعون بطرق مختلفة جداً، من ShamCash إلى USDT إلى نجوم تيليجرام، وكثير منهم يعيش داخل تيليجرام لا في المتصفّح.",
         built: [
           "نواة واحدة خلف ثلاث واجهات: الموقع والتطبيق المصغّر والبوت تتشارك حساباً واحداً ومحفظة واحدة وكتالوجاً واحداً وسجلّ طلبات واحداً.",
-          "خمسة مزوّدين خلف كتالوج واحد، مع تنفيذ تلقائي للطلبات وحارس أسعار يوقف الباقة إذا قفزت تكلفتها.",
-          "أربع طرق دفع — ShamCash وUSDT (BEP20) وNOWPayments ونجوم تيليجرام — تصبّ في دفتر محفظة واحد مدقَّق.",
+          "ثمانية مزوّدين خلف كتالوج واحد، مع تنفيذ تلقائي للطلبات وحارس أسعار يوقف الباقة إذا قفزت تكلفتها.",
+          "أربع طرق دفع — ShamCash وUSDT على عدّة شبكات وNOWPayments ونجوم تيليجرام — تصبّ في دفتر محفظة واحد مدقَّق.",
           "المال يتحرّك داخل قاعدة البيانات فقط: سنتات بأعداد صحيحة، وقيود في الدفتر، وطلبات محميّة من التكرار، فلا تخصم إعادة المحاولة أو الإشعارات المكرّرة مرّتين.",
           "أربعة أشكال تصميم بوضعين فاتح وداكن، يختارها مالك المتجر من لوحة التحكّم. وهذا الموقع يلبس نظام التصميم نفسه.",
         ],
         result:
-          "يعمل GH Store الآن على gh-store.me وفي تيليجرام باسم ‎@ghstore_robot. سلّم أكثر من 1,000 طلب، وكل ميزة جديدة تصل إلى الواجهات الثلاث معاً.",
+          "يعمل GH Store الآن على gh-store.me وفي تيليجرام باسم ‎@ghstore_robot. وكل ميزة جديدة تصل إلى الواجهات الثلاث معاً.",
       },
       {
         slug: "store-bot",
@@ -1879,7 +1877,7 @@ const ar: Dictionary = {
     photo: false,
     headline: "مهندس برمجيات · تجارة تيليجرام · أنظمة تقنية وDevOps",
     summary:
-      "مهندس معلوماتية من حلب، سوريا. أصمّم أنظمة التجارة الرقمية وأبنيها وأشغّلها من أولها إلى آخرها — بوتات تيليجرام وتطبيقات مصغّرة ومتاجر إلكترونية والسحابة التي تعمل عليها — وأسّست GH Store، متجر منتجات رقمية متعدّد المزوّدين سلّم أكثر من 1,000 طلب. خبرة عملية في الخوادم والشبكات وأنظمة الكاميرات والدعم التقني. العربية لغتي الأم، وأعمل بالإنجليزية، ومتاح للعمل عن بُعد.",
+      "مهندس معلوماتية من حلب، سوريا. أصمّم أنظمة التجارة الرقمية وأبنيها وأشغّلها من أولها إلى آخرها — بوتات تيليجرام وتطبيقات مصغّرة ومتاجر إلكترونية والسحابة التي تعمل عليها — وأسّست GH Store، متجر منتجات رقمية متعدّد المزوّدين. خبرة عملية في الخوادم والشبكات وأنظمة الكاميرات والدعم التقني. العربية لغتي الأم، وأعمل بالإنجليزية، ومتاح للعمل عن بُعد.",
     labels: {
       contact: "التواصل",
       profile: "نبذة",
@@ -1915,7 +1913,7 @@ const ar: Dictionary = {
         points: [
           "بنيت متجراً للمنتجات الرقمية متعدّد المزوّدين وأشغّله، على الويب وفي تطبيق تيليجرام مصغّر وفي بوت، على نواة مشتركة واحدة.",
           "صمّمت دفتر محفظة مدقَّقاً في Postgres: سنتات بأعداد صحيحة، وطلبات محميّة من التكرار، وإشعارات مزوّدين يُعاد التحقّق منها.",
-          "ربطت 5 مزوّدين و4 طرق دفع (ShamCash وUSDT BEP20 وNOWPayments ونجوم تيليجرام)؛ أكثر من 1,000 طلب مُسلَّم.",
+          "ربطت 8 مزوّدين و4 طرق دفع (ShamCash وUSDT على عدّة شبكات وNOWPayments ونجوم تيليجرام).",
           "TypeScript وReact وCloudflare Workers وHyperdrive وSupabase Postgres وTelegram Bot API.",
         ],
       },
@@ -1959,7 +1957,7 @@ const ar: Dictionary = {
         name: "GH Store",
         url: "https://gh-store.me",
         period: "2026",
-        body: "متجر منتجات رقمية على الويب وفي تطبيق تيليجرام مصغّر وفي بوت: محفظة واحدة وخمسة مزوّدين وأربع طرق دفع.",
+        body: "متجر منتجات رقمية على الويب وفي تطبيق تيليجرام مصغّر وفي بوت: محفظة واحدة وثمانية مزوّدين وأربع طرق دفع.",
       },
       {
         name: "ghawi.app",
@@ -1992,7 +1990,7 @@ const ar: Dictionary = {
       { group: "الواجهات", items: "تطبيقات تيليجرام المصغّرة، React، Next.js، Vite، Tailwind CSS، Flutter" },
       { group: "الخوادم", items: "Cloudflare Workers، Hono، FastAPI، Node.js، grammY، Aiogram 3" },
       { group: "البيانات", items: "PostgreSQL، Supabase، Cloudflare D1، Cloudflare R2، Redis، SQLite" },
-      { group: "المدفوعات", items: "نجوم تيليجرام، ShamCash، Binance Pay، USDT BEP20، NOWPayments" },
+      { group: "المدفوعات", items: "نجوم تيليجرام، ShamCash، Binance Pay، USDT (BEP20 وTRC20 وTON وSolana)، NOWPayments" },
       { group: "DevOps والدعم التقني", items: "الخوادم والشبكات، أنظمة الكاميرات، صيانة العتاد، Linux، Docker، CI/CD" },
     ],
     languages: [
